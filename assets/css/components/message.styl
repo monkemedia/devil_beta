@@ -1,0 +1,16 @@
+$message-body-border ?= 0
+
+.message
+  border-radius 0
+  &:not(.button):not(.tag)
+    text-decoration none
+  &.is-danger
+    background-color $light-pink
+    .message-body
+      border $message-body-border
+  
+  .message-body    
+    .media-content
+      font-size $size-small
+      BoldUppercase()
+      text-align center

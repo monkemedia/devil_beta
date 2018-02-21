@@ -14,7 +14,16 @@ module.exports = {
       { hid: 'description', name: 'description', content: pkg.description }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+      { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+      { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+      { rel: 'manifest', href: '/site.webmanifest' },
+      { rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#d61e38' },
+      { name: 'apple-mobile-web-app-title', content: 'Devil Panties' },
+      { name: 'application-name', content: 'Devil Panties' },
+      { name: 'msapplication-TileColor', content: '#d61e38' },
+      { name: 'theme-color', content: '#ffffff' }
     ]
   },
 
@@ -27,12 +36,15 @@ module.exports = {
   ** Global CSS
   */
   css: [
+    { src: '@/assets/css/main.styl', lang: 'styl' }
   ],
 
   /*
   ** Plugins to load before mounting the App
   */
   plugins: [
+    '~/plugins/mixins',
+    '~/plugins/buefy'
   ],
 
   /*
@@ -41,8 +53,7 @@ module.exports = {
   modules: [
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
-    // Doc:https://github.com/nuxt-community/modules/tree/master/packages/bulma
-    '@nuxtjs/bulma'
+    'nuxt-fontawesome'
   ],
 
   /*

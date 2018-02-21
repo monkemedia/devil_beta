@@ -1,0 +1,43 @@
+// Forms
+input()
+  border-radius 0
+  box-shadow none
+  border-color $grey-light
+
+// Typorgraphy
+Bold()
+  font-family $family-primary-bold
+
+BoldUppercase()
+  text-transform uppercase
+  font-family $family-primary-bold
+
+LinkUnderline($color)
+  position relative
+  &:after
+    content ''
+    position absolute
+    width 0
+    left 0
+    bottom -1px
+    height 1px
+    background $color
+    transition-property: width,background;
+    transition-timing-function: cubic-bezier(.52,.01,.16,1);
+    transition-duration: .2s;
+  
+  &:hover
+    &:after
+      width 100%;
+
+// Navigation
+NavbarUnderline()
+  content ''
+  position absolute
+  height 3px
+  bottom 0
+  left 0
+  background $primary
+  transform translate(0, 3px)
+  transition all .25s cubic-bezier(.4, .01, .1, 1)
+  width 100%

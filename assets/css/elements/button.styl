@@ -1,0 +1,82 @@
+.button
+  BoldUppercase()
+  font-size $size-small
+  border-radius 0
+  line-height 3.8
+  padding 0 2.6rem
+  height 47px
+  margin 2rem 0
+  border 1px solid $secondary
+  
+  &:hover,
+  &.is-hovered
+    background $grey-light
+    border 1px solid $grey-light
+  
+  &.is-small
+    font-size $size-smaller
+    border-radius 0
+    padding auto 2.6rem
+    line-height 1
+  
+  &.is-medium
+    font-size $size-medium
+    border-radius 0
+    padding auto 2.6rem
+    line-height 2.24
+  
+  &.is-large
+    font-size $size-large
+    border-radius 0
+  
+  &.is-primary
+    background-color $primary
+  
+    &:hover,
+    &.is-hovered
+      background $dark-red
+      border 1px solid $dark-red
+    
+    &:focus:not(:active)
+    &:active:not(:focus)
+      box-shadow none
+  
+  &.is-secondary
+    background-color $secondary
+    color $white
+  
+    &:hover,
+    &.is-hovered
+      background $grey-darker
+      border 1px solid $grey-darker
+    
+    &:focus:not(:active)
+    &:active:not(:focus)
+      box-shadow none
+  
+  &.is-flip
+    overflow hidden
+    span
+      position relative
+      transition all .25s cubic-bezier(.4,.01,.1,1)
+      &:before
+        content attr(data-text)
+        position absolute
+        top 100%
+        width 100%
+        left 0
+  
+    &:hover
+    &:focus
+      span
+        transform translateY(-100%)
+    
+    &:disabled
+      &:hover
+      &:focus
+        span
+          transform translateY(0)
+      
+
+  &[disabled]
+    border 0

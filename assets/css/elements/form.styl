@@ -1,0 +1,111 @@
+.field:not(:last-child)
+  margin-bottom 2rem
+
+.label
+  font-size $size-small
+  BoldUppercase()
+
+.input
+.textarea
+.select > select
+  border-color transparent
+  box-shadow $input-shadow
+  border-radius $input-radius
+  
+  &:focus
+  &:hover
+    border-color $input-border-color
+    box-shadow $input-shadow
+
+.input
+.select
+.select > select
+  height 50px
+  
+  &.is-danger
+    border 2px solid $danger
+
+.textarea
+  &.is-danger
+    border 2px solid $danger
+
+.help
+  font-size $size-smaller
+  BoldUppercase()
+
+.is-optional
+  color $grey
+
+.form-panel
+  background $grey-light
+  margin-top 2rem
+  margin-left -1.5rem
+  margin-right -1.5rem
+  padding 2rem 1.5rem
+  
+  @media only screen and (min-width $desktop)
+    padding 2rem
+    margin-left 0
+    margin-right 0
+  
+  legend
+  .legend
+    BoldUppercase()
+    font-size $size-normal
+    margin-bottom 1rem
+  
+  table
+    width 100%
+    th
+    td
+      display inline-block
+      span
+        padding .5rem .5rem
+        display inline-block
+        width 100%
+      &:first-child
+        span
+          padding-left 0
+      &:last-child
+        span
+          padding-right 0
+
+    th
+      BoldUppercase()
+      font-size $size-small
+  
+.add-additional-link
+  font-size $size-smaller
+  color $secondary
+  text-decoration underline
+  BoldUppercase()
+  padding-left 1.4rem
+  position relative
+  display inline-flex
+
+  &:before
+    content '\f067'
+    display block
+    width 8px
+    height 8px
+    font-size .8rem
+    font-family FontAwesome
+    position absolute
+    left 0
+    top 1px
+
+  &:hover
+  &:focus
+    text-decoration none
+
+.b-checkbox.checkbox 
+  input[type=checkbox] + .check
+  &:hover input[type=checkbox] + .check
+    display inline-flex
+    border-color: $secondary
+  input[type=checkbox]:checked + .check
+    border-color: $secondary
+    background-color $secondary
+  
+  .control-label
+    BoldUppercase()

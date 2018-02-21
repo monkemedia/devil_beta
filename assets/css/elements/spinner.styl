@@ -1,0 +1,17 @@
+.is-loading {
+  position relative
+  pointer-events none
+  opacity 0.5
+  &:after {
+    loader()
+    border 2px solid $primary
+    border-right-color transparent
+    border-top-color transparent
+    position absolute
+    top calc(50% - 1em)
+    left calc(50% - 1em)
+    width 2em
+    height 2em
+    border-width 0.15em
+  }
+}

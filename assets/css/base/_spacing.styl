@@ -1,0 +1,35 @@
+$marginKey = 'm'
+$paddingKey = 'p'
+$separator = '-'
+$sizes = {
+    'none': 0rem,
+    'xxs': 0.125rem,
+    'xs': 0.25rem,
+    'sm': 0.5rem,
+    'md': 1rem,
+    'lg': 2rem,
+    'xl': 4rem,
+    'xxl': 8rem,
+}
+$positions = {
+    't': 'top',
+    'r': 'right',
+    'b': 'bottom',
+    'l': 'left'
+}
+
+for $key, $value in $sizes 
+    $sizeKey = $key
+    $sizeValue = $value
+    .{$marginKey}{$separator}{$sizeKey}
+        margin $sizeValue
+    .{$paddingKey}{$separator}{$sizeKey}
+        padding $sizeValue
+    
+    for $posKey, $posValue in $positions
+        $posKey = $posKey
+        $posValue = $posValue
+        .{$marginKey}{$separator}{$posKey}{$separator}{$sizeKey}
+            margin-{$posValue} $sizeValue
+        .{$paddingKey}{$separator}{$posKey}{$separator}{$sizeKey}
+            padding-{$posValue} $sizeValue
