@@ -1,6 +1,6 @@
 <template lang="pug">
   form(@submit.prevent="submit")
-    b-message(type="is-danger" v-if="isSignInError") {{ isSignInError }}
+    //- b-message(type="is-danger" v-if="isSignInError") {{ isSignInError }}
 
     .field
       label.label Email
@@ -34,12 +34,12 @@
       .column.p-t-none.p-b-none
         .field
           .control
+            //- :class="{ 'is-loading': isSignInButtonLoading }"
             button.button.is-primary.sign-in-button.is-flip(
-              type="submit"
-              :class="{ 'is-loading': isSignInButtonLoading }") 
+              type="submit") 
                 span(data-text="Sign in") Sign in
       .column.p-t-none.p-b-none.forgot-password
-        router-link(to="/register") Not yet registered?
+        nuxt-link(to="/register") Not yet registered?
 </template>
 
 <script>

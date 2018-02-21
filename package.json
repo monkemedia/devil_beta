@@ -16,6 +16,7 @@
     "@nuxtjs/axios": "^5.0.0",
     "buefy": "^0.6.3",
     "bulma.styl": "^0.6.11",
+    "cookie-js": "0.0.1",
     "nuxt": "^1.0.0",
     "nuxt-fontawesome": "^0.1.2",
     "vee-validate": "^2.0.3",

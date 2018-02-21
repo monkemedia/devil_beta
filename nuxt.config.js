@@ -90,5 +90,9 @@ module.exports = {
         })
       }
     }
-  }
+  },
+  env: {
+    BASEURL: process.env.BASE_URL || 'https://devil-panties.firebaseio.com',
+    FBAPIKEY: 'AIzaSyC-Xk_nslLHB2R-71P4E-r3w9jKTv58k0U'
+  },
 }
