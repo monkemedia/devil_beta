@@ -8,7 +8,12 @@
 
 <script>
   import PostList from '@/components/Posts/PostList'
+
   export default {
+    middleware: [
+      'check-auth',
+      'auth'
+    ],
     components: {
       PostList
     }

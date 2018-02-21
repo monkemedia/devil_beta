@@ -9,6 +9,10 @@
   import PostPreview from '@/components/Posts/PostPreview'
 
   export default {
+    middleware: [
+      'check-auth',
+      'auth'
+    ],
     components: {
       PostPreview
     }
