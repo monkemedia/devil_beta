@@ -3,7 +3,7 @@
     .columns.is-centered
       .column.is-6-tablet.is-5-desktop.is-4-widescreen
         h1 Create an account
-          register-user-form
+        register-user-form
 </template>
 
 <script>

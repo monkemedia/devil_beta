@@ -56,20 +56,22 @@
     data () {
       return {
         loading: false,
-        email: null,
-        password: null,
-        isSignInError: null
+        email: 'incubusrich@hotmail.com',
+        password: '1111qqqq',
+        isSignInError: false
       }
     },
 
     methods: {
       submit () {
+        // Hide errors first
+        this.isSignInError = false
         // Validate form first
         this.$validator.validateAll()
           .then((response) => {
             if (response) {
               this.loading = true
-              this.$store.dispatch('loginUser', {
+              this.$store.dispatch('auth/loginUser', {
                 email: this.email,
                 password: this.password
               })
@@ -78,8 +80,7 @@
                   this.$router.push('/admin')
                 })
                 .catch(err => {
-                  const string = _.lowerCase(err.message)
-                  this.isSignInError = string
+                  this.isSignInError = _.lowerCase(err.message)
                   this.loading = false
                 })
             } else {

@@ -1,6 +1,6 @@
 <template lang="pug">
   form(@submit.prevent="onRegister")
-    //- b-message(type="is-danger" v-if="isRegisterError") {{ isRegisterError }}
+    b-message(type="is-danger" v-if="isRegisterError") {{ isRegisterError }}
 
     b-field.account-types
       b-radio-button(
@@ -64,10 +64,10 @@
 
     .field
       .control
-        //- :class="{ 'is-loading': isRegisterButtonLoading }") 
+       
         button.button.is-primary.sign-in-button.is-flip(
-          type="submit")
-          
+          type="submit"
+          :class="{ 'is-loading': loading }") 
           span(data-text="Create account") Create account
       p.have-account Already have an account? <router-link to="/sign-in" class="underline"> Sign in</router-link>
 
@@ -87,11 +87,13 @@
       return {
         accountType: 'buyer',
         username: 'incubusrich',
-        email: 'info@monkemedia.co.uk',
+        email: 'incubusrich@hotmail.com',
         password: '1111qqqq',
         confirmPassword: '1111qqqq',
         pass: '',
-        confirmPass: ''
+        confirmPass: '',
+        isRegisterError: null,
+        loading: false
       }
     },
 
@@ -103,21 +105,52 @@
 
     methods: {
       onRegister () {
+        // hide errors first
+        this.isRegisterError = false
         // Validate form first
         this.$validator.validateAll()
+          .then((response) => {
+            // Validate username first
+            const username = this.username
+            this.loading = true
+            return this.$store.dispatch('auth/validateUsername', { username })
+          })
           .then((response) => {
             const payload = {
               accountType: this.accountType,
               email: this.email,
               password: this.password,
               username: this.username
+            } 
+
+            return this.$store.dispatch('auth/registerUser', payload)
+          })
+          .then((data) => {
+            console.log('localId', data)
+            const usernameDetails = {
+              username: this.username,
+              userId: data.localId
             }
 
-            if (response) {
-              this.$store.dispatch('registerUser', payload)
-            } else {
-              VueScrollTo.scrollTo('.is-danger')
+            return this.$store.dispatch('auth/saveUsernameToDatabase', { usernameDetails })
+          })
+          .then((data) => {
+            const userDetails = {
+              email: this.email,
+              username: this.username,
+              accountType: this.accountType,
+              userId: data.userId
             }
+
+            return this.$store.dispatch('auth/saveUserDetailsToDatabase', { userDetails })
+          })
+          .then((success) => {
+            this.loading = false
+          })
+          .catch((err) => {
+            this.loading = false
+            this.isRegisterError = _.lowerCase(err.message)
+            VueScrollTo.scrollTo('.is-danger')
           })
       }
 
@@ -129,9 +162,10 @@
 </script>
 <style lang="stylus">
   .account-types
-    .control[data-v-309bb44e] 
+    .control[data-v-01644966] 
       .button
         width 100% !important
+        margin-top 0
 </style>
 
 <style lang="stylus" scoped>

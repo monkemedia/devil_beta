@@ -31,7 +31,7 @@ module.exports = {
   /*
   ** Customize the progress-bar color
   */
-  loading: { color: '#3B8070' },
+  loading: false,
 
   /*
   ** Global CSS
@@ -60,9 +60,10 @@ module.exports = {
   /*
   ** Axios module configuration
   */
-  axios: {
-    // See https://github.com/nuxt-community/axios-module#options
-  },
+<!--   axios: {
+    BASE_URL: process.env.BASE_URL || 'https://devil-panties.firebaseio.com',
+    credentials: false
+  }, -->
 
   /*
   ** Build configuration

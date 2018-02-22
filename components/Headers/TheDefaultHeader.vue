@@ -2,12 +2,12 @@
   nav.navbar(:class="stickyHeader")
     .container
       .navbar-brand
-        router-link.navbar-item(to="/home")
+        nuxt-link.navbar-item(to="/home")
           //- img.main-logo(src="/static/devil-panties-main-logo.png" srcset="/static/devil-panties-main-logo.png 1x, /static/devil-panties-main-logo@x2.png 2x" alt="Devil Panties")
         //- SearchBar#search-bar-mobile
         //- MiniCart#mini-cart-mobile
         //- BurgerMenu
-      //- MainNavigation
+      MainNavigation
     //- SearchBarOverlay
 
 </template>
@@ -16,7 +16,7 @@
 // import SearchBar from '@/components/headers/SearchBar'
 // // import MiniCart from '@/components/headers/MiniCart'
 // import BurgerMenu from '@/components/headers/BurgerMenu'
-// import MainNavigation from '@/components/navigation/MainNavigation'
+import MainNavigation from '@/components/Navigation/TheMainNavigation'
 // import SearchBarOverlay from '@/components/headers/SearchBarOverlay'
 
 let stickyActive
@@ -29,7 +29,7 @@ export default {
     // SearchBar,
     // // MiniCart,
     // BurgerMenu,
-    // MainNavigation,
+    MainNavigation,
     // SearchBarOverlay
   },
 
