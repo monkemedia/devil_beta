@@ -57,7 +57,7 @@
       return {
         loading: false,
         email: null,
-        password: 'C0re50!!',
+        password: null,
         isSignInError: null
       }
     },
@@ -69,7 +69,7 @@
           .then((response) => {
             if (response) {
               this.loading = true
-              this.$store.dispatch('authenticateUser', {
+              this.$store.dispatch('loginUser', {
                 email: this.email,
                 password: this.password
               })
@@ -86,12 +86,6 @@
               VueScrollTo.scrollTo('.is-danger')
             }
           })
-      }
-    },
-
-    watch: {
-      isSignInError () {
-        VueScrollTo.scrollTo('.is-danger')
       }
     }
   }

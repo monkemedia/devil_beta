@@ -1,4 +1,5 @@
 import Cookie from 'js-cookie'
+import _ from 'lodash'
 
 const store = {
   state: {
@@ -16,8 +17,29 @@ const store = {
   },
 
   actions: {
-    authenticateUser (vuexContext, authData) {
-      const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${process.env.FBAPIKEY}`
+    validateUsername (state, { username }) {
+      return this.$axios.$get(`${process.env.BASE_URL}/usernames.json`)
+        .then(data => {
+          const filterUsernames = _.filter(data, (key) => {
+            return key.username === username
+          })
+
+          if (filterUsernames.length) {
+            throw {
+              code: 'failed',
+              message: 'This username already exists, please try again.'
+            }
+          }
+
+          return {
+            code: 'success',
+            message: 'This username is available'
+          }
+        })
+    },
+
+    loginUser (vuexContext, authData) {
+      const authUrl = `https:\\/\\/www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${process.env.FB_API_KEY}`
       
       return this.$axios.$post(authUrl, {
         email: authData.email,
@@ -36,6 +58,44 @@ const store = {
         .catch((err) => {
           throw err.response.data.error
         })
+    },
+
+    registerUser (vuexContext, authData) {
+      const authUrl = `https:\\/\\/www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${process.env.FB_API_KEY}`
+      const username = authData.username
+      vuexContext.dispatch('validateUsername', { username })
+        .then((response) => {
+          console.log(response)
+          // return this.$axios.$post(authUrl, {
+          //   email: authData.email,
+          //   password: authData.password,
+          //   username: authData.username,
+          //   accountType: authData.accountType,
+          //   returnSecureToken: true
+          // })
+        })
+        .catch((err) => {
+          console.log('ERROR', err)
+        })
+      // return this.$axios.$post(authUrl, {
+      //   email: authData.email,
+      //   password: authData.password,
+      //   username: authData.username,
+      //   accountType: authData.accountType,
+      //   returnSecureToken: true
+      // })
+      //   .then(result => {       
+      //     const setExpirationDate = new Date().getTime() + Number.parseInt(result.expiresIn) * 1000
+      //     vuexContext.commit('SET_TOKEN', result.idToken)
+      //     localStorage.setItem('token', result.idToken)
+      //     localStorage.setItem('tokenExpiration', setExpirationDate)
+
+      //     Cookie.set('jwt', result.idToken)
+      //     Cookie.set('expirationDate', setExpirationDate)
+      //   })
+      //   .catch((err) => {
+      //     throw err.response.data.error
+      //   })
     },
 
     initAuth (vuexContext, req) {

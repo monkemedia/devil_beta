@@ -76,7 +76,7 @@ module.exports = {
           }
         }
       }
-    }
+    },
     /*
     ** You can extend webpack config here
     */
@@ -93,7 +93,7 @@ module.exports = {
     }
   },
   env: {
-    BASEURL: process.env.BASE_URL || 'https://devil-panties.firebaseio.com',
-    FBAPIKEY: 'AIzaSyC-Xk_nslLHB2R-71P4E-r3w9jKTv58k0U'
+    BASE_URL: process.env.BASE_URL || 'https://devil-panties.firebaseio.com',
+    FB_API_KEY: 'AIzaSyC-Xk_nslLHB2R-71P4E-r3w9jKTv58k0U'
   },
 }
