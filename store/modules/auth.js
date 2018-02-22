@@ -24,8 +24,7 @@ const store = {
         password: authData.password,
         returnSecureToken: true
       })
-        .then(result => {
-          
+        .then(result => {       
           const setExpirationDate = new Date().getTime() + Number.parseInt(result.expiresIn) * 1000
           vuexContext.commit('SET_TOKEN', result.idToken)
           localStorage.setItem('token', result.idToken)
@@ -34,7 +33,9 @@ const store = {
           Cookie.set('jwt', result.idToken)
           Cookie.set('expirationDate', setExpirationDate)
         })
-        .catch(err => err)
+        .catch((err) => {
+          throw err.response.data.error
+        })
     },
 
     initAuth (vuexContext, req) {

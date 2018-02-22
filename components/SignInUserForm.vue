@@ -1,6 +1,6 @@
 <template lang="pug">
   form(@submit.prevent="submit")
-    //- b-message(type="is-danger" v-if="isSignInError") {{ isSignInError }}
+    b-message(type="is-danger" v-if="isSignInError") {{ isSignInError }}
 
     .field
       label.label Email
@@ -34,8 +34,8 @@
       .column.p-t-none.p-b-none
         .field
           .control
-            //- :class="{ 'is-loading': isSignInButtonLoading }"
             button.button.is-primary.sign-in-button.is-flip(
+              :class="{ 'is-loading': loading }"
               type="submit") 
                 span(data-text="Sign in") Sign in
       .column.p-t-none.p-b-none.forgot-password
@@ -43,6 +43,7 @@
 </template>
 
 <script>
+  import _ from 'lodash'
   import Vue from 'vue'
   import VeeValidate, { Validator } from 'vee-validate'
   import VueScrollTo from 'vue-scrollto'
@@ -54,9 +55,10 @@
 
     data () {
       return {
-        isLogin: true,
-        email: 'info@monkemedia.co.uk',
-        password: 'C0re50!!'
+        loading: false,
+        email: null,
+        password: 'C0re50!!',
+        isSignInError: null
       }
     },
 
@@ -66,14 +68,20 @@
         this.$validator.validateAll()
           .then((response) => {
             if (response) {
+              this.loading = true
               this.$store.dispatch('authenticateUser', {
-                isLogin: this.isLogin,
                 email: this.email,
                 password: this.password
               })
-              .then(() => {
-                this.$router.push('/admin')
-              })
+                .then(() => {
+                  this.loading = false
+                  this.$router.push('/admin')
+                })
+                .catch(err => {
+                  const string = _.lowerCase(err.message)
+                  this.isSignInError = string
+                  this.loading = false
+                })
             } else {
               VueScrollTo.scrollTo('.is-danger')
             }
