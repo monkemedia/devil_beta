@@ -69,7 +69,7 @@
           type="submit"
           :class="{ 'is-loading': loading }") 
           span(data-text="Create account") Create account
-      p.have-account Already have an account? <router-link to="/sign-in" class="underline"> Sign in</router-link>
+      p.have-account Already have an account? <nuxt-link to="/sign-in" class="underline"> Sign in</nuxt-link>
 
 </template>
 

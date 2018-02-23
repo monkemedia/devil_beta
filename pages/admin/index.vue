@@ -14,6 +14,9 @@
       'check-auth',
       'auth'
     ],
+
+    layout: 'admin',
+
     components: {
       PostList
     }
