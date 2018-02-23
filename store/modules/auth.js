@@ -18,6 +18,10 @@ const store = {
       state.username = username
     },
 
+    CLEAR_USERNAME (state) {
+      state.username = null
+    },
+
     CLEAR_TOKEN (state) {
       state.token = null
     }
@@ -25,6 +29,7 @@ const store = {
 
   actions: {
     validateUsername (vuexContext, { username }) {
+      console.log('1')
       return this.$axios.$get(`${process.env.BASE_URL}/usernames.json`)
         .then(data => {
           const filterUsernames = _.filter(data, (key) => {
@@ -46,6 +51,7 @@ const store = {
     },
 
     saveUsernameToDatabase (vuexContext, { usernameDetails }) {
+      console.log('2 save to db')
       const username = usernameDetails.username
       return this.$axios.$put(`${process.env.BASE_URL}/usernames/${username}.json?auth=${vuexContext.state.token}`, usernameDetails)
     },
@@ -78,8 +84,7 @@ const store = {
           Cookie.set('jwt', result.idToken)
           Cookie.set('expirationDate', setExpirationDate)
           Cookie.set('username', result.displayName)
-        })
-        .then((result) => {
+
           return result
         })
         .catch((err) => {
@@ -111,6 +116,7 @@ const store = {
           Cookie.set('jwt', result.idToken)
           Cookie.set('expirationDate', setExpirationDate)
           Cookie.set('username', result.displayName)
+
           return result
         })
         .catch((err) => {
@@ -124,12 +130,13 @@ const store = {
       let username
 
       if (req) {
-        console.log('REQ', req.headers.cookie)
         if (!req.headers.cookie) {
+          vuexContext.commit('CLEAR_TOKEN')
+          vuexContext.commit('CLEAR_USERNAME')
           return
         }
 
-        let jwtCookie = req.headers.cookie
+        const jwtCookie = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('jwt='))
 
@@ -152,30 +159,34 @@ const store = {
         username = localStorage.getItem('username')
       }
 
-      if (new Date().getTime() > parseInt(expirationDate) || !token) {
+      if (new Date().getTime() > Number(expirationDate) || !token) {
         console.log('no token or invalid token')
-        vuexContext.dispatch('auth/logout')
+        vuexContext.dispatch('logout')
         return
       }
+
       vuexContext.commit('SET_TOKEN', token)
       vuexContext.commit('SET_USERNAME', username)
     },
 
     logout (vuexContext) {
       vuexContext.commit('CLEAR_TOKEN')
+      vuexContext.commit('CLEAR_USERNAME')
       Cookie.remove('jwt')
       Cookie.remove('expirationDate')
+      Cookie.remove('username')
 
       if (process.client) {
         localStorage.removeItem('token')
         localStorage.removeItem('tokenExpiration')
+        localStorage.removeItem('username')
       }
     }
   },
 
   getters: {
     isAuthenticated (state) {
-      return state.token != null
+      return !!state.token
     },
 
     token (state) {

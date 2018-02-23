@@ -60,15 +60,12 @@ module.exports = {
   /*
   ** Axios module configuration
   */
-<!--   axios: {
-    BASE_URL: process.env.BASE_URL || 'https://devil-panties.firebaseio.com',
-    credentials: false
-  }, -->
 
   /*
   ** Build configuration
   */
   build: {
+    cssSourceMap: false,
     postcss: {
       plugins: {
         'postcss-cssnext': {

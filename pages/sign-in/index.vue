@@ -17,6 +17,10 @@
   export default {
     name: 'SignIn',
 
+    middleware: [
+      'check-auth'
+    ],
+
     components: {
       SignInUserForm
     }

@@ -3,8 +3,6 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
-
   export default {
     name: 'LogOut',
 
@@ -17,25 +15,8 @@
 
     methods: {
       logOut () {
-        const self = this
-        function message (data, type) {
-          setTimeout(() => {
-            self.$toast.open({
-              message: data.message,
-              duration: 2000,
-              type: 'is-success'
-            })
-          }, 400)
-        }
-
-        this.$store.dispatch('logout')
-          .then((response) => {
-            message(response, 'is-success')
-            this.$router.push('/sign-in')
-          })
-          .catch((err) => {
-            message(err, 'is-danger')
-          })
+        this.$store.dispatch('auth/logout')
+        this.$router.push('/sign-in')
       }
     },
 
