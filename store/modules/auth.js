@@ -53,12 +53,14 @@ const store = {
     saveUsernameToDatabase (vuexContext, { usernameDetails }) {
       console.log('2 save to db')
       const username = usernameDetails.username
-      return this.$axios.$put(`${process.env.BASE_URL}/usernames/${username}.json?auth=${vuexContext.state.token}`, usernameDetails)
+      const token = vuexContext.state.token
+      return this.$axios.$put(`${process.env.BASE_URL}/usernames/${username}.json?auth=${token}`, usernameDetails)
     },
 
     saveUserDetailsToDatabase (vuexContext, { userDetails }) {
       const userId = userDetails.userId
-      return this.$axios.$put(`${process.env.BASE_URL}/users/${userId}.json?auth=${vuexContext.state.token}`, userDetails)
+      const token = vuexContext.state.token
+      return this.$axios.$put(`${process.env.BASE_URL}/users/${userId}.json?auth=${token}`, userDetails)
     },
 
     loginUser (vuexContext, authData) {

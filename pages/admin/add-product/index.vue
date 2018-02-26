@@ -17,6 +17,13 @@
   export default {
     name: 'AddProducts',
 
+    layout: 'admin',
+
+    middleware: [
+      'check-auth',
+      'auth'
+    ],
+
     components: {
       Breadcrumb,
       MainForm

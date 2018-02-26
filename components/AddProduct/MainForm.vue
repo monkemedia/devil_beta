@@ -129,11 +129,15 @@
 </template>
 
 <script>
+  import Vue from 'vue'
+  import VeeValidate, { Validator } from 'vee-validate'
   import VueScrollTo from 'vue-scrollto'
   import Variants from '@/components/AddProduct/Variants'
   import UploadImages from '@/components/AddProduct/UploadImages'
   import Shipping from '@/components/AddProduct/Shipping'
   // import Alert from '../../../mixins/Alert'
+
+  Vue.use(VeeValidate)
 
   export default {
     name: 'AddProductForm',
@@ -226,7 +230,7 @@
         }
 
         function createItem () {
-          vm.$store.dispatch('createItem', payload)
+          vm.$store.dispatch('addItem/createItem', payload)
             .then((response) => {
               vm.cached_store_front = vm.cached_store_front
 
