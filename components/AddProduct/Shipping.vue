@@ -133,7 +133,7 @@
     background $grey-lighter
 
   .is-currency
-    border 1px solid $input-border-color !important
+    border 0 !important
     margin 0
     font-size $size-normal
     line-height 1

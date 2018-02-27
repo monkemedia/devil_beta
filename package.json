@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.0.0",
+    "@nuxtjs/font-awesome": "^1.0.3",
     "axios": "^0.18.0",
     "buefy": "^0.6.3",
     "bulma.styl": "^0.6.11",
@@ -22,6 +23,7 @@
     "lodash": "^4.17.5",
     "nuxt": "^1.0.0",
     "nuxt-fontawesome": "^0.1.2",
+    "uploadcare-widget": "^3.2.2",
     "vee-validate": "^2.0.3",
     "vue-clickaway": "^2.1.0",
     "vue-scrollto": "^2.8.0",

@@ -5,9 +5,7 @@
         header
           breadcrumb(:crumb="breadcrumb")
           h1.add-product-heading Add Product
-            span.tag.is-uppercase(:class="status(storefront)" v-if="storefront")
-              | {{ storefront}}
-    main-form(@passStorefront="passStorefront")
+    main-form
 </template>
 
 <script>
@@ -15,7 +13,7 @@
   import MainForm from '@/components/AddProduct/MainForm'
 
   export default {
-    name: 'AddProducts',
+    name: 'AddProduct',
 
     layout: 'admin',
 
@@ -33,16 +31,6 @@
       return {
         breadcrumb: { title: 'Products', route: '/admin/products' },
         storefront: ''
-      }
-    },
-
-    methods: {
-      status (value) {
-        return value === 'hidden' ? 'is-warning' : 'is-success'
-      },
-
-      passStorefront (value) {
-        this.storefront = value
       }
     }
   }

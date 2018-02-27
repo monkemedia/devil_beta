@@ -14,6 +14,11 @@ module.exports = {
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: pkg.description }
     ],
+    script: [
+      { src: 'https://ucarecdn.com/libs/widget/3.2.1/uploadcare.js' },
+      { innerHTML: "UPLOADCARE_PUBLIC_KEY = '78311196f07819e13fe9'", type: 'text/javascript', charset: 'utf-8' }
+    ],
+    __dangerouslyDisableSanitizers: ['script'],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
@@ -45,7 +50,8 @@ module.exports = {
   */
   plugins: [
     '~/plugins/mixins',
-    '~/plugins/buefy'
+    '~/plugins/buefy',
+    '~/plugins/lazy-image'
   ],
 
   /*
@@ -54,7 +60,7 @@ module.exports = {
   modules: [
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
-    'nuxt-fontawesome'
+    '@nuxtjs/font-awesome'
   ],
 
   /*
@@ -90,8 +96,11 @@ module.exports = {
       }
     }
   },
+
   env: {
     BASE_URL: process.env.BASE_URL || 'https://devil-panties.firebaseio.com',
-    FB_API_KEY: 'AIzaSyC-Xk_nslLHB2R-71P4E-r3w9jKTv58k0U'
+    FB_API_KEY: 'AIzaSyC-Xk_nslLHB2R-71P4E-r3w9jKTv58k0U',
+    UPLOADCARE_PUBLIC_KEY: '78311196f07819e13fe9',
+    UPLOADCARE_SECRET_KEY: '88eb29808ca764e5bac4'
   },
 }

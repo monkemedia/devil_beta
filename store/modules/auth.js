@@ -6,7 +6,8 @@ const store = {
 
   state: {
     token: null,
-    username: null
+    username: null,
+    userId: null
   },
 
   mutations: {
@@ -18,18 +19,25 @@ const store = {
       state.username = username
     },
 
+    SET_USERID (state, userId) {
+      state.userId = userId
+    },
+
     CLEAR_USERNAME (state) {
       state.username = null
     },
 
     CLEAR_TOKEN (state) {
       state.token = null
+    },
+
+    CLEAR_USERID (state) {
+      state.userId = null
     }
   },
 
   actions: {
     validateUsername (vuexContext, { username }) {
-      console.log('1')
       return this.$axios.$get(`${process.env.BASE_URL}/usernames.json`)
         .then(data => {
           const filterUsernames = _.filter(data, (key) => {
@@ -51,7 +59,6 @@ const store = {
     },
 
     saveUsernameToDatabase (vuexContext, { usernameDetails }) {
-      console.log('2 save to db')
       const username = usernameDetails.username
       const token = vuexContext.state.token
       return this.$axios.$put(`${process.env.BASE_URL}/usernames/${username}.json?auth=${token}`, usernameDetails)
@@ -78,14 +85,17 @@ const store = {
           
           vuexContext.commit('SET_TOKEN', result.idToken)
           vuexContext.commit('SET_USERNAME', result.displayName)
+          vuexContext.commit('SET_USERID', result.localId)
           
           localStorage.setItem('token', result.idToken)
           localStorage.setItem('tokenExpiration', setExpirationDate)
           localStorage.setItem('username', result.displayName)
+          localStorage.setItem('userId', result.localId)
 
           Cookie.set('jwt', result.idToken)
           Cookie.set('expirationDate', setExpirationDate)
           Cookie.set('username', result.displayName)
+          Cookie.set('userId', result.localId)
 
           return result
         })
@@ -110,14 +120,17 @@ const store = {
           
           vuexContext.commit('SET_TOKEN', result.idToken)
           vuexContext.commit('SET_USERNAME', result.displayName)
+          vuexContext.commit('SET_USERID', result.localId)
 
           localStorage.setItem('token', result.idToken)
           localStorage.setItem('tokenExpiration', setExpirationDate)
           localStorage.setItem('username', result.displayName)
+          localStorage.setItem('userId', result.localId)
 
           Cookie.set('jwt', result.idToken)
           Cookie.set('expirationDate', setExpirationDate)
           Cookie.set('username', result.displayName)
+          cookie.set('userId', result.localId)
 
           return result
         })
@@ -130,21 +143,27 @@ const store = {
       let token
       let expirationDate
       let username
+      let userId
 
       if (req) {
         if (!req.headers.cookie) {
           vuexContext.commit('CLEAR_TOKEN')
           vuexContext.commit('CLEAR_USERNAME')
+          vuexContext.commit('CLEAR_USERID')
           return
         }
 
-        const jwtCookie = req.headers.cookie
+        let jwtCookie = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('jwt='))
 
         let usernameCookie = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('username='))
+
+        let userIdCookie = req.headers.cookie
+          .split(';')
+          .find(c => c.trim().startsWith('userId='))
         
         if (!jwtCookie) {
           return
@@ -155,10 +174,12 @@ const store = {
           .find(c => c.trim().startsWith('expirationDate='))
           .split('=')[1]
         username = usernameCookie.split('=')[1]
+        userId = userIdCookie.split('=')[1]
       } else if (process.client) {
         token = localStorage.getItem('token')
         expirationDate = localStorage.getItem('tokenExpiration')
         username = localStorage.getItem('username')
+        userId = localStorage.getItem('userId')
       }
 
       if (new Date().getTime() > Number(expirationDate) || !token) {
@@ -169,19 +190,23 @@ const store = {
 
       vuexContext.commit('SET_TOKEN', token)
       vuexContext.commit('SET_USERNAME', username)
+      vuexContext.commit('SET_USERID', userId)
     },
 
     logout (vuexContext) {
       vuexContext.commit('CLEAR_TOKEN')
       vuexContext.commit('CLEAR_USERNAME')
+      vuexContext.commit('CLEAR_USERID')
       Cookie.remove('jwt')
       Cookie.remove('expirationDate')
       Cookie.remove('username')
+      Cookie.remove('userId')
 
       if (process.client) {
         localStorage.removeItem('token')
         localStorage.removeItem('tokenExpiration')
         localStorage.removeItem('username')
+        localStorage.removeItem('userId')
       }
     }
   },
@@ -197,6 +222,10 @@ const store = {
 
     username (state) {
       return state.username
+    },
+
+    userId (state) {
+      return state.userId
     }
   }
 }

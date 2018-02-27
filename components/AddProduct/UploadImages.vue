@@ -42,16 +42,16 @@
     },
 
     props: {
-      formData: {
-        type: Object,
-        required: true
+      imagesData: {
+        type: Array,
+        required: false
       }
     },
 
     data () {
       return {
         temp_images_: [],
-        images: [],
+        images: this.imagesData || [],
         hovering: false,
         disabled: false,
         isLoading: false,
@@ -75,7 +75,7 @@
 
           this.isLoading = true
 
-          this.$store.dispatch('saveImageToStorage', this.temp_images_)
+          this.$store.dispatch('addItem/saveImageToStorage', this.temp_images_)
             .then((response) => {
               response.forEach((image) => {
                 this.images.push(image)
@@ -84,8 +84,10 @@
               this.$emit('passImages', this.images)
               this.isLoading = false
             })
-            .catch(() => {
+            .catch((err) => {
+              console.log('HERE', err)
               this.isLoading = false
+              this.temp_images_.pop() // Removes last image that was tried to be uploaded
               this.$dialog.alert({
                 message: 'Your image cannot be saved',
                 type: 'is-danger'
@@ -134,7 +136,7 @@
       removeImage (index, image) {
         this.selected = image // Hide thumbnail before it is actually deleted
         console.log('test', image)
-        this.$store.dispatch('removeImageFromStorage', image)
+        this.$store.dispatch('addItem/removeImageFromStorage', image)
           .then((res) => {
             this.images.splice(index, 1)
             this.$emit('passImages', this.images)
@@ -151,12 +153,6 @@
     },
 
     watch: {
-      formData () {
-        if (this.formData.images !== undefined) {
-          this.images = this.formData.images
-        }
-      },
-
       images () {
         this.isDisabled()
       }

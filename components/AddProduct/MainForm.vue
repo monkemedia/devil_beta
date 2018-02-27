@@ -111,14 +111,14 @@
           //- variants(@passVariant="updateFormDataVariants" :formData="formData")
 
         .column.is-half
-          upload-images(@passImages="updateFormDataImages" :formData="formData")
+          upload-images(@passImages="updateFormDataImages" :imagesData="formData.images")
           shipping(@passShipping="updateFormDataShipping" :formData="formData")
 
       .columns
         .column.is-one-quarter
           .field
             .control
-              button.button.is-primary.is-fullwidth.is-flip(@click.prevent="onSubmitForm" :class="{ 'is-loading': isCreatedItemButtonLoading }")
+              button.button.is-primary.is-fullwidth.is-flip(@click.prevent="onSubmitForm" :class="{ 'is-loading': loading }")
                 span(data-text="Save") Save
         //- .column.is-one-quarter
         //-   .field
@@ -135,12 +135,18 @@
   import Variants from '@/components/AddProduct/Variants'
   import UploadImages from '@/components/AddProduct/UploadImages'
   import Shipping from '@/components/AddProduct/Shipping'
-  // import Alert from '../../../mixins/Alert'
 
   Vue.use(VeeValidate)
 
   export default {
     name: 'AddProductForm',
+
+    props: {
+      itemData: {
+        type: Object,
+        required: false
+      }
+    },
 
     components: {
       Variants,
@@ -148,14 +154,12 @@
       Shipping
     },
 
-    mixins: [
-      // Alert
-    ],
-
     data () {
       return {
         isFormError: false,
-        formData: {
+        loading: false,
+        formData: this.itemData ? 
+          { ...this.itemData } : {
           title: '',
           description: '',
           category: '',
@@ -177,24 +181,6 @@
           { label: 'Hidden - Not visible on storefront', value: 'hidden' },
           { label: 'Visible - Currently visible on storefront', value: 'visible' }
         ]
-      }
-    },
-
-    created () {
-      const paramId = this.$route.params.id
-      if (paramId !== undefined) {
-        this.$store.dispatch('loadUserItem', paramId)
-          .then((data) => {
-            if (data !== null && data !== undefined) {
-              this.formData = data
-            } else {
-              this.alertToast({ message: 'Item doesnt exist', type: 'is-danger' })
-            }
-            this.$emit('passStorefront', this.formData.storefront)
-          })
-          .catch((error) => {
-            this.alertToast({ message: error.message, type: 'is-danger' })
-          })
       }
     },
 
@@ -229,7 +215,10 @@
           product_id: paramId
         }
 
+        console.log(paramId)
+
         function createItem () {
+          vm.loading = true
           vm.$store.dispatch('addItem/createItem', payload)
             .then((response) => {
               vm.cached_store_front = vm.cached_store_front
@@ -242,15 +231,17 @@
                 vm.alertToast({ message: 'Item is now hidden from storefront', type: 'is-warning' })
               }
 
-              if (paramId !== null) {
-                vm.$router.push(`/admin/add-product/${paramId}`)
-              } else {
-                vm.$router.push(`/admin/add-product/${response.product_id}`)
+              if (paramId === null) {
+                vm.$router.push({ 
+                  path: `/admin/add-product/${response.product_id}`
+                })
               }
               vm.$emit('passStorefront', vm.formData.storefront)
+              vm.loading = false
             })
             .catch((error) => {
               vm.alertToast({ message: error.message, type: 'is-danger' })
+              vm.loading = false
             })
         }
 
@@ -304,7 +295,7 @@
     margin-bottom 6px
 
   .is-currency
-    border 1px solid $input-border-color !important
+    border 0r !important
     margin 0
     font-size $size-normal
     line-height 1
