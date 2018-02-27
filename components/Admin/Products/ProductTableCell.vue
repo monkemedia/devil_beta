@@ -27,7 +27,7 @@
             i.fa.fa-ellipsis-h(aria-hidden="true")
         .dropdown-menu(role="menu" :id="item.id")
           .dropdown-content
-            router-link.dropdown-item(:to="{ name: 'Add Product ID', params: { id: item.product_id }}") 
+            nuxt-link.dropdown-item(:to="'/admin/add-product/' + item.product_id") 
               span.icon.is-small.m-r-md
                 i.fa.fa-pencil 
               | Edit item
