@@ -1,12 +1,12 @@
 import Vuex from 'vuex'
 import auth from './modules/auth.js'
-import userItem from './modules/user-item.js'
+import sellersItems from './modules/sellers-items.js'
 
 const createStore = () => {
   return new Vuex.Store({
     modules: {
       auth,
-      userItem
+      sellersItems
     }
   })
 }

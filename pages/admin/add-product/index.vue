@@ -10,7 +10,7 @@
 
 <script>
   import Breadcrumb from '@/components/Breadcrumbs/AdminBreadcrumb'
-  import MainForm from '@/components/AddProduct/MainForm'
+  import MainForm from '@/components/Admin/AddProduct/MainForm'
 
   export default {
     name: 'AddProduct',
@@ -29,8 +29,7 @@
 
     data () {
       return {
-        breadcrumb: { title: 'Products', route: '/admin/products' },
-        storefront: ''
+        breadcrumb: { title: 'Products', route: '/admin/products' }
       }
     }
   }

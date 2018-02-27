@@ -5,17 +5,17 @@ const store = {
   namespaced: true,
 
   state: {
-    loadedUserItem: null,
-    userItemError: false
+    loadedSellersItem: null,
+    sellersItemError: false
   },
 
   mutations: {
-    SET_USER_ITEM (state, userItem) {
-      state.loadedUserItem = userItem
+    SET_SELLERS_ITEM (state, userItem) {
+      state.loadedSellersItem = userItem
     },
 
     SET_ERROR (state, isError) {
-      state.userItemError = isError
+      state.sellersItemError = isError
     }
   },
 
@@ -112,7 +112,7 @@ const store = {
         })
         .then(() => {
           console.log(vuexContext)
-          vuexContext.commit('SET_USER_ITEM', itemData)
+          vuexContext.commit('SET_SELLERS_ITEM', itemData)
           return itemData
         })
         .catch((err) => {
@@ -123,11 +123,11 @@ const store = {
 
   getters: {
     loadedUserItem (state) {
-      return state.loadedUserItem
+      return state.loadedSellersItem
     },
 
     isError (state) {
-      return state.userItemError
+      return state.sellersItemError
     }
   }
 }

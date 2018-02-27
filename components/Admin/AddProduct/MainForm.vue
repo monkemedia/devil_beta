@@ -1,10 +1,6 @@
 <template lang="pug">
   div
-    b-loading(:active.sync="isUserItemLoading")
     form
-      .columns
-        .column
-          b-message(type="is-danger" v-if="isFormError") {{ isCreatedUserItemError }}
       .columns
         .column.is-half
           .field
@@ -132,9 +128,9 @@
   import Vue from 'vue'
   import VeeValidate, { Validator } from 'vee-validate'
   import VueScrollTo from 'vue-scrollto'
-  import Variants from '@/components/AddProduct/Variants'
-  import UploadImages from '@/components/AddProduct/UploadImages'
-  import Shipping from '@/components/AddProduct/Shipping'
+  import Variants from '@/components/Admin/AddProduct/Variants'
+  import UploadImages from '@/components/Admin/AddProduct/UploadImages'
+  import Shipping from '@/components/Admin/AddProduct/Shipping'
 
   Vue.use(VeeValidate)
 
@@ -156,7 +152,6 @@
 
     data () {
       return {
-        isFormError: false,
         loading: false,
         formData: this.itemData ? 
           { ...this.itemData } : {
@@ -185,22 +180,6 @@
     },
 
     computed: {
-      isCreatedItemButtonLoading () {
-        return this.$store.getters.isCreatedUserItemButtonLoading
-      },
-
-      isCreatedUserItemError () {
-        return this.$store.getters.isCreatedUserItemError
-      },
-
-      isDraftItemButtonLoading () {
-        return this.$store.getters.isDraftUserItemButtonLoading
-      },
-
-      isUserItemLoading () {
-        return this.$store.getters.isUserItemLoading
-      },
-
       isFormValid () {
         return Object.keys(this.fields).every(key => this.fields[key] && this.fields[key].validated)
       }
@@ -219,7 +198,7 @@
 
         function createItem () {
           vm.loading = true
-          vm.$store.dispatch('userItem/createItem', payload)
+          vm.$store.dispatch('sellersItems/createItem', payload)
             .then((response) => {
               vm.cached_store_front = vm.cached_store_front
 

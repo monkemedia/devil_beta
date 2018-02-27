@@ -13,7 +13,7 @@
 <script>
   import axios from 'axios'
   import Breadcrumb from '@/components/Breadcrumbs/AdminBreadcrumb'
-  import MainForm from '@/components/AddProduct/MainForm'
+  import MainForm from '@/components/Admin/AddProduct/MainForm'
 
   export default {
     name: 'AddProductId',
@@ -46,10 +46,10 @@
         .then(result => {
           console.log('result', result)
           if (result.data !== null) {
-            store.commit('userItem/SET_USER_ITEM', result.data)
+            store.commit('sellersItems/SET_SELLER_ITEM', result.data)
           } else {
-            store.commit('userItem/SET_USER_ITEM', null)
-            store.commit('userItem/SET_ERROR', true)
+            store.commit('sellersItems/SET_SELLER_ITEM', null)
+            store.commit('sellersItems/SET_ERROR', true)
           }
         })
         .catch(err => {
@@ -59,11 +59,11 @@
 
     computed: {
       itemData () {
-        return this.$store.getters['userItem/loadedUserItem']
+        return this.$store.getters['sellersItems/loadedSellersItems']
       },
 
       isError () {
-        return this.$store.getters['userItem/isError']
+        return this.$store.getters['sellersItems/isError']
       }
     },
 

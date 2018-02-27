@@ -75,7 +75,7 @@
 
           this.isLoading = true
 
-          this.$store.dispatch('userItem/saveImageToStorage', this.temp_images_)
+          this.$store.dispatch('sellersItems/saveImageToStorage', this.temp_images_)
             .then((response) => {
               response.forEach((image) => {
                 this.images.push(image)
