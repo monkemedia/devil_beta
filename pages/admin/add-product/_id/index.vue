@@ -5,8 +5,8 @@
         header
           breadcrumb(:crumb="breadcrumb")
           h1.add-product-heading Add Product
-            span.tag.is-uppercase(:class="status(storefront)" v-if="storefront")
-              | {{ storefront}}
+            span.tag.is-uppercase(:class="status(itemData.storefront)" v-if="itemData.storefront")
+              | {{ itemData.storefront }}
     main-form(:itemData="itemData")
 </template>
 
@@ -33,8 +33,7 @@
 
     data () {
       return {
-        breadcrumb: { title: 'Products', route: '/admin/products' },
-        storefront: ''
+        breadcrumb: { title: 'Products', route: '/admin/products' }
       }
     },
 
@@ -75,17 +74,6 @@
 
       passStorefront (value) {
         this.storefront = value
-      }
-    },
-
-    watch: {
-      isError (value) {
-        console.log('value', value)
-        alert()
-        if (value) {
-          alert()
-          this.alertToast({ message: 'Item doesnt exist', type: 'is-danger' })
-        }
       }
     }
   }

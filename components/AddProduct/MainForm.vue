@@ -219,7 +219,7 @@
 
         function createItem () {
           vm.loading = true
-          vm.$store.dispatch('addItem/createItem', payload)
+          vm.$store.dispatch('userItem/createItem', payload)
             .then((response) => {
               vm.cached_store_front = vm.cached_store_front
 
@@ -236,7 +236,6 @@
                   path: `/admin/add-product/${response.product_id}`
                 })
               }
-              vm.$emit('passStorefront', vm.formData.storefront)
               vm.loading = false
             })
             .catch((error) => {
