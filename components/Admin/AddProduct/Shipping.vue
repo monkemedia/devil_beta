@@ -83,7 +83,7 @@
     },
 
     mounted () {
-      this.shippingOptions = this.shippingData ?  this.shippingData : this.shippingOptions
+      this.shippingOptions = this.shippingData && this.shippingData.length ?  this.shippingData : this.shippingOptions
     },
 
     methods: {

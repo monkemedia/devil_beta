@@ -15,7 +15,7 @@ module.exports = {
       { hid: 'description', name: 'description', content: pkg.description }
     ],
     script: [
-      { src: 'https://ucarecdn.com/libs/widget/3.2.1/uploadcare.js' },
+      { src: 'https://ucarecdn.com/libs/widget/3.2.1/uploadcare.full.min.js' },
       { innerHTML: "UPLOADCARE_PUBLIC_KEY = '78311196f07819e13fe9'", type: 'text/javascript', charset: 'utf-8' }
     ],
     __dangerouslyDisableSanitizers: ['script'],
