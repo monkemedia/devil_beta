@@ -46,9 +46,9 @@
         .then(result => {
           console.log('result', result)
           if (result.data !== null) {
-            store.commit('sellersItems/SET_SELLER_ITEM', result.data)
+            store.commit('sellersItems/SET_SELLERS_ITEM', result.data)
           } else {
-            store.commit('sellersItems/SET_SELLER_ITEM', null)
+            store.commit('sellersItems/SET_SELLERS_ITEM', null)
             store.commit('sellersItems/SET_ERROR', true)
           }
         })
@@ -59,7 +59,7 @@
 
     computed: {
       itemData () {
-        return this.$store.getters['sellersItems/loadedSellersItems']
+        return this.$store.getters['sellersItems/loadedSellersItem']
       },
 
       isError () {

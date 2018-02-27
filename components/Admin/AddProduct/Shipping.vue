@@ -1,6 +1,6 @@
 <template lang="pug">
   .form-panel.shipping-panel
-    legend Shipping {{ shippingData }}
+    legend Shipping
     p Add variants if this product comes in multiple versions, like different sizes or colours.
     table
       thead
@@ -58,7 +58,7 @@
     props: {
       shippingData: {
         type: Array,
-        required: true
+        required: false
       }
     },
 
@@ -83,7 +83,7 @@
     },
 
     mounted () {
-      this.shippingOptions = this.shippingData.length ?  this.shippingData : this.shippingOptions
+      this.shippingOptions = this.shippingData ?  this.shippingData : this.shippingOptions
     },
 
     methods: {

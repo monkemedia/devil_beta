@@ -122,7 +122,7 @@ const store = {
   },
 
   getters: {
-    loadedUserItem (state) {
+    loadedSellersItem (state) {
       return state.loadedSellersItem
     },
 
