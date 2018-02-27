@@ -112,7 +112,7 @@
 
         .column.is-half
           upload-images(@passImages="updateFormDataImages" :imagesData="formData.images")
-          shipping(@passShipping="updateFormDataShipping" :formData="formData")
+          shipping(@passShipping="updateFormDataShipping" :shippingData="formData.shipping")
 
       .columns
         .column.is-one-quarter

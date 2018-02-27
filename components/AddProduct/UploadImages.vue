@@ -75,7 +75,7 @@
 
           this.isLoading = true
 
-          this.$store.dispatch('addItem/saveImageToStorage', this.temp_images_)
+          this.$store.dispatch('userItem/saveImageToStorage', this.temp_images_)
             .then((response) => {
               response.forEach((image) => {
                 this.images.push(image)
@@ -85,7 +85,6 @@
               this.isLoading = false
             })
             .catch((err) => {
-              console.log('HERE', err)
               this.isLoading = false
               this.temp_images_.pop() // Removes last image that was tried to be uploaded
               this.$dialog.alert({
@@ -135,13 +134,13 @@
 
       removeImage (index, image) {
         this.selected = image // Hide thumbnail before it is actually deleted
-        console.log('test', image)
-        this.$store.dispatch('addItem/removeImageFromStorage', image)
+        this.$store.dispatch('userItem/removeImageFromStorage', image)
           .then((res) => {
             this.images.splice(index, 1)
             this.$emit('passImages', this.images)
           })
-          .catch(() => {
+          .catch((err) => {
+            console.log(err)
             this.selected = null // Show thumbnail as it hasnt been deleted due to errors
             this.$dialog.alert({
               title: 'Error',

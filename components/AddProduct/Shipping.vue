@@ -56,8 +56,8 @@
     inject: ['$validator'],
 
     props: {
-      formData: {
-        type: Object,
+      shippingData: {
+        type: Array,
         required: true
       }
     },
@@ -82,8 +82,8 @@
       }
     },
 
-    created () {
-      this.onShippingChange()
+    mounted () {
+      this.shippingOptions = this.shippingData|| this.shippingOptions
     },
 
     methods: {
@@ -115,12 +115,6 @@
           }
         })
         this.$emit('passShipping', array)
-      }
-    },
-
-    watch: {
-      formData () {
-        this.shippingOptions = this.formData.shipping || this.shippingOptions
       }
     }
   }

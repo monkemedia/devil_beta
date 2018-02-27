@@ -54,12 +54,13 @@ const store = {
     removeImageFromStorage ({ commit, getters }, payload) {
       const publicKey = process.env.UPLOADCARE_PUBLIC_KEY
       const privateKey = process.env.UPLOADCARE_SECRET_KEY
+      const vm = this
 
       return new Promise((resolve, reject) => {
         const promises = []
 
         function file (image) {
-          const f = axios({
+          const f = vm.$axios({
             url: 'https://api.uploadcare.com/files/' + image.uuid + '/storage/',
             method: 'delete',
             data: null,
