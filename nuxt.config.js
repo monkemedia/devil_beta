@@ -55,7 +55,8 @@ module.exports = {
     '~/plugins/mixins',
     '~/plugins/buefy',
     '~/plugins/lazy-image',
-    '~/plugins/currency'
+    '~/plugins/currency',
+    '~/plugins/slick'
   ],
 
   /*
@@ -103,6 +104,14 @@ module.exports = {
           loader: 'eslint-loader',
           exclude: /(node_modules)/
         })
+      }
+
+      if (ctx.isServer) {
+        config.externals = [
+          require('webpack-node-externals')({
+            whitelist: [/^vue-slick/]
+          })
+        ]
       }
     }
   },

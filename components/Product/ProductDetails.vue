@@ -91,7 +91,6 @@
         }
         this.$store.dispatch('cart/liveStock', payload)
           .then((response) => {
-            console.log('Monkey')
             const liveStock = response
             // Check to see if user is adding more items than the stock allows
             if (record && (record.quantity + this.quantity) > liveStock) {
