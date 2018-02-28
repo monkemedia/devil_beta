@@ -1,6 +1,6 @@
 <template lang="pug">
   div
-    .carousel-container(v-if="images.length")
+    .carousel-container(v-if="images")
       figure.is-hidden-mobile.desktop-images
         image-zoom(:img="images[currentIndex].url" :width="1000")
 

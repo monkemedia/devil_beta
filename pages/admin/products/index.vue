@@ -48,7 +48,7 @@
       }
     },
 
-    async fetch ({ store, params }) {
+    async fetch ({ store, params, error }) {
       const paramId = params.id
       const token = store.getters['auth/token']
       const userId = store.getters['auth/userId']
@@ -56,11 +56,17 @@
 
       return await axios.get(`${process.env.BASE_URL}/usersProducts/${userId}.json?auth=${token}`)
         .then(result => {
-          store.commit('sellersItems/SET_SELLERS_ITEMS', result.data)
+          if (result.data !== null) {
+            return store.commit('sellersItems/SET_SELLERS_ITEMS', result.data)
+          }
+          store.commit('sellersItems/SET_SELLERS_ITEMS', null)
+          error({ statusCode: 404, message: 'This page cannot be found', path: '/admin' })
         })
         .catch(err => {
-          console.log(err)
-          // this.alertToast({ message: 'Item doesnt exist', type: 'is-danger' })
+          if (err.response) {
+            return error({ statusCode: err.response.status, message: err.response.data.error })
+          }
+          error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
         })
     },
 

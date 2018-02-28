@@ -2,15 +2,12 @@
   .container
     .columns
       .column
-        breadcrumb(:crumb="breadcrumb")
+        breadcrumb(:crumb="breadcrumb" v-if="loadedItem")
     .columns
       .column.is-half
-        image-carousel(:images="loadedItem.images")
+        image-carousel(:images="loadedItem.images" v-if="loadedItem")
       .column.is-offset-1.is-5
-        product-details(:product="loadedItem")
-    .columns(v-if="")
-      .column.has-text-centered
-        p.not-available This item no longer available
+        product-details(:product="loadedItem" v-if="loadedItem")
 </template>
 
 <script>
@@ -46,7 +43,10 @@
           }
         })
         .catch(err => {
-          console.log('error', err)
+          if (err.response) {
+            return context.error({ statusCode: err.response.status, message: err.response.data.error })
+          }
+          context.error({ statusCode: 404, message: 'This page cannot be found' })
         })
     }
   }

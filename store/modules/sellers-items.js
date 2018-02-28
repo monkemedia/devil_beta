@@ -7,17 +7,12 @@ const store = {
 
   state: {
     loadedSellersItem: null,
-    loadedSellersItems: null,
-    sellersItemError: false
+    loadedSellersItems: null
   },
 
   mutations: {
     SET_SELLERS_ITEM (state, item) {
       state.loadedSellersItem = item
-    },
-
-    SET_ERROR (state, isError) {
-      state.sellersItemError = isError
     },
 
     SET_SELLERS_ITEMS (state, item) {
@@ -145,10 +140,6 @@ const store = {
   getters: {
     loadedSellersItem (state) {
       return state.loadedSellersItem
-    },
-
-    isError (state) {
-      return state.sellersItemError
     },
 
     loadedSellersItems (state) {

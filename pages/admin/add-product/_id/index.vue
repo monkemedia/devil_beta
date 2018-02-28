@@ -5,7 +5,7 @@
         header
           breadcrumb(:crumb="breadcrumb")
           h1.add-product-heading Add Product
-            span.tag.is-uppercase(:class="status(itemData.storefront)" v-if="itemData.storefront")
+            span.tag.is-uppercase(:class="status(itemData.storefront)" v-if="itemData")
               | {{ itemData.storefront }}
     main-form(:itemData="itemData")
 </template>
@@ -37,34 +37,32 @@
       }
     },
 
-    async fetch ({ store, params }) {
+    async fetch ({ store, params, error }) {
       const paramId = params.id
       const token = store.getters['auth/token']
       const userId = store.getters['auth/userId']
       const vm = this
+
       return await axios.get(`${process.env.BASE_URL}/usersProducts/${userId}/${paramId}.json?auth=${token}`)
         .then(result => {
-          console.log('result', result)
+          console.log('TREVOR', result)
           if (result.data !== null) {
-            store.commit('sellersItems/SET_SELLERS_ITEM', result.data)
-          } else {
-            store.commit('sellersItems/SET_SELLERS_ITEM', null)
-            store.commit('sellersItems/SET_ERROR', true)
+            return store.commit('sellersItems/SET_SELLERS_ITEM', result.data)
           }
+          store.commit('sellersItems/SET_SELLERS_ITEM', null)
+          error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
         })
         .catch(err => {
-          store.commit('sellersItems/SET_ERROR', err)
-          // this.alertToast({ message: 'Item doesnt exist', type: 'is-danger' })
+          if (err.response) {
+            return error({ statusCode: err.response.status, message: err.response.data.error })
+          }
+          error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
         })
     },
 
     computed: {
       itemData () {
         return this.$store.getters['sellersItems/loadedSellersItem']
-      },
-
-      isError () {
-        return this.$store.getters['sellersItems/isError']
       }
     },
 
