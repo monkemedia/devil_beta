@@ -53,6 +53,7 @@
           }
         })
         .catch(err => {
+          store.commit('sellersItems/SET_ERROR', err)
           // this.alertToast({ message: 'Item doesnt exist', type: 'is-danger' })
         })
     },

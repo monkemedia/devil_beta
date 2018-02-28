@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { key } from 'firebase-key'
 import uploadcare from 'uploadcare-widget'
 
@@ -6,16 +7,21 @@ const store = {
 
   state: {
     loadedSellersItem: null,
+    loadedSellersItems: null,
     sellersItemError: false
   },
 
   mutations: {
-    SET_SELLERS_ITEM (state, userItem) {
-      state.loadedSellersItem = userItem
+    SET_SELLERS_ITEM (state, item) {
+      state.loadedSellersItem = item
     },
 
     SET_ERROR (state, isError) {
       state.sellersItemError = isError
+    },
+
+    SET_SELLERS_ITEMS (state, item) {
+      state.loadedSellersItems = item
     }
   },
 
@@ -118,6 +124,21 @@ const store = {
         .catch((err) => {
           throw err
         })
+    },
+
+    removeSellersItem ({ state, commit }, payload) {
+      let items = state.loadedSellersItems
+
+      const removeItem =_.pickBy(items, (key) => {
+        console.log(key)
+        return payload.product_id !== key.product_id
+      })
+
+      if (_.isEmpty(removeItem)) {
+        return commit('SET_SELLERS_ITEMS', null)
+      }
+
+      commit('SET_SELLERS_ITEMS', removeItem)
     }
   },
 
@@ -128,7 +149,11 @@ const store = {
 
     isError (state) {
       return state.sellersItemError
-    }
+    },
+
+    loadedSellersItems (state) {
+      return state.loadedSellersItems
+    },
   }
 }
 

@@ -1,15 +1,15 @@
 <template lang="pug">
   section.section
     header
-      h1 Products
-      nuxt-link.button.is-primary.is-flip(:to="{ name: 'Add Product' }") 
+      h1 Products {{loadedItems}}
+      nuxt-link.button.is-primary.is-flip(to="/admin/add-product") 
         span(data-text="Add product")
           | Add product
-    div(v-if="noItemLoaded")
+    div(v-if="!loadedItems")
       h2 Add your products
       p Get closer to your first sale by adding products.
-      nuxt-link.button.is-secondary(:to="{ name: 'Add Product' }") Add product
-    table.table.is-fullwidth(v-if="loadedItems")
+      nuxt-link.button.is-secondary(to="/admin/add-product") Add product
+    table.table.is-fullwidth(v-else)
       thead
         tr
           th(width="13%") Item
@@ -23,12 +23,20 @@
 </template>
 
 <script>
+  import _ from 'lodash'
+  import axios from 'axios'
   import ProductTableCell from '@/components/Admin/Products/ProductTableCell'
+  import { mapGetters } from 'vuex'
 
   export default {
     name: 'AdminProducts',
 
     layout: 'admin',
+
+    middleware: [
+      'check-auth',
+      'auth'
+    ],
 
     components: {
       ProductTableCell
@@ -36,39 +44,50 @@
 
     data () {
       return {
-        loadedItems: '',
-        noItemLoaded: false
+        items: null
       }
     },
 
-    mounted () {
-      let loading
-      loading = this.$loading.open()
-      this.$store.dispatch('sellersItem/loadSellersItems')
-        .then((response) => {
-          if (response) {
-            this.loadedItems = response
-          } else {
-            this.noItemLoaded = true
-          }
-          loading.close()
+    async fetch ({ store, params }) {
+      const paramId = params.id
+      const token = store.getters['auth/token']
+      const userId = store.getters['auth/userId']
+      const vm = this
+
+      return await axios.get(`${process.env.BASE_URL}/usersProducts/${userId}.json?auth=${token}`)
+        .then(result => {
+          store.commit('sellersItems/SET_SELLERS_ITEMS', result.data)
         })
-        .catch(() => {
-          this.alertToast({ message: 'Your items cannot be loaded', type: 'is-warning' })
+        .catch(err => {
+          console.log(err)
+          // this.alertToast({ message: 'Item doesnt exist', type: 'is-danger' })
         })
+    },
+
+    computed: {
+      loadedItems () {
+        return this.$store.getters['sellersItems/loadedSellersItems']
+      }
     },
 
     methods: {
       deleteItem (payload) {
-        this.$delete(this.loadedItems, payload.product_id)
+        const token = this.$store.getters['auth/token']
+        const userId = this.$store.getters['auth/userId']
+        // const loadingComponent = this.$loading.open()
+        const vm = this
         this.$store.dispatch('sellersItems/removeSellersItem', payload)
-          .then(() => {
-            this.$delete(this.loadedItems, payload.product_id)
-            this.alertToast({ message: 'Item has been deleted', type: 'is-success' })
-          })
-          .catch(() => {
-            this.alertToast({ message: 'Your item cannot be deleted', type: 'is-warning' })
-          })
+        // axios.delete(`${process.env.BASE_URL}/usersProducts/${userId}/${payload.product_id}.json?auth=${token}`)
+        //   .then(() => {
+        //     loadingComponent.close()
+        //     this.$delete(this.loadedItems, payload.product_id)
+        //     this.$store.commit('sellersItems/REMOVE_SELLERS_ITEM', payload)
+        //     this.alertToast({ message: 'Item has been deleted', type: 'is-success' })
+        //   })
+        //   .catch(() => {
+        //     this.alertToast({ message: 'Your item cannot be deleted', type: 'is-warning' })
+        //     loadingComponent.close()
+        //   })
       }
     }
   }
