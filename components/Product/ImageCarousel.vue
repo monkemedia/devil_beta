@@ -4,20 +4,20 @@
       figure.is-hidden-mobile.desktop-images
         image-zoom(:img="images[currentIndex].url" :width="1000")
 
-      slick.is-hidden-tablet.mobile-images(ref="slick" :options="slickOptionsMobile")
-        figure(v-for="(image, index) in images" :class="{ 'is-active': image[index] === currentIndex }")
-          a(@click="mainImageHandler(index)")
-            lazy-image(
-              :src="image.url + '-/resize/70/-/crop/70x70/center/'"
-              :small-src="image.url + '-/resize/70/-/crop/70x70/center/'"
-              :alt="image.alt")
-      slick.is-hidden-mobile.thumbnails(ref="slick" :options="slickOptions")
-        figure(v-for="(image, index) in images" :class="{ 'is-active': index === currentIndex }")
-          a(@click="mainImageHandler(index)")
-            lazy-image(
-              :src="image.url + '-/resize/70/-/crop/70x70/center/'"
-              :small-src="image.url + '-/resize/70/-/crop/70x70/center/'"
-              :alt="image.alt")
+      //- slick.is-hidden-tablet.mobile-images(ref="slick" :options="slickOptionsMobile")
+      //-   figure(v-for="(image, index) in images" :class="{ 'is-active': image[index] === currentIndex }")
+      //-     a(@click="mainImageHandler(index)")
+      //-       lazy-image(
+      //-         :src="image.url + '-/resize/70/-/crop/70x70/center/'"
+      //-         :small-src="image.url + '-/resize/70/-/crop/70x70/center/'"
+      //-         :alt="image.alt")
+      //- slick.is-hidden-mobile.thumbnails(ref="slick" :options="slickOptions")
+      //-   figure(v-for="(image, index) in images" :class="{ 'is-active': index === currentIndex }")
+      //-     a(@click="mainImageHandler(index)")
+      //-       lazy-image(
+      //-         :src="image.url + '-/resize/70/-/crop/70x70/center/'"
+      //-         :small-src="image.url + '-/resize/70/-/crop/70x70/center/'"
+      //-         :alt="image.alt")
 
     //- No images
     .carousel-container(v-else)
@@ -27,7 +27,7 @@
 </template>
 
 <script>
-  import Slick from 'vue-slick'
+  // import Slick from 'vue-slick'
   import ImageZoom from '@/components/Shared/ImageZoom'
   import '@/node_modules/slick-carousel/slick/slick.css'
 
@@ -35,7 +35,7 @@
     name: 'ImageCarousel',
 
     components: {
-      Slick,
+      // Slick,
       ImageZoom
     },
 
