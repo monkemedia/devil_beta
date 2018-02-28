@@ -1,7 +1,7 @@
 <template lang="pug">
   section.section
     header
-      h1 Products {{loadedItems}}
+      h1 Products
       nuxt-link.button.is-primary.is-flip(to="/admin/add-product") 
         span(data-text="Add product")
           | Add product
@@ -74,20 +74,19 @@
       deleteItem (payload) {
         const token = this.$store.getters['auth/token']
         const userId = this.$store.getters['auth/userId']
-        // const loadingComponent = this.$loading.open()
+        const loadingComponent = this.$loading.open()
         const vm = this
-        this.$store.dispatch('sellersItems/removeSellersItem', payload)
-        // axios.delete(`${process.env.BASE_URL}/usersProducts/${userId}/${payload.product_id}.json?auth=${token}`)
-        //   .then(() => {
-        //     loadingComponent.close()
-        //     this.$delete(this.loadedItems, payload.product_id)
-        //     this.$store.commit('sellersItems/REMOVE_SELLERS_ITEM', payload)
-        //     this.alertToast({ message: 'Item has been deleted', type: 'is-success' })
-        //   })
-        //   .catch(() => {
-        //     this.alertToast({ message: 'Your item cannot be deleted', type: 'is-warning' })
-        //     loadingComponent.close()
-        //   })
+        axios.delete(`${process.env.BASE_URL}/usersProducts/${userId}/${payload.product_id}.json?auth=${token}`)
+          .then(() => {
+            loadingComponent.close()
+            this.$delete(this.loadedItems, payload.product_id)
+            this.$store.dispatch('sellersItems/removeSellersItem', payload)
+            this.alertToast({ message: 'Item has been deleted', type: 'is-success' })
+          })
+          .catch(() => {
+            this.alertToast({ message: 'Your item cannot be deleted', type: 'is-warning' })
+            loadingComponent.close()
+          })
       }
     }
   }

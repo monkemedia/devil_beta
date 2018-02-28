@@ -75,6 +75,12 @@ module.exports = {
   ** Build configuration
   */
   build: {
+    plugins: [
+      new webpack.ProvidePlugin ({
+        '$': 'jquery',
+        'jQuery': 'jquery'
+      }),
+    ],
     cssSourceMap: false,
     postcss: {
       plugins: {
