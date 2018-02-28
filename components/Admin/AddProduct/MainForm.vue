@@ -277,13 +277,13 @@
     margin 0
     font-size $size-normal
     line-height 1
-    padding 0 .5rem
+    padding 0 1.2rem
   
   .price-field-input
     flex-flow row wrap
 
     @media only screen and (min-width $desktop) 
-      padding 0 1.2rem
+      padding 0
 
   @media only screen and (max-width $tablet)
     .save-draft
