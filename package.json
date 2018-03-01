@@ -1,6 +1,7 @@
 {
   "name": "Devil",
   "version": "1.0.0",
+  "main": "server/index.js",
   "description": "My shining Nuxt.js project",
   "engines": {
     "node": "9.5.0"
