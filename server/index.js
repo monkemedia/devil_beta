@@ -21,15 +21,9 @@ async function start() {
     await builder.build()
   }
 
-  let applyWhisper
-
-  if (process.env.NODE_ENV === 'production') {
-    applyWhisper = false
-  } else if (process.env.NODE_ENV === 'staging') {
-    applyWhisper = true
+  if (process.env.NODE_ENV === 'staging') {
+    app.use(wwwhisper())
   }
-
-  app.use(wwwhisper(applyWhisper))
 
   // Give nuxt middleware to express
   app.use(nuxt.render)
