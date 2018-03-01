@@ -2,6 +2,9 @@
   "name": "Devil",
   "version": "1.0.0",
   "description": "My shining Nuxt.js project",
+  "engines": {
+    "node": "9.5.0"
+  },
   "author": "monkemedia",
   "private": true,
   "scripts": {
