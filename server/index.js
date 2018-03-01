@@ -25,6 +25,8 @@ async function start() {
     app.use(wwwhisper())
   }
 
+  console.log('MONKEY', process.env.NODE_ENV)
+
   // Give nuxt middleware to express
   app.use(nuxt.render)
 
