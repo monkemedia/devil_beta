@@ -1,7 +1,11 @@
-require('dotenv').config()
 const express = require('express')
 const { Nuxt, Builder } = require('nuxt')
 const app = express()
+
+if (process.env.NODE_ENV === 'development') {
+  require('dotenv').config()
+}
+
 const host = process.env.HOST
 const port = process.env.PORT
 
