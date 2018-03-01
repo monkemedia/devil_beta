@@ -2,12 +2,12 @@ const express = require('express')
 const { Nuxt, Builder } = require('nuxt')
 const app = express()
 
-if (process.env.NODE_ENV === 'development') {
-  require('dotenv').config()
-}
+// if (process.env.NODE_ENV === 'development') {
+//   require('dotenv').config()
+// }
 
-const host = process.env.HOST
-const port = process.env.PORT
+const host = process.env.HOST || '127.0.0.1'
+const port = process.env.PORT || 3000
 
 app.set('port', port)
 
@@ -15,16 +15,16 @@ app.set('port', port)
 let config = require('../nuxt.config.js')
 config.dev = !(process.env.NODE_ENV === 'production')
 
-const isProduction = process.env.NODE_ENV === 'production'
+// const isProduction = process.env.NODE_ENV === 'production'
 
 async function start() {
   // Init Nuxt.js
   const nuxt = new Nuxt(config)
 
-  if (!isProduction) {
-    const wwwhisper = require('connect-wwwhisper')
-    app.use(wwwhisper())
-  }
+  // if (!isProduction) {
+  //   const wwwhisper = require('connect-wwwhisper')
+  //   app.use(wwwhisper())
+  // }
 
   // Build only in dev mode
   if (config.dev) {
