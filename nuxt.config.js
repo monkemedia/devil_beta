@@ -65,7 +65,8 @@ module.exports = {
   modules: [
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
-    '@nuxtjs/font-awesome'
+    '@nuxtjs/font-awesome',
+    '@nuxtjs/dotenv'
   ],
 
   /*
@@ -114,12 +115,5 @@ module.exports = {
         ]
       }
     }
-  },
-
-  env: {
-    BASE_URL: process.env.BASE_URL || 'https://devil-panties.firebaseio.com',
-    FB_API_KEY: 'AIzaSyC-Xk_nslLHB2R-71P4E-r3w9jKTv58k0U',
-    UPLOADCARE_PUBLIC_KEY: '78311196f07819e13fe9',
-    UPLOADCARE_SECRET_KEY: '88eb29808ca764e5bac4'
-  },
+  }
 }
