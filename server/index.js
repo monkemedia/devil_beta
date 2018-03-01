@@ -1,4 +1,4 @@
-// require('dotenv').config()
+require('dotenv').config()
 const express = require('express')
 const { Nuxt, Builder } = require('nuxt')
 const app = express()
@@ -11,16 +11,21 @@ app.set('port', port)
 let config = require('../nuxt.config.js')
 config.dev = !(process.env.NODE_ENV === 'production')
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 async function start() {
   // Init Nuxt.js
   const nuxt = new Nuxt(config)
 
+  if (!isProduction) {
+    const wwwhisper = require('connect-wwwhisper')
+    app.use(wwwhisper())
+  }
+
   // Build only in dev mode
   if (config.dev) {
     const builder = new Builder(nuxt)
-    const wwwhisper = require('connect-wwwhisper')
     await builder.build()
-    app.use(wwwhisper())
   }
 
   // Give nuxt middleware to express
