@@ -1,6 +1,8 @@
 const pkg = require('./package')
 const webpack = require('webpack')
 
+require('dotenv').config()
+
 module.exports = {
   mode: 'universal',
 
@@ -117,9 +119,9 @@ module.exports = {
   },
 
   env: {
-    BASE_URL: process.env.BASE_URL || 'https://devil-panties.firebaseio.com',
-    FB_API_KEY: 'AIzaSyC-Xk_nslLHB2R-71P4E-r3w9jKTv58k0U',
-    UPLOADCARE_PUBLIC_KEY: '78311196f07819e13fe9',
-    UPLOADCARE_SECRET_KEY: '88eb29808ca764e5bac4'
-  },
+    BASE_URL: process.env.BASE_URL,
+    FB_API_KEY: process.env.FB_API_KEY,
+    UPLOADCARE_PUBLIC_KEY: process.env.UPLOADCARE_PUBLIC_KEY,
+    UPLOADCARE_SECRET_KEY: process.env.UPLOADCARE_SECRET_KEY
+  }
 }
