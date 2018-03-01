@@ -22,7 +22,8 @@ async function start() {
   }
 
 
-  app.use(wwwhisper())
+
+  app.use(wwwhisper(!config.dev ? false : null ))
 
   // Give nuxt middleware to express
   app.use(nuxt.render)
