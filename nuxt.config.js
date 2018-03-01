@@ -1,6 +1,8 @@
 const pkg = require('./package')
 const webpack = require('webpack')
 
+require('dotenv').config()
+
 module.exports = {
   mode: 'universal',
 
@@ -65,8 +67,7 @@ module.exports = {
   modules: [
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
-    '@nuxtjs/font-awesome',
-    '@nuxtjs/dotenv'
+    '@nuxtjs/font-awesome'
   ],
 
   /*
@@ -115,5 +116,12 @@ module.exports = {
         ]
       }
     }
+  },
+
+  env: {
+    BASE_URL: process.env.BASE_URL,
+    FB_API_KEY: process.env.FB_API_KEY,
+    UPLOADCARE_PUBLIC_KEY: process.env.UPLOADCARE_PUBLIC_KEY,
+    UPLOADCARE_SECRET_KEY: process.env.UPLOADCARE_SECRET_KEY
   }
 }

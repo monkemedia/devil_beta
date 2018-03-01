@@ -18,11 +18,11 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.0.0",
-    "@nuxtjs/dotenv": "^1.1.0",
     "@nuxtjs/font-awesome": "^1.0.3",
     "axios": "^0.18.0",
     "buefy": "^0.6.3",
     "bulma.styl": "^0.6.11",
+    "dotenv": "^5.0.1",
     "firebase-key": "^2.0.1",
     "jquery-zoom": "^1.7.20",
     "js-cookie": "^2.2.0",
