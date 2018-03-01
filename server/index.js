@@ -21,11 +21,8 @@ async function start() {
     await builder.build()
   }
 
-  if (process.env.NODE_ENV === 'staging') {
-    app.use(wwwhisper())
-  }
 
-  console.log('MONKEY', process.env.NODE_ENV)
+  app.use(wwwhisper())
 
   // Give nuxt middleware to express
   app.use(nuxt.render)
