@@ -20,12 +20,8 @@ async function start() {
     await builder.build()
   }
 
+  app.use(wwwhisper())
 
-  if (process.env.NODE_ENV === 'staging') {
-    const wwwhisper = require('connect-wwwhisper')
-    app.use(wwwhisper())
-  }
-  
 
   // Give nuxt middleware to express
   app.use(nuxt.render)
