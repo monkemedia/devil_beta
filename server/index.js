@@ -21,7 +21,7 @@ async function start() {
   }
 
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'staging') {
     const wwwhisper = require('connect-wwwhisper')
     app.use(wwwhisper())
   }
