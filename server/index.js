@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const { Nuxt, Builder } = require('nuxt')
 const app = express()
@@ -18,10 +19,10 @@ async function start() {
   // Build only in dev mode
   if (config.dev) {
     const builder = new Builder(nuxt)
+    const wwwhisper = require('connect-wwwhisper')
     await builder.build()
+    app.use(wwwhisper())
   }
-
-  app.use(wwwhisper())  
 
   // Give nuxt middleware to express
   app.use(nuxt.render)
