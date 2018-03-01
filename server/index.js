@@ -21,8 +21,6 @@ async function start() {
     await builder.build()
   }
 
-  let applyWhisper
-
   if (process.env.NODE_ENV === 'staging') {
     app.use(wwwhisper())
   }
