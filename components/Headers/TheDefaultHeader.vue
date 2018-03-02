@@ -39,7 +39,7 @@ export default {
     }
   },
 
-  created () {
+  mounted () {
     if (process.browser) { 
       window.addEventListener('scroll', this.handleScroll)
     }
@@ -47,10 +47,7 @@ export default {
 
   methods: {
     handleScroll () {
-      if (process.browser) {
-        const $win = window
-        return
-      }
+      const $win = window
       const st = $win.pageYOffset || document.documentElement.scrollTop
       if (st > lastScrollTop && st >= 300) { // On scroll down
         stickyActive = true
