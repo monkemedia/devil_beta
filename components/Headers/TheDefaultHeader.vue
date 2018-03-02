@@ -4,20 +4,20 @@
       .navbar-brand
         nuxt-link.navbar-item(to="/home")
           //- img.main-logo(src="/static/devil-panties-main-logo.png" srcset="/static/devil-panties-main-logo.png 1x, /static/devil-panties-main-logo@x2.png 2x" alt="Devil Panties")
-        //- SearchBar#search-bar-mobile
+        SearchBar#search-bar-mobile
         MiniCart#mini-cart-mobile
-        //- BurgerMenu
+        BurgerMenu
       MainNavigation
-    //- SearchBarOverlay
+    SearchBarOverlay
 
 </template>
 
 <script>
-// import SearchBar from '@/components/headers/SearchBar'
+import SearchBar from '@/components/Headers/SearchBar'
 import MiniCart from '@/components/Headers/MiniCart'
-// import BurgerMenu from '@/components/headers/BurgerMenu'
+import BurgerMenu from '@/components/Headers/BurgerMenu'
 import MainNavigation from '@/components/Navigation/TheMainNavigation'
-// import SearchBarOverlay from '@/components/headers/SearchBarOverlay'
+import SearchBarOverlay from '@/components/Headers/SearchBarOverlay'
 
 let stickyActive
 let lastScrollTop = 0
@@ -26,11 +26,11 @@ export default {
   name: 'TheDefaultHeader',
 
   components: {
-    // SearchBar,
+    SearchBar,
     MiniCart,
-    // BurgerMenu,
+    BurgerMenu,
     MainNavigation,
-    // SearchBarOverlay
+    SearchBarOverlay
   },
 
   data () {
