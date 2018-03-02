@@ -2,8 +2,8 @@
   nav.navbar(:class="stickyHeader")
     .container
       .navbar-brand
-        nuxt-link.navbar-item(to="/home")
-          //- img.main-logo(src="/static/devil-panties-main-logo.png" srcset="/static/devil-panties-main-logo.png 1x, /static/devil-panties-main-logo@x2.png 2x" alt="Devil Panties")
+        nuxt-link.navbar-item.logo-container(to="/home")
+          img.main-logo(src="@/static/devil-panties-logo.svg" alt="Devil Panties")
         SearchBar#search-bar-mobile
         MiniCart#mini-cart-mobile
         BurgerMenu
@@ -92,12 +92,14 @@ export default {
       @media (min-width: $desktop)
         height 80px
 
-      .main-logo
-        height 30px
-        max-height 100%
-        
-        @media (min-width: $desktop)
-          height 40px
+      .logo-container
+        top -1px
+        .main-logo
+          height 24px
+          max-height 100%
+          
+          @media (min-width: $desktop)
+            height 28px
 
       #search-bar-mobile
       #mini-cart-mobile
