@@ -4,8 +4,7 @@ const store = {
   namespaced: true,
 
   state: {
-    cartItems: [],
-    liveStock: null
+    cartItems: []
   },
 
   mutations: {
@@ -15,10 +14,6 @@ const store = {
 
     SET_CART (state, payload) {
       state.cartItems = payload
-    },
-
-    SET_LIVE_STOCK (state, payload) {
-      state.liveStock = payload
     },
 
     CLEAR_CART (state) {
@@ -46,7 +41,6 @@ const store = {
       }
 
       function updateItemInCookie (id) {
-        console.log('UPDATE COOKIE', cookieCart)
         cookieCart.map((element) => {
           if (element.item.product_id === id) {
             element.quantity += cartData.quantity
@@ -69,6 +63,7 @@ const store = {
         commit('SET_CART_PUSH', data)
         addItemToCookie(data)
       }
+      return
     },
 
     initCart (vuexContext, req) {
@@ -76,6 +71,10 @@ const store = {
       let cartCleaned
 
       if (req) {
+        if (!req.headers.cookie) {
+          return
+        }
+
         let cartCookie = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('cart='))
@@ -85,7 +84,6 @@ const store = {
         }
         cart = cartCookie.split('=')[1]
         cartCleaned = decodeURIComponent(cart)
-        console.log('cartcLEANED', JSON.parse(cartCleaned))
         vuexContext.commit('SET_CART', JSON.parse(cartCleaned))
       } else if (process.client) {
         cart = localStorage.getItem('cart')
@@ -96,9 +94,8 @@ const store = {
     liveStock ({ commit }, payload) {
       const category = payload.category
       const productId = payload.product_id
-      this.$axios.$get(`${process.env.BASE_URL}/categories/${category}/${productId}/stock.json`)
+      return this.$axios.$get(`${process.env.BASE_URL}/categories/${category}/${productId}/stock.json`)
         .then((stock) => {
-          commit('SET_LIVE_STOCK', stock)
           return stock
         })
         .catch((err) => {
@@ -108,10 +105,6 @@ const store = {
   },
 
   getters: {
-    liveStock (state) {
-      return state.liveStock
-    },
-
     cartItems (state) {
       return state.cartItems
     },
