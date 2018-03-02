@@ -7,43 +7,46 @@
         a.mini-cart-desktop(aria-haspopup="true" aria-controls="dropdown-menu-mini-cart" @click="isActive = !isActive" v-on-clickaway="away")
           span.mini-cart-label My Cart
           span.cart-count {{ cartTotalItems }}
-      //- .dropdown-menu#dropdown-menu-mini-cart(role="menu")
-      //-   .dropdown-content
-      //-     .dropdown-item.empty-cart(v-if="cartItems && cartItems.length === 0")
-      //-       p Your cart is empty
-      //-     .dropdown-item(v-else)
-      //-       .columns(v-for="cartItem in cartItems")
-      //-         .column.is-4
-      //-           figure
-      //-             lazy-image(
-      //-               :src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-      //-               :small-src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-      //-               :alt="cartItem.item.images[0].alt")
-      //-         .column
-      //-           h6 
-      //-             router-link(:to="'/' + cartItem.item.category + '/' + cartItem.item.product_id") {{ cartItem.item.title }}
-      //-           span.seller By {{ cartItem.item.username }}
-      //-           .level
-      //-             .level-left.quantity Qty: {{ cartItem.quantity }}
-      //-             .level-right.price
-      //-               span(v-if="cartItem.item.on_sale")
-      //-                 | {{ cartItem.item.sale_price | currency }}
-      //-               span(v-else)
-      //-                 | {{ cartItem.item.price | currency }}
-      //-       .columns
-      //-         .subtotal
-      //-           .column
-      //-             | Subtotal
-      //-           .column.has-text-right 
-      //-             | {{ cartSubtotal | currency }}
+      .dropdown-menu#dropdown-menu-mini-cart(role="menu")
+        .dropdown-content
+          .dropdown-item.empty-cart(v-if="cartItems && cartItems.length === 0")
+            p Your cart is empty
+          .dropdown-item(v-else)
+            .columns(v-for="(cartItem, index) in cartItems" v-if="index < 5")
+              .column.is-4
+                figure
+                  lazy-image(
+                    :src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                    :small-src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                    :alt="cartItem.item.images[0].alt")
+              .column
+                h6 
+                  router-link(:to="'/' + cartItem.item.category + '/' + cartItem.item.product_id") {{ cartItem.item.title }}
+                span.seller By {{ cartItem.item.username }}
+                .level
+                  .level-left.quantity Qty: {{ cartItem.quantity }}
+                  .level-right.price
+                    span(v-if="cartItem.item.on_sale")
+                      | {{ cartItem.item.sale_price | currency }}
+                    span(v-else)
+                      | {{ cartItem.item.price | currency }}
+            .columns(v-else)
+              .column.has-text-centered
+                nuxt-link.view-more(to="") view all items
+            .columns
+              .subtotal
+                .column
+                  | Subtotal
+                .column.has-text-right 
+                  | {{ cartSubtotal | currency }}
 
-      //-       .columns
-      //-         .column
-      //-           a.button.is-flip.is-fullwidth
-      //-             span(data-text="View cart") View cart
-      //-         .column
-      //-           a.button.is-flip.is-secondary.is-fullwidth
-      //-             span(data-text="Checkout") Checkout
+            .columns
+              .column
+                a.button.is-flip.is-fullwidth
+                  span(data-text="View cart") View cart
+              .column
+                a.button.is-flip.is-secondary.is-fullwidth
+                  span(data-text="Checkout") Checkout
 </template>
 
 <script>
@@ -78,7 +81,7 @@
       },
 
       cartSubtotal () {
-        return this.$store.getters.cartSubtotal
+        return this.$store.getters['cart/cartSubtotal']
       }
     },
 
@@ -151,6 +154,12 @@
       
       .dropdown-item
         min-height 200px
+        .view-more
+          text-decoration underline
+          font-size 1.2rem
+          &:hover
+          &:focus
+            text-decoration none
         &.empty-cart
           justify-content center
           align-items center
