@@ -83,45 +83,45 @@
       },
 
       addToCart () {
-        const cartList = this.$store.getters.cartList
-        const record = cartList.find(element => element.item.product_id === this.product.product_id)
-        const payload = {
-          category: this.product.category,
-          product_id: this.product.product_id
-        }
-        this.$store.dispatch('cart/liveStock', payload)
-          .then((response) => {
-            const liveStock = response
-            // Check to see if user is adding more items than the stock allows
-            if (record && (record.quantity + this.quantity) > liveStock) {
-              this.$dialog.alert({
-                title: 'Whoops',
-                message: 'There isn\'t enough items in stock',
-                confirmText: 'Agree'
-              })
-              return false
-            }
+        // const cartList = this.$store.getters.cartList
+        // const record = cartList.find(element => element.item.product_id === this.product.product_id)
+        // const payload = {
+        //   category: this.product.category,
+        //   product_id: this.product.product_id
+        // }
+        // this.$store.dispatch('cart/liveStock', payload)
+        //   .then((response) => {
+        //     const liveStock = response
+        //     // Check to see if user is adding more items than the stock allows
+        //     if (record && (record.quantity + this.quantity) > liveStock) {
+        //       this.$dialog.alert({
+        //         title: 'Whoops',
+        //         message: 'There isn\'t enough items in stock',
+        //         confirmText: 'Agree'
+        //       })
+        //       return false
+        //     }
 
-            this.itemAdded = true
+        //     this.itemAdded = true
 
-            return this.$store.dispatch('ADD_TO_CART', {
+            return this.$store.dispatch('cart/addToCart', {
               item: this.product,
               quantity: this.quantity
             })
-          })
-          .then(() => {
-            setTimeout(() => {
-              this.itemAdded = false
-            }, 2500)
-          })
-          .catch(() => {
-            this.itemAdded = false
-            this.$dialog.alert({
-              title: 'Whoops',
-              message: 'Looks like something has gone wrong',
-              confirmText: 'Agree'
-            })
-          })
+          // })
+          // .then(() => {
+          //   setTimeout(() => {
+          //     this.itemAdded = false
+          //   }, 2500)
+          // })
+          // .catch(() => {
+          //   this.itemAdded = false
+          //   this.$dialog.alert({
+          //     title: 'Whoops',
+          //     message: 'Looks like something has gone wrong',
+          //     confirmText: 'Agree'
+          //   })
+          // })
       }
     }
   }
