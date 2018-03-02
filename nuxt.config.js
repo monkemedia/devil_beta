@@ -122,7 +122,7 @@ module.exports = {
     BASE_URL: process.env.BASE_URL,
     FB_API_KEY: process.env.FB_API_KEY,
     UPLOADCARE_PUBLIC_KEY: process.env.UPLOADCARE_PUBLIC_KEY,
-    UPLOADCARE_SECRET_KEY: process.env.UPLOADCARE_SECRET_KEY
+    UPLOADCARE_SECRET_KEY: process.env.UPLOADCARE_SECRET_KEY,
     HOST: process.env.HOST,
     PORT: process.env.PORT
   }
