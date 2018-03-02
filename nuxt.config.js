@@ -1,7 +1,7 @@
 const pkg = require('./package')
 const webpack = require('webpack')
 
-require('dotenv').config()
+// require('dotenv').config()
 
 module.exports = {
   mode: 'universal',
