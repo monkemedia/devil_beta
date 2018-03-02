@@ -5,7 +5,7 @@
         nuxt-link.navbar-item(to="/home")
           //- img.main-logo(src="/static/devil-panties-main-logo.png" srcset="/static/devil-panties-main-logo.png 1x, /static/devil-panties-main-logo@x2.png 2x" alt="Devil Panties")
         //- SearchBar#search-bar-mobile
-        //- MiniCart#mini-cart-mobile
+        MiniCart#mini-cart-mobile
         //- BurgerMenu
       MainNavigation
     //- SearchBarOverlay
@@ -14,7 +14,7 @@
 
 <script>
 // import SearchBar from '@/components/headers/SearchBar'
-// // import MiniCart from '@/components/headers/MiniCart'
+import MiniCart from '@/components/Headers/MiniCart'
 // import BurgerMenu from '@/components/headers/BurgerMenu'
 import MainNavigation from '@/components/Navigation/TheMainNavigation'
 // import SearchBarOverlay from '@/components/headers/SearchBarOverlay'
@@ -27,7 +27,7 @@ export default {
 
   components: {
     // SearchBar,
-    // // MiniCart,
+    MiniCart,
     // BurgerMenu,
     MainNavigation,
     // SearchBarOverlay

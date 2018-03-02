@@ -7,7 +7,10 @@ module.exports = {
   mode: 'universal',
 
   route: {
-    middleware: ['check-auth']
+    middleware: [
+      'check-auth', 
+      'cart'
+    ]
   },
 
   /*
