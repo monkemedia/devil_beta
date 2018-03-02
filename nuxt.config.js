@@ -6,6 +6,10 @@ const webpack = require('webpack')
 module.exports = {
   mode: 'universal',
 
+  router: {
+    middleware: 'cart'
+  },
+
   /*
   ** Headers of the page
   */

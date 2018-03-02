@@ -8,13 +8,13 @@
       .navbar-item#user-login-desktop
         my-account
       .navbar-item#mini-cart-desktop
-        //- mini-cart
+        mini-cart
 </template>
 
 <script>
   // import SearchBar from '@/components/headers/SearchBar'
   import MyAccount from '@/components/Headers/MyAccount'
-  // import MiniCart from '@/components/headers/MiniCart'
+  import MiniCart from '@/components/Headers/MiniCart'
 
   export default {
     name: 'TheMainNavigation',
@@ -22,7 +22,7 @@
     components: {
       // SearchBar,
       MyAccount,
-      // MiniCart
+      MiniCart
     },
 
     data () {
