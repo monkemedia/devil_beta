@@ -3,6 +3,7 @@ import auth         from './modules/auth.js'
 import sellersItems from './modules/sellers-items.js'
 import cart         from './modules/cart.js'
 import modals       from './modules/modals.js'
+import navigation   from './modules/navigation.js'
 
 const createStore = () => {
   return new Vuex.Store({
@@ -10,7 +11,8 @@ const createStore = () => {
       auth,
       sellersItems,
       cart,
-      modals
+      modals,
+      navigation
     }
   })
 }

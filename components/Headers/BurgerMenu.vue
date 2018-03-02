@@ -11,17 +11,17 @@
 
     methods: {
       toggleMobileMenu () {
-        if (this.$store.getters.isMobileMenuOpen) {
-          this.$store.commit('SET_MOBILE_MENU_TOGGLE', false)
+        if (this.$store.getters['navigation/isMobileMenuOpen']) {
+          this.$store.commit('navigation/SET_MOBILE_MENU_TOGGLE', false)
         } else {
-          this.$store.commit('SET_MOBILE_MENU_TOGGLE', true)
+          this.$store.commit('navigation/SET_MOBILE_MENU_TOGGLE', true)
         }
       }
     },
 
     computed: {
       isMobileMenuActive () {
-        return this.$store.getters.isMobileMenuOpen
+        return this.$store.getters['navigation/isMobileMenuOpen']
       }
     }
   }
