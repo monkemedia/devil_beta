@@ -25,9 +25,7 @@ async function start() {
   // Build only in dev mode
   if (config.dev) {
     const builder = new Builder(nuxt)
-    const wwwhisper = require('connect-wwwhisper')
     await builder.build()
-    app.use(wwwhisper())
   }
 
   // Give nuxt middleware to express
