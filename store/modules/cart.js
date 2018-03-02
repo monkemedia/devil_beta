@@ -31,14 +31,11 @@ const store = {
     },
 
     initCart (vuexContext, req) {
+      console.log('HERE')
       let cart
+      let cartCleaned
 
       if (req) {
-        if (!req.headers.cookie) {
-          vuexContext.commit('CLEAR_CART')
-          return
-        }
-
         let cartCookie = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('cart='))
@@ -47,13 +44,12 @@ const store = {
           return
         }
         cart = cartCookie.split('=')[1]
+        cartCleaned = cart.replace(/%22/g,'"').replace(/%2C/g,',')
+        vuexContext.commit('SET_CART', JSON.parse(cartCleaned))
       } else if (process.client) {
         cart = localStorage.getItem('cart')
+        vuexContext.commit('SET_CART', JSON.parse(cart))
       }
-
-      const cartCleaned = cart.replace(/%22/g,'"').replace(/%2C/g,',')
-
-      vuexContext.commit('SET_CART', JSON.parse(cartCleaned))
     },
 
     liveStock ({ commit }, payload) {
