@@ -72,7 +72,6 @@ const store = {
     },
 
     initCart (vuexContext, req) {
-      console.log('HERE')
       let cart
       let cartCleaned
 
@@ -85,7 +84,7 @@ const store = {
           return
         }
         cart = cartCookie.split('=')[1]
-        cartCleaned = cart.replace(/%22/g,'"').replace(/%2C/g,',')
+        cartCleaned = decodeURIComponent(cart)
         console.log('cartcLEANED', JSON.parse(cartCleaned))
         vuexContext.commit('SET_CART', JSON.parse(cartCleaned))
       } else if (process.client) {
