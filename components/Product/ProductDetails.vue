@@ -104,7 +104,7 @@
 
         //     this.itemAdded = true
 
-            return this.$store.dispatch('cart/addToCart', {
+            this.$store.dispatch('cart/addToCart', {
               item: this.product,
               quantity: this.quantity
             })
