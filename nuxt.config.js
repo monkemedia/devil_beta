@@ -6,6 +6,10 @@ const webpack = require('webpack')
 module.exports = {
   mode: 'universal',
 
+  route: {
+    middleware: ['check-auth']
+  },
+
   /*
   ** Headers of the page
   */

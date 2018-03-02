@@ -16,10 +16,6 @@
   import ProductDetails from '@/components/Product/ProductDetails'
 
   export default {
-    middleware: [
-      'check-auth'
-    ],
-
     components: {
       Breadcrumb,
       ImageCarousel,
