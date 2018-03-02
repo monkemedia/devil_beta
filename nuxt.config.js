@@ -1,7 +1,7 @@
 const pkg = require('./package')
 const webpack = require('webpack')
 
-// require('dotenv').config()
+require('dotenv').config()
 
 module.exports = {
   mode: 'universal',
@@ -123,5 +123,7 @@ module.exports = {
     FB_API_KEY: process.env.FB_API_KEY,
     UPLOADCARE_PUBLIC_KEY: process.env.UPLOADCARE_PUBLIC_KEY,
     UPLOADCARE_SECRET_KEY: process.env.UPLOADCARE_SECRET_KEY
+    HOST: process.env.HOST,
+    PORT: process.env.PORT
   }
 }
