@@ -15,10 +15,16 @@ async function start() {
   // Init Nuxt.js
   const nuxt = new Nuxt(config)
 
+  console.log('STAGING', process.env.STAGING)
+
+  if (process.env.STAGING) {
+    const wwwhisper = require('connect-wwwhisper')
+    app.use(wwwhisper())
+  }
+
   // Build only in dev mode
   if (config.dev) {
     const builder = new Builder(nuxt)
-    const wwwhisper = require('connect-wwwhisper')
     await builder.build()
   }
 
@@ -30,7 +36,12 @@ async function start() {
   app.use(nuxt.render)
 
   // Listen the server
-  app.listen(port, host)
-  console.log('Server listening on http://' + host + ':' + port) // eslint-disable-line no-console
+   app.get('/', (request, response) => {
+    const result = 'App is running'
+    response.send(result);
+  })
+    .listen(app.get('port'), () => {
+        console.log('App is running, server is listening on port ', app.get('port'));
+    })
 }
 start()
