@@ -6,8 +6,11 @@ const webpack = require('webpack')
 module.exports = {
   mode: 'universal',
 
-  router: {
-    middleware: 'cart'
+  route: {
+    middleware: [
+      'check-auth', 
+      'cart'
+    ]
   },
 
   /*
