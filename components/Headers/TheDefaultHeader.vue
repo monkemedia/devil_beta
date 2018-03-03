@@ -80,6 +80,9 @@ export default {
     &.is-sticky-header
       position fixed
       height 50px
+      
+      .navbar-brand
+        height auto
     
     &.animated
       animation-duration: .3s;
