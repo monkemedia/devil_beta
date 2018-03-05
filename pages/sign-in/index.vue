@@ -17,6 +17,8 @@
   export default {
     name: 'SignIn',
 
+    middleware: 'cart',
+
     components: {
       SignInUserForm
     }

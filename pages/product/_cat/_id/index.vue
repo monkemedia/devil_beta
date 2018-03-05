@@ -22,6 +22,8 @@
       ProductDetails
     },
 
+    middleware: ['check-auth', 'cart'],
+
     asyncData (context) {
       const paramId = context.params.id
       const paramCat = context.params.cat

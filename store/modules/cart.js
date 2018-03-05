@@ -22,12 +22,69 @@ const store = {
   },
 
   actions: {
-    addToCart ({ state, commit }, cartData) {
+    addToCart ({ state, commit, rootGetters }, cartData) {
       let itemArray
       let cookieCart = JSON.parse(localStorage.getItem('cart'))
+      const vm = this
       const record = state.cartItems.find(element => element.item.product_id === cartData.item.product_id)
+      const isAuthenticated = rootGetters['auth/isAuthenticated']
 
-      function addItemToCookie (item) {
+      function addItemToCartServer (item) {
+        console.log('here', item)
+        return new Promise((resolve, reject) => {
+          const userId = rootGetters['auth/userId']
+          const token = rootGetters['auth/token']
+          const productId = item.item.product_id
+          return vm.$axios.$put(`${process.env.BASE_URL}/usersCart/${userId}/${productId}.json?auth=${token}`, item)
+            .then((result) => {
+              console.log('result', result)
+              resolve(result)
+            })
+            .catch((err) => {
+              console.log('error', err)
+              reject(err)
+            })
+        })
+      }
+
+      function updateItemToCartServer (productId, quantity) {
+        console.log('productId', productId)
+        console.log('quantity', quantity)
+        return new Promise((resolve, reject) => {
+          const userId = rootGetters['auth/userId']
+          const token = rootGetters['auth/token']
+          return vm.$axios.$patch(`${process.env.BASE_URL}/usersCart/${userId}/${productId}.json?auth=${token}`, { quantity })
+            .then((result) => {
+              console.log('result', result)
+              resolve(result)
+            })
+            .catch((err) => {
+              console.log('error', err)
+              reject(err)
+            })
+        })
+      }
+
+      function updateItem (cartData) {
+        let quantity
+        cookieCart.map((element) => {
+          if (element.item.product_id === cartData.item.product_id) {
+            element.quantity += cartData.quantity
+            quantity = element.quantity
+          }
+          return element
+        })
+
+        localStorage.setItem('cart', JSON.stringify(cookieCart))
+        state.cartItems = cookieCart
+        Cookie.set('cart', cookieCart)
+        commit('SET_CART', cookieCart)
+        if (isAuthenticated) { 
+          updateItemToCartServer(cartData.item.product_id, quantity)
+        }
+      }
+
+      function addItem (item) {
         if (cookieCart) {
           cookieCart.push(item)
           localStorage.setItem('cart', JSON.stringify(cookieCart))
@@ -38,32 +95,21 @@ const store = {
           localStorage.setItem('cart', JSON.stringify(itemArray))
           Cookie.set('cart', itemArray)
         }
-      }
-
-      function updateItemInCookie (id) {
-        cookieCart.map((element) => {
-          if (element.item.product_id === id) {
-            element.quantity += cartData.quantity
-          }
-          return element
-        })
-        localStorage.setItem('cart', JSON.stringify(cookieCart))
-        state.cartItems = cookieCart
-        Cookie.set('cart', cookieCart)
+        commit('SET_CART_PUSH', item)
+        if (isAuthenticated) {
+          addItemToCartServer(item)
+        }
       }
 
       if (record) { // Product is already in cart so just change quantity
-        updateItemInCookie(cartData.item.product_id)
-        commit('SET_CART', cookieCart)
+        updateItem(cartData)
       } else {
         const data = {
           ...cartData,
           quantity: cartData.quantity
         }
-        commit('SET_CART_PUSH', data)
-        addItemToCookie(data)
+        addItem(data)
       }
-      return
     },
 
     initCart (vuexContext, req) {
