@@ -16,13 +16,16 @@
   import ProductDetails from '@/components/Product/ProductDetails'
 
   export default {
+    middleware: [
+      'check-auth',
+      'cart'
+    ],
+
     components: {
       Breadcrumb,
       ImageCarousel,
       ProductDetails
     },
-
-    middleware: ['check-auth', 'cart'],
 
     asyncData (context) {
       const paramId = context.params.id

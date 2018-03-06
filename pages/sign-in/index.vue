@@ -17,7 +17,10 @@
   export default {
     name: 'SignIn',
 
-    middleware: 'cart',
+    middleware: [
+      'check-auth',
+      'cart'
+    ],
 
     components: {
       SignInUserForm

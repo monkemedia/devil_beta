@@ -1,6 +1,6 @@
 <template lang="pug">
   div
-    .mini-cart-mobile
+    .mini-cart-mobile 
       span {{ cartTotalItems }}
     .dropdown.mini-cart-desktop-container(:class="{ 'is-active': isActive }")
       .dropdown-trigger
@@ -9,27 +9,27 @@
           span.cart-count {{ cartTotalItems }}
       .dropdown-menu#dropdown-menu-mini-cart(role="menu")
         .dropdown-content
-          .dropdown-item.empty-cart(v-if="cartItems && cartItems.length === 0")
+          .dropdown-item.empty-cart(v-if="!cartData")
             p Your cart is empty
           .dropdown-item(v-else)
-            .columns(v-for="(cartItem, index) in cartItems" v-if="index < 5")
+            .columns(v-for="(cartItem, index) in cartData" v-if="index < 5")
               .column.is-4
                 figure
                   lazy-image(
-                    :src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                    :small-src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                    :alt="cartItem.item.images[0].alt")
+                    :src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                    :small-src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                    :alt="cartItem.images[0].alt")
               .column
                 h6 
-                  router-link(:to="'/' + cartItem.item.category + '/' + cartItem.item.product_id") {{ cartItem.item.title }}
-                span.seller By {{ cartItem.item.username }}
+                  router-link(:to="'/' + cartItem.category + '/' + cartItem.product_id") {{ cartItem.title }}
+                span.seller By {{ cartItem.username }}
                 .level
-                  .level-left.quantity Qty: {{ cartItem.quantity }}
+                  .level-left.quantity Qty: {{ cartItems[index].quantity }}
                   .level-right.price
-                    span(v-if="cartItem.item.on_sale")
-                      | {{ cartItem.item.sale_price | currency }}
+                    span(v-if="cartItem.on_sale")
+                      | {{ cartItem.sale_price | currency }}
                     span(v-else)
-                      | {{ cartItem.item.price | currency }}
+                      | {{ cartItem.price | currency }}
             .columns(v-else)
               .column.has-text-centered
                 nuxt-link.view-more(to="") view all items
@@ -51,6 +51,7 @@
 
 <script>
   import { mixin as clickaway } from 'vue-clickaway'
+  import axios from 'axios'
 
   export default {
     name: 'MiniCart',
@@ -61,8 +62,31 @@
 
     data () {
       return {
-        isActive: false
+        isActive: false,
+        cartData: null
       }
+    },
+
+    mounted () {
+      // this.$store.dispatch('cart/getCartDataFromServer', this.cartItems)      
+      const cartItems = this.cartItems
+      const promises = []
+      const newArray = []
+
+      cartItems.forEach((item) => {
+        console.log('item', item)
+        promises.push(axios.get(`${process.env.BASE_URL}/products/${item.product_id}.json`))
+      })
+
+      axios.all(promises)
+        .then((result) => {
+          console.log('monkey', result)
+          result.forEach((item) => {
+            console.log(item.data)
+            newArray.push(item.data)
+          })
+        })
+      this.cartData = newArray
     },
 
     methods: {

@@ -18,7 +18,9 @@
     layout: 'admin',
 
     middleware: [
-      'auth'
+      'check-auth',
+      'auth',
+      'cart'
     ],
 
     components: {

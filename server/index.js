@@ -11,7 +11,7 @@ app.set('port', port)
 let config = require('../nuxt.config.js')
 config.dev = !(process.env.NODE_ENV === 'production')
 
-async function start() {
+// async function start() {
   // Init Nuxt.js
   const nuxt = new Nuxt(config)
 
@@ -23,7 +23,7 @@ async function start() {
   // Build only in dev mode
   if (config.dev) {
     const builder = new Builder(nuxt)
-    await builder.build()
+    builder.build()
   }
 
   if (process.env.NODE_ENV === 'staging') {
@@ -33,13 +33,15 @@ async function start() {
   // Give nuxt middleware to express
   app.use(nuxt.render)
 
+  app.listen(port, host)
+
   // Listen the server
-   app.get('/', (request, response) => {
-    const result = 'App is running'
-    response.send(result);
-  })
-    .listen(app.get('port'), () => {
-        console.log('App is running, server is listening on port ', app.get('port'));
-    })
-}
-start()
+  // app.get('/', (request, response) => {
+  //   const result = 'App is running'
+  //   response.send(result);
+  // })
+  //   .listen(app.get('port'), () => {
+  //       console.log('App is running, server is listening on port ', app.get('port'));
+  //   })
+// }
+// start()
