@@ -12,6 +12,8 @@ const store = {
       state.added.push({
         product_id: product.product_id,
         price: product.price,
+        on_sale: product.on_sale,
+        sale_price: product.sale_price,
         quantity: 1
       })
     },
@@ -22,7 +24,6 @@ const store = {
     },
 
     SET_CART_ITEMS (state, items) {
-      console.log('HERE', items)
       state.added = items
     }
   },
@@ -88,7 +89,7 @@ const store = {
       return state.added
     },
 
-    cartTotalItems: (state) => {
+    cartTotalItems (state) {
       const total = state.added.reduce((a, b) => {
         return {
           quantity: a.quantity + b.quantity
@@ -98,18 +99,18 @@ const store = {
       return total.quantity
     },
 
-    cartSubtotal: (state) => {
-      // return state.cartItems.reduce((a, b) => {
-      //   const isOnSale = b.item.on_sale
+    cartSubtotal (state) {
+      return state.added.reduce((a, b) => {
+        const isOnSale = b.on_sale
 
-      //   function price () {
-      //     if (isOnSale) {
-      //       return b.item.sale_price
-      //     }
-      //     return b.item.price
-      //   }
-      //   return a + price() * b.quantity
-      // }, 0)
+        function price () {
+          if (isOnSale) {
+            return b.sale_price
+          }
+          return b.price
+        }
+        return a + price() * b.quantity
+      }, 0)
     }
   }
 }

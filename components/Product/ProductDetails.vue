@@ -90,7 +90,9 @@
             return this.$store.dispatch('cart/addToCart', {
               product_id: this.product.product_id,
               quantity: this.quantity,
-              price: this.product.price
+              price: this.product.price,
+              on_sale: this.product.on_sale,
+              sale_price: this.product.sale_price
             })
           })
           .then(() => {

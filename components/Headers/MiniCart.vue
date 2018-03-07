@@ -68,30 +68,30 @@
     },
 
     mounted () {
-      // this.$store.dispatch('cart/getCartDataFromServer', this.cartItems)      
-      const cartItems = this.cartItems
-      const promises = []
-      const newArray = []
-
-      cartItems.forEach((item) => {
-        console.log('item', item)
-        promises.push(axios.get(`${process.env.BASE_URL}/products/${item.product_id}.json`))
-      })
-
-      axios.all(promises)
-        .then((result) => {
-          console.log('monkey', result)
-          result.forEach((item) => {
-            console.log(item.data)
-            newArray.push(item.data)
-          })
-        })
-      this.cartData = newArray
+      this.getCartData()
     },
 
     methods: {
       away () {
         this.isActive = false
+      },
+
+      getCartData () {  
+        const cartItems = this.cartItems
+        const promises = []
+        const newArray = []
+
+        cartItems.forEach((item) => {
+          promises.push(axios.get(`${process.env.BASE_URL}/products/${item.product_id}.json`))
+        })
+
+        axios.all(promises)
+          .then((result) => {
+            result.forEach((item) => {
+              newArray.push(item.data)
+            })
+          })
+        this.cartData = newArray
       }
     },
 
@@ -111,15 +111,7 @@
 
     watch: {
       cartItems (value) {
-        return value
-      },
-
-      cartTotalItems (value) {
-        return value
-      },
-
-      cartSubtotal (value) {
-        return value
+        this.getCartData()
       }
     }
   }
