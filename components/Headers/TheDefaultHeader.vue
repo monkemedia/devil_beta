@@ -2,22 +2,22 @@
   nav.navbar(:class="stickyHeader")
     .container
       .navbar-brand
-        nuxt-link.navbar-item(to="/home")
-          //- img.main-logo(src="/static/devil-panties-main-logo.png" srcset="/static/devil-panties-main-logo.png 1x, /static/devil-panties-main-logo@x2.png 2x" alt="Devil Panties")
-        //- SearchBar#search-bar-mobile
+        nuxt-link.navbar-item.logo-container(to="/home")
+          img.main-logo(src="@/static/devil-panties-logo.svg" alt="Devil Panties")
+        SearchBar#search-bar-mobile
         //- MiniCart#mini-cart-mobile
-        //- BurgerMenu
+        BurgerMenu
       MainNavigation
-    //- SearchBarOverlay
+    SearchBarOverlay
 
 </template>
 
 <script>
-// import SearchBar from '@/components/headers/SearchBar'
-// // import MiniCart from '@/components/headers/MiniCart'
-// import BurgerMenu from '@/components/headers/BurgerMenu'
+import SearchBar from '@/components/Headers/SearchBar'
+import MiniCart from '@/components/Headers/MiniCart'
+import BurgerMenu from '@/components/Headers/BurgerMenu'
 import MainNavigation from '@/components/Navigation/TheMainNavigation'
-// import SearchBarOverlay from '@/components/headers/SearchBarOverlay'
+import SearchBarOverlay from '@/components/Headers/SearchBarOverlay'
 
 let stickyActive
 let lastScrollTop = 0
@@ -26,11 +26,11 @@ export default {
   name: 'TheDefaultHeader',
 
   components: {
-    // SearchBar,
-    // // MiniCart,
-    // BurgerMenu,
+    SearchBar,
+    MiniCart,
+    BurgerMenu,
     MainNavigation,
-    // SearchBarOverlay
+    SearchBarOverlay
   },
 
   data () {
@@ -39,7 +39,7 @@ export default {
     }
   },
 
-  created () {
+  mounted () {
     if (process.browser) { 
       window.addEventListener('scroll', this.handleScroll)
     }
@@ -47,10 +47,7 @@ export default {
 
   methods: {
     handleScroll () {
-      if (process.browser) {
-        const $win = window
-        return
-      }
+      const $win = window
       const st = $win.pageYOffset || document.documentElement.scrollTop
       if (st > lastScrollTop && st >= 300) { // On scroll down
         stickyActive = true
@@ -83,6 +80,9 @@ export default {
     &.is-sticky-header
       position fixed
       height 50px
+      
+      .navbar-brand
+        height auto
     
     &.animated
       animation-duration: .3s;
@@ -95,12 +95,14 @@ export default {
       @media (min-width: $desktop)
         height 80px
 
-      .main-logo
-        height 30px
-        max-height 100%
-        
-        @media (min-width: $desktop)
-          height 40px
+      .logo-container
+        top -1px
+        .main-logo
+          height 24px
+          max-height 100%
+          
+          @media (min-width: $desktop)
+            height 28px
 
       #search-bar-mobile
       #mini-cart-mobile

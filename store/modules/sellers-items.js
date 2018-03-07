@@ -109,6 +109,9 @@ const store = {
         .then(() => {
           if (itemDetails.storefront === 'visible') {
             return this.$axios.$put(`${process.env.BASE_URL}/categories/${category}/${uniqueId}.json?auth=${token}`, itemData)
+              .then(() => {
+                return this.$axios.$put(`${process.env.BASE_URL}/products/${uniqueId}.json?auth=${token}`, itemData)
+              })
           }
         })
         .then(() => {

@@ -17,7 +17,8 @@
 
   export default {
     middleware: [
-      'check-auth'
+      'check-auth',
+      'cart'
     ],
 
     components: {

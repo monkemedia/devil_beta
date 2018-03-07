@@ -18,7 +18,8 @@
     name: 'SignIn',
 
     middleware: [
-      'check-auth'
+      'check-auth',
+      'cart'
     ],
 
     components: {

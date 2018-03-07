@@ -11,17 +11,17 @@
     .card-content
       .content
         p {{ product.description }}
-        .select.quantity.is-multiple(v-if="stock > 0")
+        .select.quantity.is-multiple(v-if="product.stock > 0")
           select(v-model="quantity")
             option(value="default" disabled) Select quantity
-            option(v-for="n in 5" :value="n" :disabled="n > stock") {{ n }}
+            option(v-for="n in 5" :value="n" :disabled="n > product.stock") {{ n }}
 
-        span.sold-out(v-if="stock === 0") Sold out
+        span.sold-out(v-if="product.stock === 0") Sold out
 
         button.button.is-secondary.is-fullwidth.is-flip.add-to-cart(
-          :class="{ 'item-added' : itemAdded }"
+          :class="{ 'item-added' : itemAdded, 'is-loading' : loading }"
           @click="addToCart" 
-          :disabled="stock === 0 || quantity === 'default'")
+          :disabled="product.stock === 0 || quantity === 'default'")
           span.add-to-cart-text(data-text="Add to cart") Add to cart
           span.added-to-cart-text Added
 
@@ -48,6 +48,7 @@
     data () {
       return {
         activeTabIndex: 0,
+        loading: false,
         itemAdded: false,
         tabs: [
           {
@@ -63,59 +64,58 @@
       }
     },
 
-    mounted () {
-      const payload = {
-        category: this.product.category,
-        product_id: this.product.product_id
-      }
-      this.$store.dispatch('cart/liveStock', payload)
-    },
-
-    computed: {
-      stock () {
-        return this.$store.getters['cart/liveStock']
-      }
-    },
-
     methods: {
       toggleTab (index) {
         this.activeTabIndex = index
       },
 
       addToCart () {
-        const cartList = this.$store.getters.cartList
-        const record = cartList.find(element => element.item.product_id === this.product.product_id)
+        const cartItems = this.$store.getters['cart/cartItems']
+        const record = cartItems.find(element => element.product_id === this.product.product_id)
+        console.log('here', this.product)
         const payload = {
           category: this.product.category,
           product_id: this.product.product_id
         }
+
+        this.loading = true
+
         this.$store.dispatch('cart/liveStock', payload)
-          .then((response) => {
-            const liveStock = response
+          .then((liveStock) => {
             // Check to see if user is adding more items than the stock allows
             if (record && (record.quantity + this.quantity) > liveStock) {
+              throw 'no-stock'
+            }
+
+            return this.$store.dispatch('cart/addToCart', {
+              product_id: this.product.product_id,
+              quantity: this.quantity,
+              price: this.product.price,
+              on_sale: this.product.on_sale,
+              sale_price: this.product.sale_price
+            })
+          })
+          .then(() => {
+            this.loading = false
+            this.itemAdded = true
+            setTimeout(() => {
+              this.itemAdded = false
+            }, 2500)
+          })
+          .catch((err) => {
+            console.log('MY ERROR', err)
+            this.loading = false
+            this.itemAdded = false
+
+            if (err === 'no-stock') {
               this.$dialog.alert({
                 title: 'Whoops',
                 message: 'There isn\'t enough items in stock',
                 confirmText: 'Agree'
               })
-              return false
+              return
             }
 
-            this.itemAdded = true
-
-            return this.$store.dispatch('ADD_TO_CART', {
-              item: this.product,
-              quantity: this.quantity
-            })
-          })
-          .then(() => {
-            setTimeout(() => {
-              this.itemAdded = false
-            }, 2500)
-          })
-          .catch(() => {
-            this.itemAdded = false
             this.$dialog.alert({
               title: 'Whoops',
               message: 'Looks like something has gone wrong',
