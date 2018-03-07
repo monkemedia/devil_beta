@@ -102,7 +102,6 @@
             }, 2500)
           })
           .catch((err) => {
-            console.log('MY ERROR', err)
             this.loading = false
             this.itemAdded = false
 

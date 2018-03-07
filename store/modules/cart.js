@@ -44,15 +44,15 @@ const store = {
     },
 
     updateDatabase ({ state, rootGetters }, payload) {
-      console.log('updateDatabase', payload)
       const token = rootGetters['auth/token']
       const userId = rootGetters['auth/userId']
-      let cartItem
 
       return this.$axios.$get(`${process.env.BASE_URL}/cart/${userId}/${payload.product_id}.json?auth=${token}`)
         .then((result) => {
-          result.quantity += payload.quantity
-          return this.$axios.$patch(`${process.env.BASE_URL}/cart/${userId}/${payload.product_id}.json?auth=${token}`, { quantity: result.quantity })
+          if (result) {
+            result.quantity += payload.quantity
+            return this.$axios.$patch(`${process.env.BASE_URL}/cart/${userId}/${payload.product_id}.json?auth=${token}`, { quantity: result.quantity })
+          }
         })
         .then((result) => {
           return result
@@ -93,7 +93,7 @@ const store = {
 
         if (isAuthenticated) {
           saveMethod('INCREMENT_ITEM_QUANTITY', product)
-          return dispatch('updateDatabase', product)
+          return dispatch('updateDatabase', product) // HERE
             .then((result) => {
               console.log('result', product)
               return result
