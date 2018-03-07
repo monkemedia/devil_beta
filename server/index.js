@@ -35,15 +35,15 @@ config.dev = !(process.env.NODE_ENV === 'production')
   // Give nuxt middleware to express
   app.use(nuxt.render)
 
-  app.listen(port, host)
+  // app.listen(port, host)
 
   // Listen the server
-  // app.get('/', (request, response) => {
-  //   const result = 'App is running'
-  //   response.send(result);
-  // })
-  //   .listen(app.get('port'), () => {
-  //       console.log('App is running, server is listening on port ', app.get('port'));
-  //   })
+  app.get('/', (request, response) => {
+    const result = 'App is running'
+    response.send(result);
+  })
+    .listen(app.get('port'), () => {
+        console.log('App is running, server is listening on port ', app.get('port'));
+    })
 // }
 // start()
