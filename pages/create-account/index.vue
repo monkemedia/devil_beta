@@ -12,6 +12,11 @@
   export default {
     name: 'Register',
 
+    middleware: [
+      'check-auth',
+      'cart'
+    ],
+
     components: {
       RegisterUserForm
     }

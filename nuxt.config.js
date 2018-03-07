@@ -6,6 +6,13 @@ const webpack = require('webpack')
 module.exports = {
   mode: 'universal',
 
+  route: {
+    middleware: [
+      'check-auth', 
+      'cart'
+    ]
+  },
+
   /*
   ** Headers of the page
   */
@@ -47,7 +54,8 @@ module.exports = {
   ** Global CSS
   */
   css: [
-    { src: '@/assets/css/main.styl', lang: 'styl' }
+    { src: '@/assets/css/main.styl', lang: 'styl' },
+    { src: 'animate.css/animate.min.css', lang: 'css' }
   ],
 
   /*

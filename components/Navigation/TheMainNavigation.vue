@@ -4,25 +4,25 @@
       a.navbar-item(v-for="nav in navigation" :class="{ 'is-active': isActive(nav) }") {{ nav.title}}
     .navbar-end
       .navbar-item#search-bar-desktop
-        //- search-bar
+        search-bar
       .navbar-item#user-login-desktop
         my-account
       .navbar-item#mini-cart-desktop
-        //- mini-cart
+        mini-cart
 </template>
 
 <script>
-  // import SearchBar from '@/components/headers/SearchBar'
+  import SearchBar from '@/components/Headers/SearchBar'
   import MyAccount from '@/components/Headers/MyAccount'
-  // import MiniCart from '@/components/headers/MiniCart'
+  import MiniCart from '@/components/Headers/MiniCart'
 
   export default {
     name: 'TheMainNavigation',
 
     components: {
-      // SearchBar,
+      SearchBar,
       MyAccount,
-      // MiniCart
+      MiniCart
     },
 
     data () {

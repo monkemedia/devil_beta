@@ -21,9 +21,9 @@
     layout: 'admin',
 
     middleware: [
-      'check-auth',
       'auth',
-      'add-item-error'
+      'add-item-error',
+      'cart'
     ],
 
     components: {
