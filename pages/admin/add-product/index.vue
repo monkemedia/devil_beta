@@ -19,7 +19,8 @@
 
     middleware: [
       'check-auth',
-      'auth'
+      'auth',
+      'cart'
     ],
 
     components: {

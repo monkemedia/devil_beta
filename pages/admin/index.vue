@@ -12,7 +12,8 @@
   export default {
     middleware: [
       'check-auth',
-      'auth'
+      'auth',
+      'cart'
     ],
 
     layout: 'admin',
