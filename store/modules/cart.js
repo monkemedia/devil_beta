@@ -19,7 +19,7 @@ const store = {
     },
 
     INCREMENT_ITEM_QUANTITY (state, product) {
-      const cartItem = state.added.find(item => item.product_id === product.cartItem.product_id)
+      const cartItem = state.added.find(item => item.product_id === product.product_id)
       cartItem.quantity += product.quantity
     },
 
@@ -29,20 +29,84 @@ const store = {
   },
 
   actions: {
-    addToCart ({ state, dispatch, commit }, product) {
+    addToDatabase ({ rootGetters }, payload) {
+      const token = rootGetters['auth/token']
+      const userId = rootGetters['auth/userId']
+      const productId = payload.product_id
+
+      return this.$axios.$put(`${process.env.BASE_URL}/cart/${userId}/${productId}.json?auth=${token}`, payload)
+        .then((result) => {
+          return result
+        })
+        .catch((err) => {
+          throw err
+        })
+    },
+
+    updateDatabase ({ state, rootGetters }, payload) {
+      console.log('updateDatabase', payload)
+      const token = rootGetters['auth/token']
+      const userId = rootGetters['auth/userId']
+      let cartItem
+
+      return this.$axios.$get(`${process.env.BASE_URL}/cart/${userId}/${payload.product_id}.json?auth=${token}`)
+        .then((result) => {
+          result.quantity += payload.quantity
+
+          return this.$axios.$patch(`${process.env.BASE_URL}/cart/${userId}/${payload.product_id}.json?auth=${token}`, { quantity: result.quantity })
+        })
+        .then((result) => {
+          console.log('result', result)
+          return result
+        })
+        .catch((err) => {
+          throw err
+        })
+    },
+
+    addToCart ({ state, dispatch, commit, rootGetters }, product) {
       const cartItem = state.added.find(item => item.product_id === product.product_id)
-      if (!cartItem) {
-        commit('PUSH_PRODUCT_TO_CART', product)
+      const isAuthenticated = rootGetters['auth/isAuthenticated']
+
+      function saveMethod (location, product) {
+        commit(location, product)
         localStorage.setItem('cart', JSON.stringify(state.added))
         Cookies.set('cart', state.added)
+      }
+
+      if (!cartItem) {
+        if (isAuthenticated) {
+          saveMethod('PUSH_PRODUCT_TO_CART', product)
+          return dispatch('addToDatabase', product)
+            .then((result) => {
+              return result
+            })
+            .catch((err) => {
+              throw err
+            })
+        }
+
+        saveMethod('PUSH_PRODUCT_TO_CART', product)
       } else {
         const payload = {
           cartItem,
           quantity: product.quantity
         }
-        commit('INCREMENT_ITEM_QUANTITY', payload)
-        localStorage.setItem('cart', JSON.stringify(state.added))
-        Cookies.set('cart', state.added)
+
+        if (isAuthenticated) {
+          saveMethod('INCREMENT_ITEM_QUANTITY', product)
+          return dispatch('updateDatabase', product)
+            .then((result) => {
+              console.log('result', product)
+              return result
+            })
+            .catch((err) => {
+              console.log('ERROR', err)
+              throw err
+            })
+        }
+
+        saveMethod('INCREMENT_ITEM_QUANTITY', product)
       }
     },
 
@@ -90,27 +154,33 @@ const store = {
     },
 
     cartTotalItems (state) {
-      const total = state.added.reduce((a, b) => {
-        return {
-          quantity: a.quantity + b.quantity
-        }
-      }, { quantity: 0 })
+      if (state.added) {
+        const total = state.added.reduce((a, b) => {
+          return {
+            quantity: a.quantity + b.quantity
+          }
+        }, { quantity: 0 })
 
-      return total.quantity
+        return total.quantity
+      }
+      return 0
     },
 
     cartSubtotal (state) {
-      return state.added.reduce((a, b) => {
-        const isOnSale = b.on_sale
+      if (state.added) {
+        return state.added.reduce((a, b) => {
+          const isOnSale = b.on_sale
 
-        function price () {
-          if (isOnSale) {
-            return b.sale_price
+          function price () {
+            if (isOnSale) {
+              return b.sale_price
+            }
+            return b.price
           }
-          return b.price
-        }
-        return a + price() * b.quantity
-      }, 0)
+          return a + price() * b.quantity
+        }, 0)
+      }
+      return 0
     }
   }
 }
