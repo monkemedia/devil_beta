@@ -26,7 +26,6 @@
   import _ from 'lodash'
   import axios from 'axios'
   import ProductTableCell from '@/components/Admin/Products/ProductTableCell'
-  import { mapGetters } from 'vuex'
 
   export default {
     name: 'AdminProducts',
@@ -61,7 +60,6 @@
             return store.commit('sellersItems/SET_SELLERS_ITEMS', result.data)
           }
           store.commit('sellersItems/SET_SELLERS_ITEMS', null)
-          error({ statusCode: 404, message: 'This page cannot be found', path: '/admin' })
         })
         .catch(err => {
           if (err.response) {

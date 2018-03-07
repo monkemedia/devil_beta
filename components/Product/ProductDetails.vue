@@ -72,7 +72,6 @@
       addToCart () {
         const cartItems = this.$store.getters['cart/cartItems']
         const record = cartItems.find(element => element.product_id === this.product.product_id)
-        console.log('here', this.product)
         const payload = {
           category: this.product.category,
           product_id: this.product.product_id
@@ -103,7 +102,6 @@
             }, 2500)
           })
           .catch((err) => {
-            console.log('MY ERROR', err)
             this.loading = false
             this.itemAdded = false
 

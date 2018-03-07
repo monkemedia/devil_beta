@@ -9,7 +9,7 @@
           span.cart-count {{ cartTotalItems }}
       .dropdown-menu#dropdown-menu-mini-cart(role="menu")
         .dropdown-content
-          .dropdown-item.empty-cart(v-if="!cartData")
+          .dropdown-item.empty-cart(v-if="!cartItems")
             p Your cart is empty
           .dropdown-item(v-else)
             .columns(v-for="(cartItem, index) in cartData" v-if="index < 5")
@@ -81,17 +81,19 @@
         const promises = []
         const newArray = []
 
-        cartItems.forEach((item) => {
-          promises.push(axios.get(`${process.env.BASE_URL}/products/${item.product_id}.json`))
-        })
-
-        axios.all(promises)
-          .then((result) => {
-            result.forEach((item) => {
-              newArray.push(item.data)
-            })
+        if (cartItems) {
+          cartItems.forEach((item) => {
+            promises.push(axios.get(`${process.env.BASE_URL}/products/${item.product_id}.json`))
           })
-        this.cartData = newArray
+
+          axios.all(promises)
+            .then((result) => {
+              result.forEach((item) => {
+                newArray.push(item.data)
+              })
+            })
+          this.cartData = newArray
+        }
       }
     },
 
