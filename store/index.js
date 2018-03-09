@@ -13,6 +13,20 @@ const createStore = () => {
       cart,
       modals,
       navigation
+    },
+    actions: {
+      async nuxtServerInit ({ rootGetters }, context) {
+        const isAuthenticated = rootGetters['auth/isAuthenticated']
+        const isAnonAuthenticated = rootGetters['cart/isAnonAuthenticated']
+
+        console.log('isAuthenticated', isAuthenticated)
+        console.log('isAnonAuthenticated', isAnonAuthenticated)
+        //if ()
+        // return context.app.$axios.$get(`${process.env.BASE_URL}/products/${productId}.json`)
+        //   .then(() => {
+
+        //   })
+      },
     }
   })
 }

@@ -7,46 +7,46 @@
         a.mini-cart-desktop(aria-haspopup="true" aria-controls="dropdown-menu-mini-cart" @click="isActive = !isActive" v-on-clickaway="away")
           span.mini-cart-label My Cart
           span.cart-count {{ cartTotalItems }}
-      .dropdown-menu#dropdown-menu-mini-cart(role="menu")
-        .dropdown-content
-          .dropdown-item.empty-cart(v-if="!cartItems")
-            p Your cart is empty
-          .dropdown-item(v-else)
-            .columns(v-for="(cartItem, index) in cartData" v-if="index < 5")
-              .column.is-4
-                figure
-                  lazy-image(
-                    :src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                    :small-src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                    :alt="cartItem.images[0].alt")
-              .column
-                h6 
-                  router-link(:to="'/' + cartItem.category + '/' + cartItem.product_id") {{ cartItem.title }}
-                span.seller By {{ cartItem.username }}
-                .level
-                  .level-left.quantity Qty: {{ cartItems[index].quantity }}
-                  .level-right.price
-                    span(v-if="cartItem.on_sale")
-                      | {{ cartItem.sale_price | currency }}
-                    span(v-else)
-                      | {{ cartItem.price | currency }}
-            .columns(v-else)
-              .column.has-text-centered
-                nuxt-link.view-more(to="") view all items
-            .columns
-              .subtotal
-                .column
-                  | Subtotal
-                .column.has-text-right 
-                  | {{ cartSubtotal | currency }}
+      //- .dropdown-menu#dropdown-menu-mini-cart(role="menu")
+      //-   .dropdown-content
+      //-     .dropdown-item.empty-cart(v-if="!cartItems")
+      //-       p Your cart is empty
+      //-     .dropdown-item(v-else)
+      //-       .columns(v-for="(cartItem, index) in cartData" v-if="index < 5")
+      //-         .column.is-4
+      //-           figure
+      //-             lazy-image(
+      //-               :src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+      //-               :small-src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+      //-               :alt="cartItem.images[0].alt")
+      //-         .column
+      //-           h6 
+      //-             router-link(:to="'/' + cartItem.category + '/' + cartItem.product_id") {{ cartItem.title }}
+      //-           span.seller By {{ cartItem.username }}
+      //-           .level
+      //-             .level-left.quantity Qty: {{ cartItems[index].quantity }}
+      //-             .level-right.price
+      //-               span(v-if="cartItem.on_sale")
+      //-                 | {{ cartItem.sale_price | currency }}
+      //-               span(v-else)
+      //-                 | {{ cartItem.price | currency }}
+      //-       .columns(v-else)
+      //-         .column.has-text-centered
+      //-           nuxt-link.view-more(to="") view all items
+      //-       .columns
+      //-         .subtotal
+      //-           .column
+      //-             | Subtotal
+      //-           .column.has-text-right 
+      //-             | {{ cartSubtotal | currency }}
 
-            .columns
-              .column
-                a.button.is-flip.is-fullwidth
-                  span(data-text="View cart") View cart
-              .column
-                a.button.is-flip.is-secondary.is-fullwidth
-                  span(data-text="Checkout") Checkout
+      //-       .columns
+      //-         .column
+      //-           a.button.is-flip.is-fullwidth
+      //-             span(data-text="View cart") View cart
+      //-         .column
+      //-           a.button.is-flip.is-secondary.is-fullwidth
+      //-             span(data-text="Checkout") Checkout
 </template>
 
 <script>
@@ -98,10 +98,6 @@
     },
 
     computed: {
-      cartItems () {
-        return this.$store.getters['cart/cartItems']
-      },
-
       cartTotalItems () {
         return this.$store.getters['cart/cartTotalItems']
       },

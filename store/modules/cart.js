@@ -194,9 +194,7 @@ const store = {
             throw err
           })
       }
-    }
-
-
+    },
 
     //   // User isnt officially signed in
     //   if (!isAuthenticated) {
