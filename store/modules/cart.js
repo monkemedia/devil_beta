@@ -1,16 +1,22 @@
 import Cookie from 'js-cookie'
 import { key } from 'firebase-key'
+import axios from 'axios'
 
 const store = {
   namespaced: true,
 
   state: {
-    added: [],
+    cartItems: [],
     anonToken: null,
     anonUid: null
   },
 
   mutations: { 
+    SET_CART_ITEMS (state, payload) {
+      console.log('SET_CART_ITEMS', payload)
+      state.cartItems.push(payload)
+    },
+
     SET_ANON_TOKEN (state, payload) {
       state.anonToken = payload
     },
@@ -196,80 +202,77 @@ const store = {
       }
     },
 
-    //   // User isnt officially signed in
-    //   if (!isAuthenticated) {
-    //     // User isnt anonymously signed in
-    //     if (!isAnonAuthenticated) {
-    //       // So lets create a anon user
-    //       return signInUserAnonymously()
-    //         .then(() => {
-    //           // Then add items to cart
-    //           token = getters['anonToken']
-    //           uid = getters['anonUid']
-    //           return addItemToCart(token, uid, payload)
-    //         })
-    //     }
+    fetchCartData ({ commit, getters, rootGetters }) {
+      const isAuthenticated = rootGetters['auth/isAuthenticated']
+      const isAnonAuthenticated = getters['isAnonAuthenticated']
+      const vm = this
+      let token
+      let uid
+      let userId
+      let cartId
 
-    //     // User is anonymously signed in
-    //     token = getters['anonToken']
-    //     uid = getters['anonUid']
+      function cartUidSession (token, uid) {
+        return vm.$axios.$get(`${process.env.BASE_URL}/cart/${uid}.json?auth=${token}`)
+      }
 
-    //     // lets see if anon user already has a cart
-    //     return doesCartExist(token, uid)
-    //       .then((result) => {
-    //         // User already has a cart so 
-    //         if (result) {
-    //           // lets see if item already exists in cart
-    //           return doesItemExist(token, uid, payload)
-    //         }
-    //         // item doesnt exist so lets add it
-    //       })
-    //       .then((result) => {
-    //         console.log('monkey', result)
-    //       })
+      console.log('FETCH CART DATA:')
+      //User isnt ANON nor official user, so dont do anything
+      if (!isAuthenticated && !isAnonAuthenticated) {
+        console.log('User isnt ANON nor official user, so dont do anything')
+        return
+      }
 
-    //   }
+      // User is ANON user
+      if (isAnonAuthenticated) {
+        console.log('User is an ANON user')
+        // Get ANONUID and see if there is a CART SESSION
+        token = getters['anonToken']
+        uid = getters['anonUid']
+        console.log('Get ANONUID and see if there is a cart session')
+        return cartUidSession(token, uid)
+          .then((result) => {
+            const promises = []
+            if (!result) {
+              // If there isnt a session lets just stop here
+              console.log('If there isnt a session lets just stop here')
+              return
+            }
 
-    //   // User is officially signed in
-    //   // Lets see if user has anon token first
+            // There is a cart session, so lets get all the product ID'S
+            console.log('There is a cart session, so lets get all the product IDs')
+            console.log('result', result)
+            // Loop through Product IDs and get product data for each product ID
+            _.filter(result, (key) => {
+              console.log(key.product_id)
+              promises.push(axios.get(`${process.env.BASE_URL}/products/${key.product_id}.json`)
+                .then((res) => {
+                  return {
+                    item: res.data,
+                    quantity: key.quantity
+                  }
+                })
+              )
+            })
 
-    //   // token = getters['anonToken']
-    //   // if (token) {
-    //   //   uid = getters['anonUid']
-    //   //   console.log('TOKEN', token)
-    //   //   console.log('UID', uid)
+            // Add product data and quantity to cart items in state
+            axios.all(promises)
+              .then((result) => {
+                result.forEach((key) => {
+                  commit('SET_CART_ITEMS', {
+                    item: key.item,
+                    quantity: key.quantity
+                  })
+                })
+              })
+            
 
-    //     // token = rootGetters['token']
-    //     // return doItemsExist(token, uid)
-    //     //   .then((result) => {
-    //     //     userId = rootGetters['auth/userId']
-    //     //     // User has items in anon cart, so add uid to user profile
-    //     //     if (result) {
-    //     //       return addCartUidToUserProfile(userId, uid)
-    //     //     }
-    //     //     // User has token but no anon cart data
-    //     //     // So create a new instant of cart
-    //     //     token = rootGetters['token']
-    //     //     uid = rootGetters['userId']
-    //     //     return addItemToCart(token, uid, item)
-    //     //       .then((result) => {
-    //     //         // Now save the carts uid to user profile
-    //     //         cartId = userId
-    //     //         return addCartUidToUserProfile (userId, cartId)
-    //     //       })
-    //     //   })
-      
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      }
 
-    //   // User doesnt have a anon token so create a new instant of cart
-    //   token = rootGetters['auth/token']
-    //   uid = rootGetters['auth/userId']
-    //   return addItemToCart(token, uid, payload)
-    //     .then((result) => {
-    //       // Now save the carts uid to user profile
-    //       cartId = uid
-    //       return addCartUidToUserProfile (userId, cartId)
-    //     })
-    // }
+    }
   },
 
   getters: {
