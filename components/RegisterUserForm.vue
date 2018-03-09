@@ -117,7 +117,6 @@
           })
           .then((response) => {
             const payload = {
-              accountType: this.accountType,
               email: this.email,
               password: this.password,
               username: this.username
@@ -139,7 +138,8 @@
               email: this.email,
               username: this.username,
               accountType: this.accountType,
-              userId: data.userId
+              userId: data.userId,
+              cartIds: null
             }
 
             return this.$store.dispatch('auth/saveUserDetailsToDatabase', { userDetails })

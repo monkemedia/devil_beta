@@ -70,56 +70,59 @@
       },
 
       addToCart () {
-        const cartItems = this.$store.getters['cart/cartItems']
-        const record = cartItems.find(element => element.product_id === this.product.product_id)
-        const payload = {
-          category: this.product.category,
-          product_id: this.product.product_id
-        }
+        // const cartItems = this.$store.getters['cart/cartItems']
+        // const record = cartItems.find(element => element.product_id === this.product.product_id)
+        // const payload = {
+        //   category: this.product.category,
+        //   product_id: this.product.product_id
+        // }
 
-        this.loading = true
+        // this.loading = true
 
-        this.$store.dispatch('cart/liveStock', payload)
-          .then((liveStock) => {
-            // Check to see if user is adding more items than the stock allows
-            if (record && (record.quantity + this.quantity) > liveStock) {
-              throw 'no-stock'
-            }
+        // this.$store.dispatch('cart/liveStock', payload)
+        //   .then((liveStock) => {
+        //     // Check to see if user is adding more items than the stock allows
+        //     if (record && (record.quantity + this.quantity) > liveStock) {
+        //       throw 'no-stock'
+        //     }
 
             return this.$store.dispatch('cart/addToCart', {
               product_id: this.product.product_id,
-              quantity: this.quantity,
-              price: this.product.price,
-              on_sale: this.product.on_sale,
-              sale_price: this.product.sale_price
+              quantity: this.quantity
             })
-          })
-          .then(() => {
-            this.loading = false
-            this.itemAdded = true
-            setTimeout(() => {
-              this.itemAdded = false
-            }, 2500)
-          })
-          .catch((err) => {
-            this.loading = false
-            this.itemAdded = false
-
-            if (err === 'no-stock') {
-              this.$dialog.alert({
-                title: 'Whoops',
-                message: 'There isn\'t enough items in stock',
-                confirmText: 'Agree'
-              })
-              return
-            }
-
-            this.$dialog.alert({
-              title: 'Whoops',
-              message: 'Looks like something has gone wrong',
-              confirmText: 'Agree'
+            .then((result) => {
+              console.log('Product added', result)
             })
-          })
+            .catch((err) => {
+              console.log('ERROR: ', err)
+            })
+          // })
+          // .then(() => {
+          //   this.loading = false
+          //   this.itemAdded = true
+          //   setTimeout(() => {
+          //     this.itemAdded = false
+          //   }, 2500)
+          // })
+          // .catch((err) => {
+          //   this.loading = false
+          //   this.itemAdded = false
+
+          //   if (err === 'no-stock') {
+          //     this.$dialog.alert({
+          //       title: 'Whoops',
+          //       message: 'There isn\'t enough items in stock',
+          //       confirmText: 'Agree'
+          //     })
+          //     return
+          //   }
+
+          //   this.$dialog.alert({
+          //     title: 'Whoops',
+          //     message: 'Looks like something has gone wrong',
+          //     confirmText: 'Agree'
+          //   })
+          // })
       }
     }
   }

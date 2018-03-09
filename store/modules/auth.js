@@ -99,7 +99,55 @@ const store = {
 
           return result
         })
+        .then(() => {
+          const vm = this
+          function doesCartSessionExistInUserProfile (userId, cartId, token) {
+            return vm.$axios.$get(`${process.env.BASE_URL}/users/${userId}/cartIds.json?&auth=${token}`)
+          }
+          // Add anon cart uid to userprofile
+          const anonToken = vuexContext.rootGetters['cart/anonToken']
+          let userId
+          let token
+          let cartId
+
+          // When the user signs in Officially, let's see it they have a ANON token
+          console.log('User has signed in officially, lets see if they a ANON token')
+          if (anonToken) {
+            userId = vuexContext.getters['userId']
+            token = vuexContext.getters['token']
+            cartId = vuexContext.rootGetters['cart/anonUid']
+            // User has ANON token, let's see if they have a cart session
+            console.log('User has signed in officially, and they do have a anon token')
+            return doesCartSessionExistInUserProfile(userId, cartId, token)
+              .then((result) => {
+                if (!result) {
+                  console.log('Officially signed in user does not have a existing ANON cart session stored in thier user profile')
+                  console.log('So add ANON cart session with cart ID')
+                  return this.$axios.$post(`${process.env.BASE_URL}/users/${userId}/cartIds.json?auth=${token}`, { cartId })
+                }
+        
+                // User has cart session ID in user profile, so let's see if it contain the same product ID as
+                // the one store anonymously
+                console.log('User has cart session ID in user profile, so lets see if it contain the same product ID as the one store anonymously')
+                const filterCartIds = _.filter(result, (key) => {
+                  return key.cartId === cartId
+                })
+                // If it does contain the same product ID, then dont do anything
+                if (filterCartIds.length) {
+                  console.log('It does contain the same product ID, so dont do anything')
+                  return
+                }
+                // If it doesnt contain the same product ID, then add the card ID to user profile 
+                console.log('It doesnt contain the same product ID, so add the cart ID to user profile')
+                return this.$axios.$post(`${process.env.BASE_URL}/users/${userId}/cartIds.json?auth=${token}`, { cartId })
+                
+              })
+          }
+          // User doesnt have a ANON token so they don't have cart data saved anonymously, so don't do anything
+          return
+        })
         .catch((err) => {
+          console.log(err)
           throw err.response.data.error
         })
     },
@@ -111,12 +159,11 @@ const store = {
         email: authData.email,
         password: authData.password,
         displayName: authData.username,
-        accountType: authData.accountType,
         returnSecureToken: true
       })
-        .then(result => {    
+        .then((result) => {    
           console.log('RESULT', result)   
-          const setExpirationDate = new Date().getTime() + Number.parseInt(result.expiresIn) * 1000
+          const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
           
           vuexContext.commit('SET_TOKEN', result.idToken)
           vuexContext.commit('SET_USERNAME', result.displayName)
@@ -130,7 +177,7 @@ const store = {
           Cookie.set('jwt', result.idToken)
           Cookie.set('expirationDate', setExpirationDate)
           Cookie.set('username', result.displayName)
-          cookie.set('userId', result.localId)
+          Cookie.set('userId', result.localId)
 
           return result
         })
