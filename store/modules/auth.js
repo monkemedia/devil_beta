@@ -72,6 +72,18 @@ const store = {
 
     loginUser (vuexContext, authData) {
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${process.env.FB_API_KEY}`
+
+      function logoutAnonymousUser () {
+        vuexContext.rootState['cart/CLEAR_ANON_TOKEN'] = null
+        vuexContext.rootState['cart/CLEAR_ANON_UID'] = null
+        Cookie.remove('anonToken')
+        Cookie.remove('anonUid')
+
+        if (process.client) {
+          localStorage.removeItem('anonToken')
+          localStorage.removeItem('anonUid')
+        }
+      }
       
       return this.$axios.$post(authUrl, {
         email: authData.email,
@@ -79,7 +91,7 @@ const store = {
         returnSecureToken: true
       })
         .then(result => {       
-          const setExpirationDate = new Date().getTime() + Number.parseInt(result.expiresIn) * 1000
+          const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
 
           console.log('result', result)
           
@@ -124,6 +136,11 @@ const store = {
                   console.log('Officially signed in user does not have a existing ANON cart session stored in thier user profile')
                   console.log('So add ANON cart session with cart ID')
                   return this.$axios.$post(`${process.env.BASE_URL}/users/${userId}/cartIds.json?auth=${token}`, { cartId })
+                    .then(() => {
+                      // Log out ANON user
+                      console.log('LOGOUT OUT ANON USER')
+                      return logoutAnonymousUser()
+                    })
                 }
         
                 // User has cart session ID in user profile, so let's see if it contain the same product ID as
@@ -132,18 +149,23 @@ const store = {
                 const filterCartIds = _.filter(result, (key) => {
                   return key.cartId === cartId
                 })
-                // If it does contain the same product ID, then dont do anything
+                // If it does contain the same product ID, then just logout out ANON user details
                 if (filterCartIds.length) {
                   console.log('It does contain the same product ID, so dont do anything')
-                  return
+                  return logoutAnonymousUser()
                 }
                 // If it doesnt contain the same product ID, then add the card ID to user profile 
                 console.log('It doesnt contain the same product ID, so add the cart ID to user profile')
                 return this.$axios.$post(`${process.env.BASE_URL}/users/${userId}/cartIds.json?auth=${token}`, { cartId })
-                
+                  .then(() => {
+                    // Log out ANON user
+                    console.log('LOGOUT OUT ANON USER')
+                    return logoutAnonymousUser()
+                  })
               })
           }
           // User doesnt have a ANON token so they don't have cart data saved anonymously, so don't do anything
+          console.log('User doesnt have a ANON token so they dont have cart data saved anonymously, so dont do anything')
           return
         })
         .catch((err) => {
@@ -229,7 +251,7 @@ const store = {
         userId = localStorage.getItem('userId')
       }
 
-      if (new Date().getTime() > Number(expirationDate) || !token) {
+      if (new Date().getTime() > parseInt(expirationDate)) {
         console.log('no token or invalid token')
         vuexContext.dispatch('logout')
         return
@@ -254,6 +276,19 @@ const store = {
         localStorage.removeItem('tokenExpiration')
         localStorage.removeItem('username')
         localStorage.removeItem('userId')
+      }
+
+      if (vuexContext.rootGetters['cart/isAnonAuthenticated']) {
+        console.log(vuexContext)
+        vuexContext.rootState['cart/CLEAR_ANON_TOKEN'] = null
+        vuexContext.rootState['cart/CLEAR_ANON_UID'] = null
+        Cookie.remove('anonToken')
+        Cookie.remove('anonUid')
+
+        if (process.client) {
+          localStorage.removeItem('anonToken')
+          localStorage.removeItem('anonUid')
+        }
       }
     }
   },

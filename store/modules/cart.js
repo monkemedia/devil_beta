@@ -193,10 +193,6 @@ const store = {
           .catch((err) => {
             throw err
           })
-
-        
-
-        
       }
     }
 
