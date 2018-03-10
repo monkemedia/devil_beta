@@ -1,5 +1,7 @@
 import Cookie from 'js-cookie'
 import { key } from 'firebase-key'
+import Vue from 'vue'
+import _ from 'lodash'
 import axios from 'axios'
 
 const store = {
@@ -14,7 +16,8 @@ const store = {
   mutations: { 
     SET_CART_ITEMS (state, payload) {
       console.log('SET_CART_ITEMS', payload)
-      state.cartItems.push(payload)
+      // state.cartItems.push(payload)
+      Vue.set(state.cartItems, payload.index, payload)
     },
 
     SET_ANON_TOKEN (state, payload) {
@@ -229,6 +232,8 @@ const store = {
         token = getters['anonToken']
         uid = getters['anonUid']
         console.log('Get ANONUID and see if there is a cart session')
+        console.log('uid', uid)
+        console.log('token', token)
         return cartUidSession(token, uid)
           .then((result) => {
             const promises = []
@@ -240,7 +245,6 @@ const store = {
 
             // There is a cart session, so lets get all the product ID'S
             console.log('There is a cart session, so lets get all the product IDs')
-            console.log('result', result)
             // Loop through Product IDs and get product data for each product ID
             _.filter(result, (key) => {
               console.log(key.product_id)
@@ -257,18 +261,18 @@ const store = {
             // Add product data and quantity to cart items in state
             axios.all(promises)
               .then((result) => {
-                result.forEach((key) => {
+                console.log('RESULT', result)
+                result.forEach((key, index) => {
                   commit('SET_CART_ITEMS', {
                     item: key.item,
-                    quantity: key.quantity
+                    quantity: key.quantity,
+                    index: index
                   })
                 })
               })
-            
-
-          })
-          .catch((err) => {
-            console.log(err)
+              .catch((err) => {
+              console.log(err)
+            })
           })
       }
 
@@ -286,6 +290,10 @@ const store = {
 
     anonUid (state) {
       return state.anonUid
+    },
+
+    loadedCartItems (state) {
+      return state.cartItems
     }
   }
 }

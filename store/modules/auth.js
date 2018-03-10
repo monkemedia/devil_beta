@@ -92,8 +92,6 @@ const store = {
       })
         .then(result => {       
           const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
-
-          console.log('result', result)
           
           vuexContext.commit('SET_TOKEN', result.idToken)
           vuexContext.commit('SET_USERNAME', result.displayName)
