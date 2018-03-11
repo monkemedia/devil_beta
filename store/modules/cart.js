@@ -213,9 +213,47 @@ const store = {
       let uid
       let userId
       let cartId
+      let promises
 
       function cartUidSession (token, uid) {
         return vm.$axios.$get(`${process.env.BASE_URL}/cart/${uid}.json?auth=${token}`)
+      }
+
+      function getCardIds (token, userId) {
+        console.log('token', token)
+        console.log('monkey userId', userId)
+        return vm.$axios.$get(`${process.env.BASE_URL}/users/${userId}/cartIds.json?auth=${token}`)
+      }
+
+      function getProductData (sessionData) {
+        promises = []
+
+        _.filter(sessionData, (key) => {
+          promises.push(axios.get(`${process.env.BASE_URL}/products/${key.product_id}.json`)
+            .then((res) => {
+              return {
+                item: res.data,
+                quantity: key.quantity
+              }
+            })
+          )
+        })
+
+        // Add product data and quantity to cart items in state
+        axios.all(promises)
+          .then((result) => {
+            result.forEach((key, index) => {
+              commit('SET_CART_ITEMS', {
+                item: key.item,
+                quantity: key.quantity,
+                index: index
+              })
+            })
+          })
+          .catch((err) => {
+            console.log(err)
+            throw err
+          })
       }
 
       console.log('FETCH CART DATA:')
@@ -227,6 +265,7 @@ const store = {
 
       // User is ANON user
       if (isAnonAuthenticated) {
+      
         console.log('User is an ANON user')
         // Get ANONUID and see if there is a CART SESSION
         token = getters['anonToken']
@@ -236,7 +275,6 @@ const store = {
         console.log('token', token)
         return cartUidSession(token, uid)
           .then((result) => {
-            const promises = []
             if (!result) {
               // If there isnt a session lets just stop here
               console.log('If there isnt a session lets just stop here')
@@ -246,34 +284,50 @@ const store = {
             // There is a cart session, so lets get all the product ID'S
             console.log('There is a cart session, so lets get all the product IDs')
             // Loop through Product IDs and get product data for each product ID
+            return getProductData(result)
+          })
+          .catch((err) => {
+            throw err
+          })
+      }
+
+      // User is Officially signed in
+      if (isAuthenticated) {
+        console.log('User is Officially sign in')
+        token = rootGetters['auth/token']
+        userId = rootGetters['auth/userId']
+
+        return getCardIds(token, userId)
+          .then((result) => {
+            if (!result) {
+              // If there isnt a session lets just stop here
+              console.log('If there isnt any CartIDs')
+              return
+            }
+
+            // There are cart sessions, so lets get all the cart IDs
+            console.log('There are cart sessions, so lets get all the cart IDs')
+            // There are cart sessions, so lets get all the cart IDs
+            promises = []
             _.filter(result, (key) => {
-              console.log(key.product_id)
-              promises.push(axios.get(`${process.env.BASE_URL}/products/${key.product_id}.json`)
-                .then((res) => {
-                  return {
-                    item: res.data,
-                    quantity: key.quantity
-                  }
-                })
-              )
+              console.log('shit', key.cartId)
+              promises.push(cartUidSession(token, key.cartId))
             })
 
-            // Add product data and quantity to cart items in state
             axios.all(promises)
               .then((result) => {
-                console.log('RESULT', result)
-                result.forEach((key, index) => {
-                  commit('SET_CART_ITEMS', {
-                    item: key.item,
-                    quantity: key.quantity,
-                    index: index
-                  })
+                result.forEach((key) => {
+                  console.log('trevor', key)
+                  return getProductData (key)
                 })
               })
               .catch((err) => {
-              console.log(err)
-            })
+                console.log(err)
+                throw err
+              })
+            // return getProductData(result)
           })
+
       }
 
     }

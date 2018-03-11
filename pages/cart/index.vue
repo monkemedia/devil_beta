@@ -6,7 +6,7 @@
     .columns
       .column
         h1 Your cart (3)
-        p test {{ loadedCartItems }}
+        p {{ loadedCartItems }}
     .columns
       .column.is-9
         .cart-box
