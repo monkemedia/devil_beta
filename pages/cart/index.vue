@@ -5,8 +5,7 @@
         breadcrumb(:crumb="breadcrumb")
     .columns
       .column
-        h1 Your cart (3)
-        p {{ loadedCartItems }}
+        h1 Your cart ({{ cartTotalItems }})
     .columns
       .column.is-9
         .cart-box
@@ -56,6 +55,9 @@
     computed: {
       loadedCartItems () {
         return this.$store.getters['cart/loadedCartItems']
+      },
+      cartTotalItems () {
+        return this.$store.getters['cart/cartTotalItems']
       }
     }
   }

@@ -39,7 +39,7 @@
               type="submit") 
                 span(data-text="Sign in") Sign in
       .column.p-t-none.p-b-none.forgot-password
-        nuxt-link(to="/register") Not yet registered?
+        nuxt-link(to="/create-account") Not yet registered?
 </template>
 
 <script>
