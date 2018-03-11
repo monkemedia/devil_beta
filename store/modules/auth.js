@@ -264,6 +264,8 @@ const store = {
       vuexContext.commit('CLEAR_TOKEN')
       vuexContext.commit('CLEAR_USERNAME')
       vuexContext.commit('CLEAR_USERID')
+      vuexContext.commit('cart/CLEAR_CART_ITEMS', null, { root: true })
+
       Cookie.remove('jwt')
       Cookie.remove('expirationDate')
       Cookie.remove('username')

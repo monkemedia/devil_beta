@@ -28,6 +28,10 @@ const store = {
       state.anonUid = payload
     },
 
+    CLEAR_CART_ITEMS (state) {
+      state.cartItems = []
+    },
+
     CLEAR_ANON_TOKEN (state) {
       state.anonToken = null
     },
