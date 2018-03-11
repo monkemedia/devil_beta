@@ -113,7 +113,7 @@
             // Validate username first
             const username = this.username
             this.loading = true
-            return this.$store.dispatch('auth/validateUsername', { username })
+            return this.$store.dispatch('auth/validateUsername', username)
           })
           .then((response) => {
             const payload = {
@@ -131,7 +131,7 @@
               userId: data.localId
             }
 
-            return this.$store.dispatch('auth/saveUsernameToDatabase', { usernameDetails })
+            return this.$store.dispatch('auth/saveUsernameToDatabase', usernameDetails)
           })
           .then((data) => {
             const userDetails = {
@@ -142,7 +142,7 @@
               cartIds: null
             }
 
-            return this.$store.dispatch('auth/saveUserDetailsToDatabase', { userDetails })
+            return this.$store.dispatch('auth/saveUserDetailsToDatabase', userDetails)
           })
           .then((success) => {
             this.loading = false
@@ -153,10 +153,6 @@
             VueScrollTo.scrollTo('.is-danger')
           })
       }
-
-      // onDismissed () {
-      //   this.$store.commit('SET_REGISTER_ERROR', false)
-      // }
     }
   }
 </script>

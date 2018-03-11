@@ -37,7 +37,7 @@ const store = {
   },
 
   actions: {
-    validateUsername (vuexContext, { username }) {
+    validateUsername ({}, username) {
       return this.$axios.$get(`${process.env.BASE_URL}/usernames.json`)
         .then(data => {
           const filterUsernames = _.filter(data, (key) => {
@@ -58,24 +58,24 @@ const store = {
         })
     },
 
-    saveUsernameToDatabase (vuexContext, { usernameDetails }) {
+    saveUsernameToDatabase ({ state }, usernameDetails) {
       const username = usernameDetails.username
-      const token = vuexContext.state.token
+      const token = state.token
       return this.$axios.$put(`${process.env.BASE_URL}/usernames/${username}.json?auth=${token}`, usernameDetails)
     },
 
-    saveUserDetailsToDatabase (vuexContext, { userDetails }) {
+    saveUserDetailsToDatabase ({ state }, userDetails) {
       const userId = userDetails.userId
-      const token = vuexContext.state.token
+      const token = state.token
       return this.$axios.$put(`${process.env.BASE_URL}/users/${userId}.json?auth=${token}`, userDetails)
     },
 
-    loginUser (vuexContext, authData) {
+    loginUser ({ commit, getters, rootState, rootGetters }, authData) {
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${process.env.FB_API_KEY}`
 
       function logoutAnonymousUser () {
-        vuexContext.rootState['cart/CLEAR_ANON_TOKEN'] = null
-        vuexContext.rootState['cart/CLEAR_ANON_UID'] = null
+        rootState['cart/CLEAR_ANON_TOKEN'] = null
+        rootState['cart/CLEAR_ANON_UID'] = null
         Cookie.remove('anonToken')
         Cookie.remove('anonUid')
 
@@ -93,9 +93,9 @@ const store = {
         .then(result => {       
           const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
           
-          vuexContext.commit('SET_TOKEN', result.idToken)
-          vuexContext.commit('SET_USERNAME', result.displayName)
-          vuexContext.commit('SET_USERID', result.localId)
+          commit('SET_TOKEN', result.idToken)
+          commit('SET_USERNAME', result.displayName)
+          commit('SET_USERID', result.localId)
           
           localStorage.setItem('token', result.idToken)
           localStorage.setItem('tokenExpiration', setExpirationDate)
@@ -115,7 +115,7 @@ const store = {
             return vm.$axios.$get(`${process.env.BASE_URL}/users/${userId}/cartIds.json?&auth=${token}`)
           }
           // Add anon cart uid to userprofile
-          const anonToken = vuexContext.rootGetters['cart/anonToken']
+          const anonToken = rootGetters['cart/anonToken']
           let userId
           let token
           let cartId
@@ -123,9 +123,9 @@ const store = {
           // When the user signs in Officially, let's see it they have a ANON token
           console.log('User has signed in officially, lets see if they a ANON token')
           if (anonToken) {
-            userId = vuexContext.getters['userId']
-            token = vuexContext.getters['token']
-            cartId = vuexContext.rootGetters['cart/anonUid']
+            userId = getters['userId']
+            token = getters['token']
+            cartId = rootGetters['cart/anonUid']
             // User has ANON token, let's see if they have a cart session
             console.log('User has signed in officially, and they do have a anon token')
             return doesCartSessionExistInUserProfile(userId, cartId, token)
@@ -172,7 +172,7 @@ const store = {
         })
     },
 
-    registerUser (vuexContext, authData) {
+    registerUser ({ commit }, authData) {
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${process.env.FB_API_KEY}`
       
       return this.$axios.$post(authUrl, {
@@ -185,9 +185,9 @@ const store = {
           console.log('RESULT', result)   
           const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
           
-          vuexContext.commit('SET_TOKEN', result.idToken)
-          vuexContext.commit('SET_USERNAME', result.displayName)
-          vuexContext.commit('SET_USERID', result.localId)
+          commit('SET_TOKEN', result.idToken)
+          commit('SET_USERNAME', result.displayName)
+          commit('SET_USERID', result.localId)
 
           localStorage.setItem('token', result.idToken)
           localStorage.setItem('tokenExpiration', setExpirationDate)
@@ -206,7 +206,7 @@ const store = {
         })
     },
 
-    initAuth (vuexContext, req) {
+    initAuth ({ commit, dispatch }, req) {
       let token
       let expirationDate
       let username
@@ -214,9 +214,9 @@ const store = {
 
       if (req) {
         if (!req.headers.cookie) {
-          vuexContext.commit('CLEAR_TOKEN')
-          vuexContext.commit('CLEAR_USERNAME')
-          vuexContext.commit('CLEAR_USERID')
+          commit('CLEAR_TOKEN')
+          commit('CLEAR_USERNAME')
+          commit('CLEAR_USERID')
           return
         }
 
@@ -251,13 +251,13 @@ const store = {
 
       if (new Date().getTime() > parseInt(expirationDate)) {
         console.log('no token or invalid token')
-        vuexContext.dispatch('logout')
+        dispatch('logout')
         return
       }
 
-      vuexContext.commit('SET_TOKEN', token)
-      vuexContext.commit('SET_USERNAME', username)
-      vuexContext.commit('SET_USERID', userId)
+      commit('SET_TOKEN', token)
+      commit('SET_USERNAME', username)
+      commit('SET_USERID', userId)
     },
 
     logout ({ commit, rootState }) {
@@ -278,8 +278,7 @@ const store = {
         localStorage.removeItem('userId')
       }
 
-      if (vuexContext.rootGetters['cart/isAnonAuthenticated']) {
-        console.log(vuexContext)
+      if (rootGetters['cart/isAnonAuthenticated']) {
         rootState['cart/CLEAR_ANON_TOKEN'] = null
         rootState['cart/CLEAR_ANON_UID'] = null
         Cookie.remove('anonToken')
