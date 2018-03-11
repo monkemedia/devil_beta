@@ -260,11 +260,11 @@ const store = {
       vuexContext.commit('SET_USERID', userId)
     },
 
-    logout (vuexContext) {
-      vuexContext.commit('CLEAR_TOKEN')
-      vuexContext.commit('CLEAR_USERNAME')
-      vuexContext.commit('CLEAR_USERID')
-      vuexContext.commit('cart/CLEAR_CART_ITEMS', null, { root: true })
+    logout ({ commit, rootState }) {
+      commit('CLEAR_TOKEN')
+      commit('CLEAR_USERNAME')
+      commit('CLEAR_USERID')
+      commit('cart/CLEAR_CART_ITEMS', null, { root: true })
 
       Cookie.remove('jwt')
       Cookie.remove('expirationDate')
@@ -280,8 +280,8 @@ const store = {
 
       if (vuexContext.rootGetters['cart/isAnonAuthenticated']) {
         console.log(vuexContext)
-        vuexContext.rootState['cart/CLEAR_ANON_TOKEN'] = null
-        vuexContext.rootState['cart/CLEAR_ANON_UID'] = null
+        rootState['cart/CLEAR_ANON_TOKEN'] = null
+        rootState['cart/CLEAR_ANON_UID'] = null
         Cookie.remove('anonToken')
         Cookie.remove('anonUid')
 
