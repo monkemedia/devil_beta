@@ -260,7 +260,8 @@ const store = {
       commit('SET_USERID', userId)
     },
 
-    logout ({ commit, rootState }) {
+    logout ({ commit, rootState, rootGetters }) {
+      console.log('LOGGED OUT')
       commit('CLEAR_TOKEN')
       commit('CLEAR_USERNAME')
       commit('CLEAR_USERID')

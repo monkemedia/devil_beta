@@ -17,7 +17,9 @@ const store = {
     SET_CART_ITEMS (state, payload) {
       console.log('SET_CART_ITEMS', payload)
       // state.cartItems.push(payload)
-      Vue.set(state.cartItems, payload.index, payload)
+      // Vue.set(state.cartItems, payload.index, payload)
+      // Vue.set(state.cartItems, payload)
+      state.cartItems = payload
     },
 
     SET_ANON_TOKEN (state, payload) {
@@ -147,7 +149,7 @@ const store = {
 
       // User is signed in ANON but not Officially
       // NOTE: Cart session has already been created
-      if (!isAuthenticated && isAnonAuthenticated) {
+      if (isAnonAuthenticated && !isAuthenticated) {
         // Need to add item to session
         // But does user already have the same product id in there
         console.log('User is Anonymous only')
@@ -158,13 +160,19 @@ const store = {
             if (!result) {
               // If not, add the product to the already exisiting session
               console.log('New Product has been added to already exisiting session')
+              commit('SET_CART_ITEMS', payload)
               return addItemToCartSession(token, uid, payload)
             }
             // If so, update quantity only
             console.log('Quantity has been updated', result)
             currentQuantity = result.quantity
             return updateItemInCartSession(token, uid, payload, currentQuantity)
-          })  
+          })
+          .then(() => {
+            // Fetch data from database and commit to state
+            return dispatch('fetchCartData')
+
+          })
           .catch((err) => {
             throw err
           })
@@ -218,6 +226,8 @@ const store = {
       let userId
       let cartId
       let promises
+      let cart
+      let productIdPromise
 
       function cartUidSession (token, uid) {
         return vm.$axios.$get(`${process.env.BASE_URL}/cart/${uid}.json?auth=${token}`)
@@ -231,6 +241,7 @@ const store = {
 
       function getProductData (sessionData) {
         promises = []
+        cart = []
 
         _.filter(sessionData, (key) => {
           promises.push(axios.get(`${process.env.BASE_URL}/products/${key.product_id}.json`)
@@ -244,15 +255,9 @@ const store = {
         })
 
         // Add product data and quantity to cart items in state
-        axios.all(promises)
+        return axios.all(promises)
           .then((result) => {
-            result.forEach((key, index) => {
-              commit('SET_CART_ITEMS', {
-                item: key.item,
-                quantity: key.quantity,
-                index: index
-              })
-            })
+            return result
           })
           .catch((err) => {
             console.log(err)
@@ -260,7 +265,6 @@ const store = {
           })
       }
 
-      console.log('FETCH CART DATA:')
       //User isnt ANON nor official user, so dont do anything
       if (!isAuthenticated && !isAnonAuthenticated) {
         console.log('User isnt ANON nor official user so clear cart items')
@@ -288,7 +292,12 @@ const store = {
             // There is a cart session, so lets get all the product ID'S
             console.log('There is a cart session, so lets get all the product IDs')
             // Loop through Product IDs and get product data for each product ID
+            console.log('RESULT', result)
             return getProductData(result)
+          })
+          .then((result) => {
+            commit('SET_CART_ITEMS', result)
+            console.log('MONKEY', result)
           })
           .catch((err) => {
             throw err
@@ -297,7 +306,7 @@ const store = {
 
       // User is Officially signed in
       if (isAuthenticated) {
-        console.log('User is Officially sign in')
+        console.log('User is Officially signed in')
         token = rootGetters['auth/token']
         userId = rootGetters['auth/userId']
 
@@ -318,21 +327,33 @@ const store = {
               promises.push(cartUidSession(token, key.cartId))
             })
 
-            axios.all(promises)
-              .then((result) => {
-                result.forEach((key) => {
-                  console.log('trevor', key)
-                  return getProductData (key)
+            return axios.all(promises)
+          })
+          .then((result) => {
+            console.log('RESULT', result)
+            productIdPromise = []
+            _.map(result, (value, key) => {
+              _.map(result[key], (k) => {
+                productIdPromise.push({ 
+                  product_id: k.product_id,
+                  quantity: k.quantity
                 })
               })
-              .catch((err) => {
-                console.log(err)
-                throw err
-              })
-            // return getProductData(result)
+              
+            })
+            console.log('productIdPromise', productIdPromise)
+            return getProductData(productIdPromise)
           })
+          .then((result) => {
+            console.log('TREVOR', result)
+            commit('SET_CART_ITEMS', result)
+          })
+          .catch((err) => {
+            console.log(err)
+            throw err
+          })
+            // return getProductData(result)
       }
-
     }
   },
 
@@ -356,7 +377,6 @@ const store = {
     cartTotalItems (state) {
       if (state.cartItems) {
         const total = state.cartItems.reduce((a, b) => {
-          console.log(a)
           return {
             quantity: a.quantity + b.quantity
           }

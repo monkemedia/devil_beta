@@ -9,19 +9,20 @@
     .columns
       .column.is-9
         .cart-box
-          //- b-table(:data="cartData" v-if="cartData")
-          //-   template(slot-scope="props")
-          //-     b-table-column(field="item" label="Item")
-          //-       .item-details
-          //-         figure
-          //-           lazy-image(
-          //-             :src="props.row.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-          //-             :small-src="props.row.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-          //-             :alt="props.row.images[0].alt")
-          //-         .content
-          //-           h6 Test
-          //-     b-table-column(field="quantity" label="Quantity")
-          //-     b-table-column(field="subtotal" label="Subtotal")
+          //- p {{ loadedCartItems }}
+          b-table(:data="loadedCartItems" v-if="loadedCartItems")
+            template(slot-scope="props")
+              b-table-column(field="item" label="Item")
+                .item-details
+                  figure
+                    lazy-image(
+                      :src="props.row.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                      :small-src="props.row.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                      :alt="props.row.item.images[0].alt")
+                  .content
+                    h6 Test
+              b-table-column(field="quantity" label="Quantity") {{props.row.quantity}}
+              b-table-column(field="subtotal" label="Subtotal")
 
 </template>
 
@@ -43,13 +44,16 @@
       return {
         breadcrumb: { 
           title: 'Continue shopping', 
-          route: '/'
+          path: '/'
         }
       }
     },
 
-    async fetch ({ store }) {
-      store.dispatch('cart/fetchCartData')
+    // async fetch ({ store }) {
+    //   store.dispatch('cart/fetchCartData')
+    // },
+    mounted () {
+      this.$store.dispatch('cart/fetchCartData')
     },
 
     computed: {
