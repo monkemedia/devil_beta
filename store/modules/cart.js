@@ -91,6 +91,8 @@ const store = {
       function signInUserAnonymously () {
         const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${process.env.FB_API_KEY}`
 
+        console.log('KEY', process.env.FB_API_KEY)
+
         return vm.$axios.$post(authUrl, {
           returnSecureToken: true
         })
@@ -181,10 +183,12 @@ const store = {
       // User is Officially signed in
       if (isAuthenticated) {
         console.log('User is Official')
-        token = getters['anonToken']
-        uid = getters['anonUid']
+        token = rootGetters['auth/token']
+        uid = rootGetters['auth/userId']
         // Does the user have a cart sessions
         console.log('Does the user have a cart sessions')
+        console.log('token', token)
+        console.log('uid', uid)
         return cartUidSession(token, uid)
           .then((result) => {
             if (!result) {
@@ -212,6 +216,7 @@ const store = {
               })
           })
           .catch((err) => {
+            console.log('ERROR', err)
             throw err
           })
       }
@@ -323,7 +328,6 @@ const store = {
             // There are cart sessions, so lets get all the cart IDs
             promises = []
             _.filter(result, (key) => {
-              console.log('shit', key.cartId)
               promises.push(cartUidSession(token, key.cartId))
             })
 
@@ -345,7 +349,6 @@ const store = {
             return getProductData(productIdPromise)
           })
           .then((result) => {
-            console.log('TREVOR', result)
             commit('SET_CART_ITEMS', result)
           })
           .catch((err) => {
@@ -354,6 +357,20 @@ const store = {
           })
             // return getProductData(result)
       }
+    },
+
+    liveStock ({ commit }, payload) {
+      const category = payload.category
+      const productId = payload.product_id
+
+      return this.$axios.$get(`${process.env.BASE_URL}/categories/${category}/${productId}/stock.json`)
+        .then((stock) => {
+          console.log('livestock', 5)
+          return stock
+        })
+        .catch((err) => {
+          throw err
+        })
     }
   },
 

@@ -30,9 +30,9 @@
                       | {{ cartItem.item.sale_price | currency }}
                     span(v-else)
                       | {{ cartItem.item.price | currency }}
-            .columns(v-else)
-              .column.has-text-centered
-                nuxt-link.view-more(to="") view all items
+              .columns(v-if="index > 5")
+                .column.has-text-centered
+                  nuxt-link.view-more(to="") view all items
             .columns
               .subtotal
                 .column
@@ -173,13 +173,6 @@
       h6
         font-size $size-normal
         margin-bottom .4rem
-      
-      .seller
-        font-size $size-small
-        color $grey
-        display flex
-        margin-bottom .3rem
-        BoldUppercase()
 
       .quantity
       .price
