@@ -30,6 +30,13 @@ LinkUnderline($color)
     &:after
       width 100%;
 
+Underline($color)
+  color $color
+  text-decoration underline
+  &:hover
+  &:focus
+    text-decoration none
+  
 // Navigation
 NavbarUnderline()
   content ''

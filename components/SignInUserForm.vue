@@ -104,9 +104,6 @@
     display flex
     a
       BoldUppercase()
-      text-decoration underline
+      Underline($secondary)
       font-size $size-small
-
-      &:hover
-        text-decoration none
 </style>
