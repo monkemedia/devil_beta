@@ -11,8 +11,8 @@
         .cart-box
           span.no-items(v-if="cartTotalItems < 1")
             h2 There are no items in your cart.
-            p If you have an account with us, please log in to see items you previously added.
-          b-table(:data="loadedCartItems" v-if="loadedCartItems")
+            p If you have an account with us, <nuxt-link to="sign-in" class="underline">please log in</nuxt-link> to see items you previously added.
+          b-table(:data="loadedCartItems" v-else)
             template(slot-scope="props")
               b-table-column(field="item" label="Item")
                 .item-details.media
@@ -97,10 +97,7 @@
       a
         BoldUppercase()
         font-size $size-smaller
-        text-decoration underline
-        &:hover
-        &:focus
-          text-decoration none
+        Underline($secondary)
 
         &:first-child
           margin-right 1rem
