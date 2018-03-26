@@ -311,7 +311,7 @@ const store = {
             return getProductData(result)
           })
           .then((result) => {
-            commit('SET_CART_ITEMS', result)
+            commit('SET_CART_ITEMS', result || [])
             console.log('MONKEY', result)
           })
           .catch((err) => {

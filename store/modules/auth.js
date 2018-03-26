@@ -67,10 +67,10 @@ const store = {
     saveUserDetailsToDatabase ({ state }, userDetails) {
       const userId = userDetails.userId
       const token = state.token
-      return this.$axios.$put(`${process.env.BASE_URL}/users/${userId}.json?auth=${token}`, userDetails)
+      return this.$axios.$patch(`${process.env.BASE_URL}/users/${userId}.json?auth=${token}`, userDetails)
     },
 
-    transferAnonCartToSignedInCart ({ getters, rootGetters }) {
+    transferAnonCartToSignedInCart ({ getters, dispatch, rootGetters }) {
       const vm = this
 
       function anonCartSessions (token, cartId) {
@@ -116,7 +116,7 @@ const store = {
                 .then(() => {
                   // Log out ANON user
                   console.log('LOGOUT OUT ANON USER')
-                  return logoutAnonymousUser()
+                  return dispatch('logoutAnonymousUser')
                 })
             }
     
@@ -148,20 +148,22 @@ const store = {
       })
     },
 
+    logoutAnonymousUser ({ rootState }) {
+      rootState['cart/CLEAR_ANON_TOKEN'] = null
+      rootState['cart/CLEAR_ANON_UID'] = null
+      Cookie.remove('anonToken')
+      Cookie.remove('anonUid')
+
+      if (process.client) {
+        localStorage.removeItem('anonToken')
+        localStorage.removeItem('anonUid')
+      }
+
+      return
+    },
+
     loginUser ({ commit, getters, dispatch, rootState, rootGetters }, authData) {
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${process.env.FB_API_KEY}`
-
-      function logoutAnonymousUser () {
-        rootState['cart/CLEAR_ANON_TOKEN'] = null
-        rootState['cart/CLEAR_ANON_UID'] = null
-        Cookie.remove('anonToken')
-        Cookie.remove('anonUid')
-
-        if (process.client) {
-          localStorage.removeItem('anonToken')
-          localStorage.removeItem('anonUid')
-        }
-      }
       
       return this.$axios.$post(authUrl, {
         email: authData.email,
@@ -198,7 +200,7 @@ const store = {
         .then(() => {
           // then Log out ANON user
           console.log('LOGOUT OUT ANON USER')
-          return logoutAnonymousUser()
+          return dispatch('logoutAnonymousUser')
         })
         .catch((err) => {
           console.log(err)
@@ -206,8 +208,9 @@ const store = {
         })
     },
 
-    registerUser ({ commit }, authData) {
+    registerUser ({ commit, dispatch, rootGetters }, authData) {
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${process.env.FB_API_KEY}`
+      let response
       
       return this.$axios.$post(authUrl, {
         email: authData.email,
@@ -217,6 +220,7 @@ const store = {
       })
         .then((result) => {    
           console.log('RESULT', result)   
+          response = result
           const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
           
           commit('SET_TOKEN', result.idToken)
@@ -233,9 +237,26 @@ const store = {
           Cookie.set('username', result.displayName)
           Cookie.set('userId', result.localId)
 
-          return result
+          return { result }
+        })
+        .then(() => {
+          return dispatch('transferAnonCartToSignedInCart')
+        })
+        .then(() => {
+          // Delete anon user
+          const token = rootGetters['cart/anonToken']
+          return dispatch('deleteUser', token)
+        })
+        .then(() => {
+          // then Log out ANON user
+          console.log('LOGOUT OUT ANON USER')
+          return dispatch('logoutAnonymousUser')
+        })
+        .then(() => {
+          return response
         })
         .catch((err) => {
+          console.log('ERROR', err)
           throw err.response.data.error
         })
     },
