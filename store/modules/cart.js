@@ -234,6 +234,13 @@ const store = {
       }
     },
 
+    deleteFromCart ({ getters, rootGetters }, data) {
+      console.log('DATA', data)
+      const token = rootGetters['auth/token'] || getters['anonToken']
+
+      return this.$axios.$delete(`${process.env.BASE_URL}/cartSessions/${data.session_id}/${data.item.product_id}.json?auth=${token}`)
+    },
+
     fetchCartData ({ commit, getters, rootGetters }) {
       const isAuthenticated = rootGetters['auth/isAuthenticated']
       const isAnonAuthenticated = getters['isAnonAuthenticated']
@@ -248,6 +255,12 @@ const store = {
 
       function cartUidSession (token, cartId) {
         return vm.$axios.$get(`${process.env.BASE_URL}/cartSessions/${cartId}.json?auth=${token}`)
+          .then((sessionData) => {
+            return {
+              session_data: sessionData,
+              cart_id: cartId
+            }
+          })
       }
 
       function getCartId (token, userId) {
@@ -258,15 +271,15 @@ const store = {
         promises = []
         cart = []
 
-        _.filter(sessionData, (key) => {
+        _.filter(sessionData.session_data, (key) => {
           promises.push(axios.get(`${process.env.BASE_URL}/products/${key.product_id}.json`)
             .then((res) => {
               return {
                 item: res.data,
-                quantity: key.quantity
+                quantity: key.quantity,
+                session_id: sessionData.cart_id
               }
-            })
-          )
+            }))
         })
 
         // Add product data and quantity to cart items in state
@@ -297,17 +310,17 @@ const store = {
         console.log('uid', uid)
         console.log('token', token)
         return cartUidSession(token, uid)
-          .then((result) => {
-            if (!result) {
+          .then((sessionData) => {
+            if (!sessionData) {
               // If there isnt a session lets just stop here
               console.log('If there isnt a session lets just stop here')
               return
             }
 
             // There is a cart session, so lets get all the product ID'S
-            console.log('There is a cart session, so lets get all the product IDs')
+            console.log('There is a cart session, so lets get all the product IDs', sessionData)
             // Loop through Product IDs and get product data for each product ID
-            return getProductData(result)
+            return getProductData(sessionData)
           })
           .then((result) => {
             commit('SET_CART_ITEMS', result || [])
@@ -341,7 +354,6 @@ const store = {
             return getProductData(sessionData)
           })
           .then((result) => {
-            console.log('MONKEY STICKS', result)
             commit('SET_CART_ITEMS', result)
           })
           .catch((err) => {
