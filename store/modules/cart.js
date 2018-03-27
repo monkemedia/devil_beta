@@ -246,11 +246,11 @@ const store = {
       let cart
       let productIdPromise
 
-      function cartUidSession (token, uid) {
-        return vm.$axios.$get(`${process.env.BASE_URL}/cartSessions/${uid}.json?auth=${token}`)
+      function cartUidSession (token, cartId) {
+        return vm.$axios.$get(`${process.env.BASE_URL}/cartSessions/${cartId}.json?auth=${token}`)
       }
 
-      function getCardIds (token, userId) {
+      function getCartId (token, userId) {
         return vm.$axios.$get(`${process.env.BASE_URL}/users/${userId}/cart.json?auth=${token}`)
       }
 
@@ -307,7 +307,6 @@ const store = {
             // There is a cart session, so lets get all the product ID'S
             console.log('There is a cart session, so lets get all the product IDs')
             // Loop through Product IDs and get product data for each product ID
-            console.log('RESULT', result)
             return getProductData(result)
           })
           .then((result) => {
@@ -325,47 +324,30 @@ const store = {
         token = rootGetters['auth/token']
         userId = rootGetters['auth/userId']
 
-        return getCardIds(token, userId)
-          .then((result) => {
-            if (!result) {
+        return getCartId(token, userId)
+          .then((sessionId) => {
+            if (!sessionId) {
               // If there isnt a session lets just stop here
-              console.log('If there isnt any CartIDs')
+              console.log('If there isnt any CartIDs lets just stop here')
               return
             }
 
             // There are cart sessions, so lets get all the cart IDs
-            console.log('There are cart sessions, so lets get all the cart IDs', result)
+            console.log('There are cart sessions, so lets get all the cart IDs', sessionId)
             // There are cart sessions, so lets get all the cart IDs
-            promises = []
-            _.filter(result, (key) => {
-              promises.push(cartUidSession(token, key.cartId))
-            })
-
-            return axios.all(promises)
+            return cartUidSession(token, sessionId)
+          })
+          .then((sessionData) => {
+            return getProductData(sessionData)
           })
           .then((result) => {
-            console.log('RESULT', result)
-            productIdPromise = []
-            _.map(result, (value, key) => {
-              _.map(result[key], (k) => {
-                productIdPromise.push({ 
-                  product_id: k.product_id,
-                  quantity: k.quantity
-                })
-              })
-              
-            })
-            console.log('productIdPromise', productIdPromise)
-            return getProductData(productIdPromise)
-          })
-          .then((result) => {
+            console.log('MONKEY STICKS', result)
             commit('SET_CART_ITEMS', result)
           })
           .catch((err) => {
             console.log(err)
             throw err
           })
-            // return getProductData(result)
       }
     },
 
