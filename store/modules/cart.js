@@ -47,7 +47,7 @@ const store = {
     initCart ({ commit }, req) {
       let token
       let uid
-      let expirationDate
+      // let expirationDate
 
       if (req) {
         if (!req.headers.cookie) {
@@ -68,22 +68,22 @@ const store = {
           return
         }
 
-        expirationDate = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('anonTokenExpiration='))
-          .split('=')[1]
+        // expirationDate = req.headers.cookie
+        //   .split(';')
+        //   .find(c => c.trim().startsWith('anonTokenExpiration='))
+        //   .split('=')[1]
         token = tokenCookie.split('=')[1]
         uid = uidCookie.split('=')[1]
       } else if (process.client) {
-        expirationDate = localStorage.getItem('anonTokenExpiration')
+        // expirationDate = localStorage.getItem('anonTokenExpiration')
         token = localStorage.getItem('anonToken')
         uid = localStorage.getItem('anonUid')
       }
 
-      if (new Date().getTime() > parseInt(expirationDate)) {
-        console.log('no token or invalid token')
-        return
-      }
+      // if (new Date().getTime() > parseInt(expirationDate)) {
+      //   console.log('no token or invalid token')
+      //   return
+      // }
 
       commit('SET_ANON_TOKEN', token)
       commit('SET_ANON_UID', uid)
@@ -108,18 +108,19 @@ const store = {
           returnSecureToken: true
         })
           .then((result) => {
-            const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
+            console.log(result)
+            // const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
 
             commit('SET_ANON_TOKEN', result.idToken)
             commit('SET_ANON_UID', result.localId)
 
             localStorage.setItem('anonToken', result.idToken)
             localStorage.setItem('anonUid', result.localId)
-            localStorage.setItem('anonTokenExpiration', setExpirationDate)
+            // localStorage.setItem('anonTokenExpiration', setExpirationDate)
 
             Cookie.set('anonToken', result.idToken)
             Cookie.set('anonUid', result.localId)
-            Cookie.set('anonTokenExpiration', setExpirationDate)
+            // Cookie.set('anonTokenExpiration', setExpirationDate)
             return result
           })
       }

@@ -7,7 +7,7 @@
       .column
         h1 Your cart ({{ cartTotalItems }})
     .columns
-      .column.is-9
+      .column.is-8
         .cart-box(:class="{ 'no-items' :  cartTotalItems < 1 }")
           span(v-if="cartTotalItems < 1")
             h2 There are no items in your cart.
@@ -27,14 +27,17 @@
                     span.ctas
                       a(@click="deleteModal(props.row, props.index)") Remove
               b-table-column.quantity(field="quantity" label="Quantity") 
-                IncrementCounter(:productDetails="{ quantity: props.row.quantity, product_id: props.row.item.product_id, cart_id: props.row.session_id }")
+                increment-counter(:productDetails="{ quantity: props.row.quantity, product_id: props.row.item.product_id, cart_id: props.row.session_id }")
               b-table-column.subtotal(field="subtotal" label="Subtotal") {{ props.row.item.price * props.row.quantity | currency }}
+      .column.is-4
+        order-summary
 
 </template>
 
 <script>
   import Breadcrumb from '@/components/Breadcrumbs/DefaultBreadcrumb'
-  import IncrementCounter from '@/components/Shared/IncrementCounter'
+  import IncrementCounter from '@/components/Checkout/IncrementCounter'
+  import OrderSummary from '@/components/Checkout/OrderSummary'
   import axios from 'axios'
 
   export default {
@@ -45,7 +48,8 @@
 
     components: {
       Breadcrumb,
-      IncrementCounter
+      IncrementCounter,
+      OrderSummary
     },
 
     data () {
