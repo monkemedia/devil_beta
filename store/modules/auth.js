@@ -74,7 +74,7 @@ const store = {
       const vm = this
 
       function anonCartSessions (token, cartId) {
-        return vm.$axios.$get(`${process.env.BASE_URL}/cartSessions/${cartId}.json?auth=${token}`)
+        return vm.$axios.$get(`${process.env.BASE_URL}/cartSessions/${cartId}/products.json?auth=${token}`)
       }
 
       function deleteAnonCartSessions (token, cartId) {
@@ -90,7 +90,7 @@ const store = {
       }
 
       function addItemToCartSessions (token, cartId, items) {
-        return vm.$axios.$patch(`${process.env.BASE_URL}/cartSessions/${cartId}.json?auth=${token}`, items)
+        return vm.$axios.$patch(`${process.env.BASE_URL}/cartSessions/${cartId}/products.json?auth=${token}`, items)
       }
       // Add anon cart uid to userprofile
       const anonToken = rootGetters['cart/anonToken']
@@ -153,10 +153,12 @@ const store = {
       rootState['cart/CLEAR_ANON_UID'] = null
       Cookie.remove('anonToken')
       Cookie.remove('anonUid')
+      Cookie.remove('anonTokenExpiration')
 
       if (process.client) {
         localStorage.removeItem('anonToken')
         localStorage.removeItem('anonUid')
+        localStorage.removeItem('anonTokenExpiration')
       }
 
       return
