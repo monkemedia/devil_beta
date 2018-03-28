@@ -9,40 +9,39 @@
           span.cart-count {{ cartTotalItems }}
       .dropdown-menu#dropdown-menu-mini-cart(role="menu")
         .dropdown-content
-          .dropdown-item.empty-cart(v-if="!cartData")
+          .dropdown-item.empty-cart(v-if="loadedCartItems.length === 0")
             p Your cart is empty
           .dropdown-item(v-else)
-            .columns(v-for="(cartItem, index) in cartData" v-if="index < 5")
+            .columns(v-for="(cartItem, index) in loadedCartItems" v-if="index < 5")
               .column.is-4
                 figure
                   lazy-image(
-                    :src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                    :small-src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                    :alt="cartItem.images[0].alt")
+                    :src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                    :small-src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                    :alt="cartItem.item.images[0].alt")
               .column
                 h6 
-                  router-link(:to="'/' + cartItem.category + '/' + cartItem.product_id") {{ cartItem.title }}
-                span.seller By {{ cartItem.username }}
+                  router-link(:to="'/' + cartItem.item.category + '/' + cartItem.item.product_id") {{ cartItem.item.title }}
+                span.seller By {{ cartItem.item.username }}
                 .level
-                  .level-left.quantity Qty: {{ cartItems[index].quantity }}
+                  .level-left.quantity Qty: {{ cartItem.quantity }}
                   .level-right.price
-                    span(v-if="cartItem.on_sale")
-                      | {{ cartItem.sale_price | currency }}
+                    span(v-if="cartItem.item.on_sale")
+                      | {{ cartItem.item.sale_price | currency }}
                     span(v-else)
-                      | {{ cartItem.price | currency }}
-            .columns(v-else)
-              .column.has-text-centered
-                nuxt-link.view-more(to="") view all items
+                      | {{ cartItem.item.price | currency }}
+              .columns(v-if="index > 5")
+                .column.has-text-centered
+                  nuxt-link.view-more(to="") view all items
             .columns
               .subtotal
                 .column
                   | Subtotal
                 .column.has-text-right 
                   | {{ cartSubtotal | currency }}
-
             .columns
               .column
-                a.button.is-flip.is-fullwidth
+                nuxt-link(to="/cart").button.is-flip.is-fullwidth
                   span(data-text="View cart") View cart
               .column
                 a.button.is-flip.is-secondary.is-fullwidth
@@ -67,37 +66,25 @@
       }
     },
 
+    async fetch ({ store }) {
+      store.dispatch('cart/fetchCartData')
+    },
+
     mounted () {
-      this.getCartData()
+      if (process.client) {
+        this.$store.dispatch('cart/fetchCartData')
+      }
     },
 
     methods: {
       away () {
         this.isActive = false
-      },
-
-      getCartData () {  
-        const cartItems = this.cartItems
-        const promises = []
-        const newArray = []
-
-        cartItems.forEach((item) => {
-          promises.push(axios.get(`${process.env.BASE_URL}/products/${item.product_id}.json`))
-        })
-
-        axios.all(promises)
-          .then((result) => {
-            result.forEach((item) => {
-              newArray.push(item.data)
-            })
-          })
-        this.cartData = newArray
       }
     },
 
     computed: {
-      cartItems () {
-        return this.$store.getters['cart/cartItems']
+      loadedCartItems () {
+        return this.$store.getters['cart/loadedCartItems']
       },
 
       cartTotalItems () {
@@ -106,12 +93,6 @@
 
       cartSubtotal () {
         return this.$store.getters['cart/cartSubtotal']
-      }
-    },
-
-    watch: {
-      cartItems (value) {
-        this.getCartData()
       }
     }
   }
@@ -192,13 +173,6 @@
       h6
         font-size $size-normal
         margin-bottom .4rem
-      
-      .seller
-        font-size $size-small
-        color $grey
-        display flex
-        margin-bottom .3rem
-        BoldUppercase()
 
       .quantity
       .price

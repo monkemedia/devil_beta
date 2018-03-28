@@ -1,7 +1,7 @@
 <template lang="pug">
   .navbar-menu(:class="{ 'is-active': isMobileMenuActive }")
     .navbar-start
-      a.navbar-item(v-for="nav in navigation" :class="{ 'is-active': isActive(nav) }") {{ nav.title}}
+      nuxt-link.navbar-item(:to="nav.path" v-for="nav in navigation" :class="{ 'is-active': isActive(nav) }") {{ nav.title}}
     .navbar-end
       .navbar-item#search-bar-desktop
         search-bar
@@ -28,9 +28,9 @@
     data () {
       return {
         navigation: [
-          { title: 'Home' },
-          { title: 'Men' },
-          { title: 'Sell' }
+          { title: 'Cart', path: '/cart' },
+          { title: 'Men', path: '/' },
+          { title: 'Sell', path: '/' }
         ]
       }
     },

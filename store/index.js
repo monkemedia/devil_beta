@@ -13,6 +13,11 @@ const createStore = () => {
       cart,
       modals,
       navigation
+    },
+    actions: {
+      async nuxtServerInit({ dispatch }) {
+        await dispatch('cart/fetchCartData')
+      }
     }
   })
 }
