@@ -18,7 +18,7 @@
           .dropdown-content
             h6.h3.dropdown-header Hi, {{ username }}
             hr.dropdown-divider
-            nuxt-link.dropdown-item(v-for="item in items" :to="item.path") {{ item.name }}
+            nuxt-link.dropdown-item(v-for="item in items" :to="item.path" :key="item.name") {{ item.name }}
             .dropdown-item
               log-out(type="button is-secondary")
 </template>
