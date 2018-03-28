@@ -2,16 +2,17 @@
   .order-summary
     header
       h2.h3 Order summary
+      hr
     section
       .row
-        span Subtotal (1 item)
-        span £59
+        span Subtotal ({{ cartTotalItems }} {{ item }})
+        span {{ cartSubtotal | currency }}
       .row
         span Shipping
         span N/A
       .row.total
         span Estimated total
-        span £59
+        span {{ cartSubtotal + shipping | currency }}
     footer
       button.button.is-primary.is-fullwidth.is-flip 
         span(data-text="Check out") Check out
@@ -19,14 +20,32 @@
 </template>
 
 <script>
+  import _ from 'lodash'
+
   export default {
     name: 'OrderSummary',
 
-    props: {
-    },
-
     data () {
       return {
+        shipping: 0
+      }
+    },
+
+    computed: {
+      cartTotalItems () {
+        return this.$store.getters['cart/cartTotalItems']
+      },
+
+      cartSubtotal () {
+        return this.$store.getters['cart/cartSubtotal']
+      },
+
+      item () {
+        if (this.cartTotalItems > 1) {
+          return 'items'
+        }
+
+        return 'item'
       }
     }
   }
@@ -54,12 +73,16 @@
       display inline-flex
       &:first-child
         color $grey
+      &:last-child
+        font-size $size-150
     
     &.total
-      font-size $size-240
       span
         &:first-child
           color $secondary
+          font-size $size-240
+        &:last-child
+          font-size $size-240
     
   .button
     margin-bottom 0

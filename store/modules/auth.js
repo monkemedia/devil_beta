@@ -341,10 +341,12 @@ const store = {
         rootState['cart/CLEAR_ANON_UID'] = null
         Cookie.remove('anonToken')
         Cookie.remove('anonUid')
+        Cookie.remove('anonUTokenExpiration')
 
         if (process.client) {
           localStorage.removeItem('anonToken')
           localStorage.removeItem('anonUid')
+          localStorage.removeItem('anonTokenExpiration')
         }
       }
     }
