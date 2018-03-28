@@ -25,7 +25,6 @@
                     h6 {{ props.row.item.title }}
                     span.seller Seller: {{ props.row.item.username }}
                     span.ctas
-                      a Edit details
                       a(@click="deleteModal(props.row, props.index)") Remove
               b-table-column.quantity(field="quantity" label="Quantity") {{ props.row.quantity }}
               b-table-column.subtotal(field="subtotal" label="Subtotal") {{ props.row.item.price * props.row.quantity | currency }}
@@ -56,12 +55,12 @@
     },
 
     async fetch ({ store }) {
-      store.dispatch('cart/fetchCartData')
+      // store.dispatch('cart/fetchCartData')
     },
 
     mounted () {
       if (process.client) {
-        this.$store.dispatch('cart/fetchCartData')
+       //  this.$store.dispatch('cart/fetchCartData')
       }
     },
 
@@ -83,7 +82,6 @@
           confirmText: 'Agree',
           type: 'is-success',
           onConfirm: () => {
-            console.log(product)
             this.$store.dispatch('cart/deleteFromCart', product)
               .then((success) => {
                 this.$delete(this.loadedCartItems, index)
