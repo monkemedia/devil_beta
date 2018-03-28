@@ -6,6 +6,7 @@ h1, h2, h3, h4, h5, h6
   BoldUppercase()
   margin-bottom 2.5rem
   line-height 1
+  letter-spacing .4px
 
 html
   height 100%
@@ -13,6 +14,7 @@ html
 body
   background-color $body-bg
   min-height 100%
+  letter-spacing .6px
 
 h1
 .h1
@@ -30,8 +32,11 @@ h3
   margin-top 1rem
 
 a 
-  &.underline
+  &.animated-underline
     LinkUnderline($primary)
+
+  &.underline
+    Underline($secondary)
 
 p
   color $tertiary
@@ -47,6 +52,13 @@ p
   overflow hidden !important
   clip rect(0,0,0,0) !important
   border 0 !important
+
+.seller
+  font-size 1.1rem
+  color $grey
+  display flex
+  margin-bottom .3rem
+  BoldUppercase()
 
 .is-block
   display block !important
