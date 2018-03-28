@@ -118,23 +118,23 @@
       left 7px
       line-height 1
       font-family $family-primary
-      font-size $size-smaller
+      font-size $size-100
   
   .mini-cart-desktop-container
     display none
     .mini-cart-desktop
       BoldUppercase()
       color $white
-      font-size $size-small
+      font-size $size-120
       display inline-flex
       padding-right 2rem
 
       .mini-cart-label
         background $primary
-        padding 1rem 1.3rem
+        padding 1rem $size-130
       .cart-count
         background $dark-red
-        padding 1rem 1.3rem
+        padding 1rem $size-130
         width 38px
         text-align center
   .dropdown-menu
@@ -171,18 +171,18 @@
           max-height 100%
           width 100%
       h6
-        font-size $size-normal
+        font-size $size-150
         margin-bottom .4rem
 
       .quantity
       .price
-        font-size 1.3rem
+        font-size $size-130
         BoldUppercase()
       
       .subtotal
         border-top 1px solid $grey-300
         border-bottom 1px solid $grey-300
-        font-size $size-normal
+        font-size $size-150
         margin 1.5rem 0
         display flex
         width 100%

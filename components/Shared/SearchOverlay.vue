@@ -23,7 +23,7 @@
   }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
 
   .search-overlay

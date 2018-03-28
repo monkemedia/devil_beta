@@ -170,7 +170,7 @@
           color $grey
       
       .sold-out
-        font-size $size-normal
+        font-size $size-150
         font-weight bold
       
       .add-to-cart

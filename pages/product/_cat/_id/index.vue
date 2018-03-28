@@ -57,5 +57,5 @@
   @import '~assets/css/utilities/variables.styl'
 
   .not-available
-    font-size $size-medium
+    font-size $size-180
 </style>
