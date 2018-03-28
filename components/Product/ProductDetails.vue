@@ -70,7 +70,7 @@
       },
 
       addToCart () {
-        const cartItems = this.$store.getters['cart/cartItems']
+        const cartItems = this.$store.getters['cart/loadedCartItems']
         const record = cartItems.find(element => element.product_id === this.product.product_id)
         const payload = {
           category: this.product.category,
@@ -88,11 +88,12 @@
 
             return this.$store.dispatch('cart/addToCart', {
               product_id: this.product.product_id,
-              quantity: this.quantity,
-              price: this.product.price,
-              on_sale: this.product.on_sale,
-              sale_price: this.product.sale_price
+              quantity: this.quantity
             })
+          })
+          .then((result) => {
+            console.log('Product added', result)
+            return this.$store.dispatch('cart/fetchCartData')
           })
           .then(() => {
             this.loading = false

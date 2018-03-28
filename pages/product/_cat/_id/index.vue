@@ -39,7 +39,7 @@
             loadedItem: result,
             breadcrumb: { 
               title: 'Back', 
-              route: `/product/${result.category}` 
+              path: `/product/${result.category}` 
             }
           }
         })

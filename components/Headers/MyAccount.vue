@@ -1,9 +1,9 @@
 <template lang="pug">
   div
     .user-login-buttons(v-if="!isAuthenticated")
-      nuxt-link.underline(to="/sign-in") Sign in
+      nuxt-link.animated-underline(to="/sign-in") Sign in
       span.or or
-      nuxt-link.underline(to="/create-account") Register
+      nuxt-link.animated-underline(to="/create-account") Register
 
     .user-logged-in(v-else)
       .dropdown(:class="{ 'is-active': isActive }")

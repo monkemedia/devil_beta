@@ -33,7 +33,7 @@
 
     data () {
       return {
-        breadcrumb: { title: 'Products', route: '/admin/products' }
+        breadcrumb: { title: 'Products', path: '/admin/products' }
       }
     },
 

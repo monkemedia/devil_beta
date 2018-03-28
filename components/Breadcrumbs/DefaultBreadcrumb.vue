@@ -2,7 +2,7 @@
   nav.breadcrumb(aria-label="breadcrumbs")
     ul
       li
-        nuxt-link(:to="crumb.route" exact) {{ crumb.title }}
+        nuxt-link(:to="crumb.path" exact) {{ crumb.title }}
 </template>
 
 <script>
