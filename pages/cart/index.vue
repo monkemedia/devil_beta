@@ -112,7 +112,7 @@
     font-size $size-150 
     background $white
     padding 1rem 1.5rem
-    
+    min-height 351px
     
     h6
       margin-bottom .5rem
@@ -127,7 +127,6 @@
           margin-right 1rem
     
     &.no-items
-      min-height 300px
       display flex
       justify-content center
       align-items center

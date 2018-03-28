@@ -41,11 +41,10 @@
       },
 
       item () {
-        if (this.cartTotalItems > 1) {
-          return 'items'
+        if (this.cartTotalItems === 1) {
+          return 'item'
         }
-
-        return 'item'
+        return 'items'
       }
     }
   }
