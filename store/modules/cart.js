@@ -271,10 +271,15 @@ const store = {
     },
 
     deleteFromCart ({ getters, rootGetters }, data) {
-      console.log('DATA', data)
       const token = rootGetters['auth/token'] || getters['anonToken']
 
       return this.$axios.$delete(`${process.env.BASE_URL}/cartSessions/${data.session_id}/products/${data.item.product_id}.json?auth=${token}`)
+    },
+
+    updateCartItemQuantity ({ getters, rootGetters }, data) {
+      console.log('data', data)
+      const token = rootGetters['auth/token'] || getters['anonToken']
+      return this.$axios.$patch(`${process.env.BASE_URL}/cartSessions/${data.cart_id}/products/${data.product_id}.json?auth=${token}`, { quantity: data.quantity })
     },
 
     fetchCartData ({ commit, dispatch, getters, rootGetters }) {

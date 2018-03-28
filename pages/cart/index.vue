@@ -27,7 +27,7 @@
                     span.ctas
                       a(@click="deleteModal(props.row, props.index)") Remove
               b-table-column.quantity(field="quantity" label="Quantity") 
-                IncrementCounter(:quantity="props.row.quantity")
+                IncrementCounter(:productDetails="{ quantity: props.row.quantity, product_id: props.row.item.product_id, cart_id: props.row.session_id }")
               b-table-column.subtotal(field="subtotal" label="Subtotal") {{ props.row.item.price * props.row.quantity | currency }}
 
 </template>

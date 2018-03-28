@@ -1,9 +1,9 @@
 <template lang="pug">
   .increment-counter
-    a.minus(@click="increment('minus')" :class="{ 'disabled' : qty < 2 }")
+    a.minus(@click="increment('minus')" :class="{ 'disabled' : quantity < 2 }")
       i.fa.fa-minus
-    input(v-model="qty" disabled)
-    a.plus(@click="increment('plus')" :class="{ 'disabled' : qty > 4 }")
+    input(v-model="quantity" disabled)
+    a.plus(@click="increment('plus')" :class="{ 'disabled' : quantity > 4 }")
       i.fa.fa-plus
 </template>
 
@@ -12,27 +12,43 @@
     name: 'IncrementCounter',
 
     props: {
-      quantity: {
-        type: Number,
-        required: true,
-        default: 0
+      productDetails: {
+        type: Object,
+        required: true
       }
     },
 
     data () {
       return {
-        qty: this.quantity
+        quantity: this.productDetails.quantity
       }
     },
 
     methods: {
+      updateDb: _.debounce(function (qty) {
+        console.log('debounce')
+        this.$store.dispatch('cart/updateCartItemQuantity', {
+          ...this.productDetails,
+          quantity: qty
+        })
+          .then(() => {
+            return this.$store.dispatch('cart/fetchCartData')
+          })
+      }, 300),
+
       increment (val) {
+        let qty = this.quantity
+
         if (val === 'plus') {
-          return this.qty += 1
+          qty += 1
+          
+        } else {
+          qty -= 1
         }
 
-        return this.qty -= 1
-        
+        this.quantity = qty
+        this.updateDb(qty)
+        this.$emit('quantity', qty)
       }
     }
   }
@@ -41,12 +57,12 @@
 <style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
   
-  $increment-grey = #ccc
+  $increment-grey = $grey-light
   
   .increment-counter
-    padding .6rem 1rem
+    padding .7rem 1rem
     background-color $increment-grey
-    width 100%
+    width 100px
     display inline-flex
     justify-content space-between
     align-items center
