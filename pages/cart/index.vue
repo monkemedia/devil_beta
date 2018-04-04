@@ -61,15 +61,15 @@
       }
     },
 
-    // async fetch ({ store }) {
-    //   store.dispatch('cart/fetchCartData')
-    // },
+    async fetch ({ store }) {
+      store.dispatch('cart/fetchCartData')
+    },
 
-    // mounted () {
-    //   if (process.client) {
-    //     this.$store.dispatch('cart/fetchCartData')
-    //   }
-    // },
+    mounted () {
+      if (process.client) {
+        this.$store.dispatch('cart/fetchCartData')
+      }
+    },
 
     computed: {
       loadedCartItems () {

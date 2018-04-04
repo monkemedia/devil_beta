@@ -88,29 +88,32 @@ const store = {
         setAnonAuthRefreshToken(refreshToken)
         setAnonExpirationDate(expirationDate)
 
-        commit('SET_TOKEN', token)
         commit('SET_UID', uid)
 
         console.log('expiration date', expirationDate)
         console.log('RT', refreshToken)
 
-        if (new Date().getTime() > expirationDate) {
+        if (new Date().getTime() >= expirationDate) {
           console.log('TOKEN HAS EXPIRED')
           return refreshAnonToken(refreshToken)
             .then((result) => {
-              console.log('REFRESH_RESULT', result)
+              console.log('REFRESH_RESULT', result.id_token)
               const setExpirationDate = new Date().getTime() + parseInt(result.expires_in) * 1000
+
+              commit('SET_TOKEN', result.id_token)
+
 
               setAnonAuthToken(result.id_token)
               setAnonAuthRefreshToken(result.refreshToken)
-              setAnonExpirationDate(expirationDate)
-
-              commit('SET_TOKEN', result.id_token)
+              setAnonExpirationDate(setExpirationDate)
             })
             .catch((err) => {
               console.log(err.response.data.error)
               throw err
             })
+        } else {
+          console.log("KERE", token);
+          commit('SET_TOKEN', token)
         }
       } else if (process.client) {
         token = Cookies.get('anon-token')
