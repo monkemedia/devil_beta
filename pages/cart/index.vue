@@ -43,7 +43,7 @@
   export default {
     middleware: [
       'check-auth',
-      'check-anon-auth'
+      'fetch-cart-data'
     ],
 
     components: {
@@ -61,15 +61,16 @@
       }
     },
 
-    async fetch ({ store }) {
-      store.dispatch('cart/fetchCartData')
-    },
+    // async fetch ({ store }) {
+    //   console.log('HERE PEOPLE');
+    //   store.dispatch('cart/fetchCartData')
+    // },
 
-    mounted () {
-      if (process.client) {
-        this.$store.dispatch('cart/fetchCartData')
-      }
-    },
+    // mounted () {
+    //   if (process.client) {
+    //     this.$store.dispatch('cart/fetchCartData')
+    //   }
+    // },
 
     computed: {
       loadedCartItems () {

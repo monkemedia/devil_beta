@@ -22,8 +22,7 @@
 
     middleware: [
       'auth',
-      'add-item-error',
-      'check-anon-auth'
+      'add-item-error'
     ],
 
     components: {

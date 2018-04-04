@@ -34,8 +34,7 @@
 
     middleware: [
       'check-auth',
-      'auth',
-      'check-anon-auth'
+      'auth'
     ],
 
     components: {

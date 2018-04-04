@@ -12,8 +12,7 @@
   export default {
     middleware: [
       'check-auth',
-      'auth',
-      'check-anon-auth'
+      'auth'
     ],
 
     layout: 'admin',

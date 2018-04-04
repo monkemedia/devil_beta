@@ -8,7 +8,7 @@
   export default {
     middleware: [
       'check-auth',
-      'check-anon-auth'
+      'fetch-cart-data'
     ]
   }
 </script>

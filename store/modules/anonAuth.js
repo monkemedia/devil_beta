@@ -102,7 +102,6 @@ const store = {
 
               commit('SET_TOKEN', result.id_token)
 
-
               setAnonAuthToken(result.id_token)
               setAnonAuthRefreshToken(result.refreshToken)
               setAnonExpirationDate(setExpirationDate)

@@ -187,8 +187,6 @@ const store = {
     },
 
     fetchCartData ({ commit, dispatch, rootGetters }, req) {
-      const isAuthenticated = rootGetters['auth/isAuthenticated']
-      const isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
       const vm = this
       let token
       let uid
@@ -197,6 +195,8 @@ const store = {
       let promises
       let cart
       let productIdPromise
+      let isAuthenticated
+      let isAnonAuthenticated
 
       function cartUidSession (token, cartId) {
         return vm.$axios.$get(`${process.env.BASE_URL}/cartSessions/${cartId}/products/.json?auth=${token}`)
@@ -238,13 +238,16 @@ const store = {
           })
       }
 
-      // User is ANON user
-      if (isAnonAuthenticated) {
+      return dispatch('anonAuth/initAuth', req, { root: true })
+        .then(() => {
+          isAuthenticated = rootGetters['auth/isAuthenticated']
+          isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
+          // User is ANON user
+          if (isAnonAuthenticated) {
 
-        // Init anon auth first
-        console.log('Init anon auth first')
-        return dispatch('anonAuth/initAuth', req, { root: true })
-          .then(() => {
+            // Init anon auth first
+            console.log('Init anon auth first')
+            
             console.log('User is an ANON user')
             // Get ANONUID and see if there is a CART SESSION
             token = rootGetters['anonAuth/token']
@@ -252,58 +255,62 @@ const store = {
             console.log('Get ANONUID and see if there is a cart session')
             console.log('token', token)
             return cartUidSession(token, uid)
-          })
-          .then((sessionData) => {
-            if (!sessionData) {
-              // If there isnt a session lets just stop here
-              console.log('If there isnt a session lets just stop here')
-              return
-            }
+              .then((sessionData) => {
+                if (!sessionData) {
+                  // If there isnt a session lets just stop here
+                  console.log('If there isnt a session lets just stop here')
+                  return
+                }
 
-            // There is a cart session, so lets get all the product ID'S
-            console.log('There is a cart session, so lets get all the product IDs', sessionData)
-            // Loop through Product IDs and get product data for each product ID
-            return getProductData(sessionData)
-          })
-          .then((result) => {
-            commit('SET_CART_ITEMS', result || [])
-          })
-          .catch((err) => {
-            console.log(err.data)
-            throw err
-          })
-      }
+                // There is a cart session, so lets get all the product ID'S
+                console.log('There is a cart session, so lets get all the product IDs', sessionData)
+                // Loop through Product IDs and get product data for each product ID
+                return getProductData(sessionData)
+              })
+              .then((result) => {
+                commit('SET_CART_ITEMS', result || [])
+              })
+              .catch((err) => {
+                console.log(err.data)
+                throw err
+              })
+          }
 
-      // User is Officially signed in
-      if (isAuthenticated) {
-        console.log('User is Officially signed in')
-        token = rootGetters['auth/token']
-        userId = rootGetters['auth/userId']
+          // User is Officially signed in
+          if (isAuthenticated) {
+            console.log('User is Officially signed in')
+            token = rootGetters['auth/token']
+            userId = rootGetters['auth/userId']
 
-        return getCartId(token, userId)
-          .then((sessionId) => {
-            if (!sessionId) {
-              // If there isnt a session lets just stop here
-              console.log('If there isnt any CartIDs lets just stop here')
-              return
-            }
+            return getCartId(token, userId)
+              .then((sessionId) => {
+                if (!sessionId) {
+                  // If there isnt a session lets just stop here
+                  console.log('If there isnt any CartIDs lets just stop here')
+                  return
+                }
 
-            // There are cart sessions, so lets get all the cart IDs
-            console.log('There are cart sessions, so lets get all the cart IDs', sessionId)
-            // There are cart sessions, so lets get all the cart IDs
-            return cartUidSession(token, sessionId)
-          })
-          .then((sessionData) => {
-            return getProductData(sessionData)
-          })
-          .then((result) => {
-            commit('SET_CART_ITEMS', result)
-          })
-          .catch((err) => {
-            console.log(err)
-            throw err
-          })
-      }
+                // There are cart sessions, so lets get all the cart IDs
+                console.log('There are cart sessions, so lets get all the cart IDs', sessionId)
+                // There are cart sessions, so lets get all the cart IDs
+                return cartUidSession(token, sessionId)
+              })
+              .then((sessionData) => {
+                return getProductData(sessionData)
+              })
+              .then((result) => {
+                commit('SET_CART_ITEMS', result)
+              })
+              .catch((err) => {
+                console.log(err)
+                throw err
+              })
+          }
+        })
+        .catch((err) => {
+          console.log(err.data)
+          throw err
+        })
     },
 
     liveStock ({ commit }, payload) {
