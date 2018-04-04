@@ -1,4 +1,4 @@
-import Cookies from 'js-cookie'
+import Cookie from 'js-cookie'
 import { key } from 'firebase-key'
 import { setAnonAuth, resetAnonAuth } from '~/utils/anonAuth'
 import Vue from 'vue'
