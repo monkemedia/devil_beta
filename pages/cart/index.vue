@@ -7,7 +7,7 @@
       .column
         h1 Your cart ({{ cartTotalItems }})
     .columns
-      .column.is-9
+      .column.is-8
         .cart-box(:class="{ 'no-items' :  cartTotalItems < 1 }")
           span(v-if="cartTotalItems < 1")
             h2 There are no items in your cart.
@@ -26,23 +26,30 @@
                     span.seller Seller: {{ props.row.item.username }}
                     span.ctas
                       a(@click="deleteModal(props.row, props.index)") Remove
-              b-table-column.quantity(field="quantity" label="Quantity") {{ props.row.quantity }}
+              b-table-column.quantity(field="quantity" label="Quantity") 
+                increment-counter(:productDetails="{ quantity: props.row.quantity, product_id: props.row.item.product_id, cart_id: props.row.session_id }")
               b-table-column.subtotal(field="subtotal" label="Subtotal") {{ props.row.item.price * props.row.quantity | currency }}
+      .column.is-4
+        order-summary
 
 </template>
 
 <script>
   import Breadcrumb from '@/components/Breadcrumbs/DefaultBreadcrumb'
+  import IncrementCounter from '@/components/Checkout/IncrementCounter'
+  import OrderSummary from '@/components/Checkout/OrderSummary'
   import axios from 'axios'
 
   export default {
     middleware: [
       'check-auth',
-      'cart'
+      'fetch-cart-data'
     ],
 
     components: {
-      Breadcrumb
+      Breadcrumb,
+      IncrementCounter,
+      OrderSummary
     },
 
     data () {
@@ -54,15 +61,16 @@
       }
     },
 
-    async fetch ({ store }) {
-      // store.dispatch('cart/fetchCartData')
-    },
+    // async fetch ({ store }) {
+    //   console.log('HERE PEOPLE');
+    //   store.dispatch('cart/fetchCartData')
+    // },
 
-    mounted () {
-      if (process.client) {
-       //  this.$store.dispatch('cart/fetchCartData')
-      }
-    },
+    // mounted () {
+    //   if (process.client) {
+    //     this.$store.dispatch('cart/fetchCartData')
+    //   }
+    // },
 
     computed: {
       loadedCartItems () {
@@ -102,10 +110,10 @@
   @import '~assets/css/utilities/mixins.styl'
 
   .cart-box
-    font-size $size-normal 
+    font-size $size-150 
     background $white
     padding 1rem 1.5rem
-    
+    min-height 351px
     
     h6
       margin-bottom .5rem
@@ -113,14 +121,13 @@
     .ctas
       a
         BoldUppercase()
-        font-size $size-smaller
+        font-size $size-100
         Underline($secondary)
 
         &:first-child
           margin-right 1rem
     
     &.no-items
-      min-height 300px
       display flex
       justify-content center
       align-items center
@@ -140,7 +147,7 @@
             border-width 0
       .quantity
       .subtotal
-        font-size 1.3rem
+        font-size $size-130
         font-weight bold
   
 </style>

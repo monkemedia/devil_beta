@@ -177,6 +177,6 @@
     margin-bottom 1rem
 
   .have-account
-    font-size $size-smaller
+    font-size $size-100
     BoldUppercase()
 </style>

@@ -1,4 +1,4 @@
-import Cookie from 'js-cookie'
+import Cookies from 'js-cookie'
 import _ from 'lodash'
 
 const store = {
@@ -93,17 +93,17 @@ const store = {
         return vm.$axios.$patch(`${process.env.BASE_URL}/cartSessions/${cartId}/products.json?auth=${token}`, items)
       }
       // Add anon cart uid to userprofile
-      const anonToken = rootGetters['cart/anonToken']
+      const isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
       let userId
       let token
       let cartId
 
       // When the user signs in Officially, let's see it they have a ANON token
       console.log('User has signed in officially, lets see if they a ANON token')
-      if (anonToken) {
+      if (isAnonAuthenticated) {
         userId = getters['userId']
         token = getters['token']
-        cartId = rootGetters['cart/anonUid']
+        cartId = rootGetters['anonAuth/uid']
         // User has ANON token, let's see if they have a cart session
         console.log('User has signed in officially, and they do have a anon token')
         return doesCartSessionExistInUserProfile(userId, token)
@@ -116,13 +116,13 @@ const store = {
                 .then(() => {
                   // Log out ANON user
                   console.log('LOGOUT OUT ANON USER')
-                  return dispatch('logoutAnonymousUser')
+                  return dispatch('anonAuth/logoutUser', null, { root: true })
                 })
             }
     
             // User has cart session ID so add anon session products to it
             console.log('User has cart session ID so get anon session details then add it to offical cartSessions')
-            token = rootGetters['cart/anonToken']
+            token = rootGetters['anonAuth/token']
             return anonCartSessions(token, cartId)
               .then((items) => {
                 token = getters['token']
@@ -130,7 +130,7 @@ const store = {
               })
               .then(() => {
                 // Remove ANON cart session
-                token = rootGetters['cart/anonToken']
+                token = rootGetters['anonAuth/token']
                 return deleteAnonCartSessions(token, cartId)
               })
           })
@@ -148,22 +148,6 @@ const store = {
       })
     },
 
-    logoutAnonymousUser ({ rootState }) {
-      rootState['cart/CLEAR_ANON_TOKEN'] = null
-      rootState['cart/CLEAR_ANON_UID'] = null
-      Cookie.remove('anonToken')
-      Cookie.remove('anonUid')
-      Cookie.remove('anonTokenExpiration')
-
-      if (process.client) {
-        localStorage.removeItem('anonToken')
-        localStorage.removeItem('anonUid')
-        localStorage.removeItem('anonTokenExpiration')
-      }
-
-      return
-    },
-
     loginUser ({ commit, getters, dispatch, rootState, rootGetters }, authData) {
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${process.env.FB_API_KEY}`
       
@@ -172,8 +156,10 @@ const store = {
         password: authData.password,
         returnSecureToken: true
       })
-        .then(result => {       
+        .then((result) => {       
           const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
+
+          console.log('RESULT', result)
           
           commit('SET_TOKEN', result.idToken)
           commit('SET_USERNAME', result.displayName)
@@ -184,10 +170,10 @@ const store = {
           localStorage.setItem('username', result.displayName)
           localStorage.setItem('userId', result.localId)
 
-          Cookie.set('jwt', result.idToken)
-          Cookie.set('expirationDate', setExpirationDate)
-          Cookie.set('username', result.displayName)
-          Cookie.set('userId', result.localId)
+          Cookies.set('jwt', result.idToken)
+          Cookies.set('expirationDate', setExpirationDate)
+          Cookies.set('username', result.displayName)
+          Cookies.set('userId', result.localId)
 
           return result
         })
@@ -196,13 +182,21 @@ const store = {
         })
         .then(() => {
           // Delete anon user
-          const token = rootGetters['cart/anonToken']
+          console.log('DELETE ANON USER')
+          const token = rootGetters['anonAuth/token']
+          if (!token) {
+            return
+          }
           return dispatch('deleteUser', token)
         })
         .then(() => {
           // then Log out ANON user
+          const token = rootGetters['anonAuth/token']
           console.log('LOGOUT OUT ANON USER')
-          return dispatch('logoutAnonymousUser')
+          if (!token) {
+            return
+          }
+          return dispatch('anonAuth/logoutUser', null, { root: true })
         })
         .catch((err) => {
           console.log(err)
@@ -234,10 +228,10 @@ const store = {
           localStorage.setItem('username', result.displayName)
           localStorage.setItem('userId', result.localId)
 
-          Cookie.set('jwt', result.idToken)
-          Cookie.set('expirationDate', setExpirationDate)
-          Cookie.set('username', result.displayName)
-          Cookie.set('userId', result.localId)
+          Cookies.set('jwt', result.idToken)
+          Cookies.set('expirationDate', setExpirationDate)
+          Cookies.set('username', result.displayName)
+          Cookies.set('userId', result.localId)
 
           return { result }
         })
@@ -252,7 +246,7 @@ const store = {
         .then(() => {
           // then Log out ANON user
           console.log('LOGOUT OUT ANON USER')
-          return dispatch('logoutAnonymousUser')
+          return dispatch('anonAuth/logoutUser', null, { root: true })
         })
         .then(() => {
           return response
@@ -271,34 +265,38 @@ const store = {
 
       if (req) {
         if (!req.headers.cookie) {
+          console.log('CLEAR')
           commit('CLEAR_TOKEN')
           commit('CLEAR_USERNAME')
           commit('CLEAR_USERID')
+
+          dispatch('logout')
           return
         }
 
-        let jwtCookie = req.headers.cookie
+        let jwtCookies = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('jwt='))
 
-        let usernameCookie = req.headers.cookie
+        let usernameCookies = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('username='))
 
-        let userIdCookie = req.headers.cookie
+        let userIdCookies = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('userId='))
         
-        if (!jwtCookie) {
+        if (!jwtCookies) {
           return
         }
-        token = jwtCookie.split('=')[1]
+
+        token = jwtCookies.split('=')[1]
         expirationDate = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('expirationDate='))
           .split('=')[1]
-        username = usernameCookie.split('=')[1]
-        userId = userIdCookie.split('=')[1]
+        username = usernameCookies.split('=')[1]
+        userId = userIdCookies.split('=')[1]
       } else if (process.client) {
         token = localStorage.getItem('token')
         expirationDate = localStorage.getItem('tokenExpiration')
@@ -306,7 +304,9 @@ const store = {
         userId = localStorage.getItem('userId')
       }
 
-      if (new Date().getTime() > parseInt(expirationDate)) {
+      console.log('TOKEN', token)
+
+      if (new Date().getTime() > parseInt(expirationDate) || !token) {
         console.log('no token or invalid token')
         dispatch('logout')
         return
@@ -324,10 +324,10 @@ const store = {
       commit('CLEAR_USERID')
       commit('cart/CLEAR_CART_ITEMS', null, { root: true })
 
-      Cookie.remove('jwt')
-      Cookie.remove('expirationDate')
-      Cookie.remove('username')
-      Cookie.remove('userId')
+      Cookies.remove('jwt')
+      Cookies.remove('expirationDate')
+      Cookies.remove('username')
+      Cookies.remove('userId')
 
       if (process.client) {
         localStorage.removeItem('token')
@@ -336,17 +336,19 @@ const store = {
         localStorage.removeItem('userId')
       }
 
-      if (rootGetters['cart/isAnonAuthenticated']) {
-        rootState['cart/CLEAR_ANON_TOKEN'] = null
-        rootState['cart/CLEAR_ANON_UID'] = null
-        Cookie.remove('anonToken')
-        Cookie.remove('anonUid')
+      // if (rootGetters['cart/isAnonAuthenticated']) {
+      //   rootState['cart/CLEAR_ANON_TOKEN'] = null
+      //   rootState['cart/CLEAR_ANON_UID'] = null
+      //   Cookies.remove('anonToken')
+      //   Cookies.remove('anonUid')
+      //   Cookies.remove('anonTokenExpiration')
 
-        if (process.client) {
-          localStorage.removeItem('anonToken')
-          localStorage.removeItem('anonUid')
-        }
-      }
+      //   if (process.client) {
+      //     localStorage.removeItem('anonToken')
+      //     localStorage.removeItem('anonUid')
+      //     localStorage.removeItem('anonTokenExpiration')
+      //   }
+      // }
     }
   },
 
