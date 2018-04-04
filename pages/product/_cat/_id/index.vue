@@ -18,7 +18,7 @@
   export default {
     middleware: [
       'check-auth',
-      'cart'
+      'check-anon-auth'
     ],
 
     components: {

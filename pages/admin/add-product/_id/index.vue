@@ -23,7 +23,7 @@
     middleware: [
       'auth',
       'add-item-error',
-      'cart'
+      'check-anon-auth'
     ],
 
     components: {

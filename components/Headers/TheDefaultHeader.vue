@@ -2,7 +2,7 @@
   nav.navbar(:class="stickyHeader")
     .container
       .navbar-brand
-        nuxt-link.navbar-item.logo-container(to="/home")
+        nuxt-link.navbar-item.logo-container(to="/")
           //- img.main-logo(src="@/static/devil-panties-logo.svg" alt="Devil Panties")
         SearchBar#search-bar-mobile
         //- MiniCart#mini-cart-mobile

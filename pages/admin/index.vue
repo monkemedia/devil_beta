@@ -13,7 +13,7 @@
     middleware: [
       'check-auth',
       'auth',
-      'cart'
+      'check-anon-auth'
     ],
 
     layout: 'admin',
