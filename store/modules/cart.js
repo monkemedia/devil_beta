@@ -1,4 +1,5 @@
 import { key } from 'firebase-key'
+import { setAnonAuth, resetAnonAuth } from '~/utils/anonAuth'
 import Vue from 'vue'
 import _ from 'lodash'
 import axios from 'axios'

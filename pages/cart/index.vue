@@ -128,7 +128,6 @@
           margin-right 1rem
     
     &.no-items
-      min-height 300px
       display flex
       justify-content center
       align-items center
