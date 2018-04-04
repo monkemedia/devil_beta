@@ -15,6 +15,8 @@ config.dev = !(process.env.NODE_ENV === 'production')
   // Init Nuxt.js
   const nuxt = new Nuxt(config)
 
+  console.log('STAGING', process.env.STAGING)
+
   if (process.env.STAGING) {
     const wwwhisper = require('connect-wwwhisper')
     app.use(wwwhisper())

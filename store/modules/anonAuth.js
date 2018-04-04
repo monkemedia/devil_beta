@@ -1,8 +1,5 @@
 import { setAnonAuthToken, setAnonAuthUid, setAnonAuthRefreshToken, setAnonExpirationDate, resetAnonAuth } from '~/utils/anonAuth'
 import Cookies from 'js-cookie'
-import cookieParser from 'cookie-parser'
-import _ from 'lodash'
-import axios from 'axios'
 
 const store = {
   namespaced: true,
