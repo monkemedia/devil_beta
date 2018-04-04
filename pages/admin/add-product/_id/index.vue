@@ -22,8 +22,7 @@
 
     middleware: [
       'auth',
-      'add-item-error',
-      'cart'
+      'add-item-error'
     ],
 
     components: {

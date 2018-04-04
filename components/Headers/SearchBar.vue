@@ -23,7 +23,7 @@
     align-items center
     display flex
     .fa-search
-      font-size $size-normal
+      font-size $size-150
       line-height 1.2
       margin-top -1px
 </style>

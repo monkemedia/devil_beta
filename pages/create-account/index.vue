@@ -14,7 +14,7 @@
 
     middleware: [
       'check-auth',
-      'cart'
+      'fetch-cart-data'
     ],
 
     components: {
