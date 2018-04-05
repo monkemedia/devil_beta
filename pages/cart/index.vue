@@ -17,11 +17,13 @@
             template(slot-scope="props")
               b-table-column(field="item" label="Item")
                 .item-details.media
-                  figure.media-left
+                  figure.media-left(v-if="props.row.item.images")
                     lazy-image(
                       :src="props.row.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
                       :small-src="props.row.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
                       :alt="props.row.item.images[0].alt")
+                  figure.media-left.no-image(v-else)
+                    i.fa.fa-file-image-o(aria-hidden="true")
                   .media-content
                     h6 {{ props.row.item.title }}
                     span.seller Seller: {{ props.row.item.username }}
@@ -125,6 +127,16 @@
     
     h6
       margin-bottom .5rem
+      
+    .no-image
+      width 70px
+      height 70px
+      justify-content center
+      align-items center
+      display flex
+
+      .fa
+        font-size 5rem
     
     .stock
       &.in-stock

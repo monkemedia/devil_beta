@@ -3,7 +3,7 @@
     .columns
       .column
         h1 Sign In
-        Sign-in-user-form
+        sign-in-user-form
       .column
         h2.h3 Create account
         p Accounts are for members only, so please create an account below, and if you are a member, your account will be approved.
@@ -41,7 +41,15 @@
         padding-right 4rem
 
         &:first-child
-          border-right 1px solid $grey-light
+          position relative
+          &:after
+            position absolute
+            content ''
+            border-right 1px solid $grey-300
+            height 75%
+            top 50%
+            right 0
+            transform translateY(-50%)
       
       @media only screen and (min-width: $desktop)
         &:first-child

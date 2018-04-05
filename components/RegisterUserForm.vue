@@ -146,6 +146,11 @@
           })
           .then((success) => {
             this.loading = false
+            if (this.$route.name === 'checkout') {
+              this.$router.push('/shipping')
+            } else {
+              this.$router.push('/admin')
+            }
           })
           .catch((err) => {
             this.loading = false

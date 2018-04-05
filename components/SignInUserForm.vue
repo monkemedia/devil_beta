@@ -77,7 +77,11 @@
               })
                 .then(() => {
                   this.loading = false
-                  this.$router.push('/admin')
+                  if (this.$route.name === 'checkout') {
+                    this.$router.push('/shipping')
+                  } else {
+                    this.$router.push('/admin')
+                  }
                 })
                 .catch(err => {
                   this.isSignInError = _.lowerCase(err.message)
@@ -98,6 +102,7 @@
 
   .sign-in-button
     width 100%
+    margin-bottom 0
   .forgot-password
     align-items center
     justify-content center

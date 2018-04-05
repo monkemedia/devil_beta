@@ -13,8 +13,8 @@
       .row.total
         span Estimated total
         span {{ cartSubtotal + shipping | currency }}
-    footer
-      button.button.is-primary.is-fullwidth.is-flip(:disabled="isSoldOut") 
+    footer(v-show="pageName !== 'checkout'")
+      nuxt-link(to="/checkout").button.is-primary.is-fullwidth.is-flip 
         span(data-text="Check out") Check out
 
 </template>
@@ -40,6 +40,10 @@
     },
 
     computed: {
+      pageName () {
+        return this.$route.name
+      },
+
       cartTotalItems () {
         return this.$store.getters['cart/cartTotalItems']
       },
