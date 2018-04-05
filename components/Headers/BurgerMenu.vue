@@ -34,7 +34,7 @@
     border 0
     background-color transparent
     margin 0 0 0 2rem
-    
+
     span
       width 22px
       height 2px
@@ -43,8 +43,8 @@
         top calc(50% - 8px)
       &:nth-child(3)
         top calc(50% + 6px)
-    
-    &.is-active 
+
+    &.is-active
       span
         &:nth-child(1)
           transform translateY(7px) rotate(45deg)

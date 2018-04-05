@@ -1,5 +1,3 @@
-import Cookie from 'js-cookie'
-
 const store = {
   namespaced: true,
 

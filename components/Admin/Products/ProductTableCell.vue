@@ -13,11 +13,11 @@
       .product-details
         strong {{ item.title || 'No Title' }}
     td.is-hidden-mobile {{ item.stock }}
-    td.is-hidden-mobile 
-      span(v-if="item.on_sale") {{ item.sale_price | currency }} 
+    td.is-hidden-mobile
+      span(v-if="item.on_sale") {{ item.sale_price | currency }}
         span.was-price {{ item.price | currency }}
       span(v-else) {{ item.price | currency }}
-    td 
+    td
       span.tag.is-uppercase(:class="status(item.storefront)")
         | {{ item.storefront }}
     td
@@ -27,11 +27,11 @@
             i.fa.fa-ellipsis-h(aria-hidden="true")
         .dropdown-menu(role="menu" :id="item.id")
           .dropdown-content
-            nuxt-link.dropdown-item(:to="'/admin/add-product/' + item.product_id") 
+            nuxt-link.dropdown-item(:to="'/admin/add-product/' + item.product_id")
               span.icon.is-small.m-r-md
-                i.fa.fa-pencil 
+                i.fa.fa-pencil
               | Edit item
-            a.dropdown-item(@click="deleteModal()") 
+            a.dropdown-item(@click="deleteModal()")
               span.icon.is-small.m-r-md
                 i.fa.fa-trash
               | Delete item
@@ -95,7 +95,7 @@
 
 <style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
-  
+
   .product-image
     figure
       width 100%
@@ -104,7 +104,7 @@
       border 1px solid $grey-lighter
       img
         width 100%
-        
+
     .no-image
       width 100%
       justify-content center
@@ -118,7 +118,7 @@
   .dropdown-item
     font-size 1.2rem
     padding .8rem 1.2rem
-  
+
   .was-price
     color $grey
     text-decoration line-through

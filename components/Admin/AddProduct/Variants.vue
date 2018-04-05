@@ -130,7 +130,7 @@
   p
     margin-bottom 2rem
 
-  @media only screen and (min-width $table)  
+  @media only screen and (min-width $table)
     .add-option
       width 100%
       margin-top 0

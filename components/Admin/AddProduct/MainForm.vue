@@ -119,14 +119,14 @@
         //- .column.is-one-quarter
         //-   .field
         //-     .control
-        //-       button.button.is-secondary.is-fullwidth.is-flip.save-draft(@click.prevent="onSubmitForm('save_draft')" :class="{ 'is-loading': isDraftItemButtonLoading }") 
+        //-       button.button.is-secondary.is-fullwidth.is-flip.save-draft(@click.prevent="onSubmitForm('save_draft')" :class="{ 'is-loading': isDraftItemButtonLoading }")
         //-         span(data-text="Save draft") Save draft
 
 </template>
 
 <script>
   import Vue from 'vue'
-  import VeeValidate, { Validator } from 'vee-validate'
+  import VeeValidate from 'vee-validate'
   import VueScrollTo from 'vue-scrollto'
   import Variants from '@/components/Admin/AddProduct/Variants'
   import UploadImages from '@/components/Admin/AddProduct/UploadImages'
@@ -153,20 +153,20 @@
     data () {
       return {
         loading: false,
-        formData: this.itemData ? 
-          { ...this.itemData } : {
-          title: '',
-          description: '',
-          category: '',
-          stock: 0,
-          price: 0,
-          on_sale: false,
-          sale_price: 0,
-          variants: [],
-          shipping: [],
-          images: [],
-          storefront: 'hidden'
-        },
+        formData: this.itemData
+          ? { ...this.itemData } : {
+            title: '',
+            description: '',
+            category: '',
+            stock: 0,
+            price: 0,
+            on_sale: false,
+            sale_price: 0,
+            variants: [],
+            shipping: [],
+            images: [],
+            storefront: 'hidden'
+          },
         cached_store_front: '',
         categories: [
           { label: 'My Test', value: 'test' },
@@ -211,7 +211,7 @@
               }
 
               if (paramId === null) {
-                vm.$router.push({ 
+                vm.$router.push({
                   path: `/admin/add-product/${response.product_id}`
                 })
               }
@@ -278,15 +278,15 @@
     font-size $size-150
     line-height 1
     padding 0 1.2rem
-  
+
   .price-field-input
     flex-flow row wrap
 
-    @media only screen and (min-width $desktop) 
+    @media only screen and (min-width $desktop)
       padding 0
 
   @media only screen and (max-width $tablet)
     .save-draft
       margin-top 0
-  
+
 </style>

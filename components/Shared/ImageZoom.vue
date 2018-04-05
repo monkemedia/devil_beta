@@ -9,8 +9,9 @@
 
 <script>
   if (process.browser) {
+    /* eslint-disable no-unused-vars */
     const $ = window.jQuery = require('jquery')
-    require('jquery-zoom');
+    require('jquery-zoom')
   }
 
   export default {

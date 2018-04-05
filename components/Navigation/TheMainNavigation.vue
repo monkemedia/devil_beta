@@ -77,12 +77,12 @@
               transform scale(1.3)
       &.is-active
         border-top 1px solid $gray-200
-      
+
       #search-bar-desktop
       #user-login-desktop
       #mini-cart-desktop
         display none
-        
+
         @media (min-width: $desktop)
           display inline-flex
 </style>

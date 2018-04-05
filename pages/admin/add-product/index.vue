@@ -41,7 +41,7 @@
   .add-product-heading
     display inline-flex
     align-items center
-    
+
     .tag
       margin-left 1rem
 </style>

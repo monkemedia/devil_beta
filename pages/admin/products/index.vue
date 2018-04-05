@@ -2,7 +2,7 @@
   section.section
     header
       h1 Products
-      nuxt-link.button.is-primary.is-flip(to="/admin/add-product") 
+      nuxt-link.button.is-primary.is-flip(to="/admin/add-product")
         span(data-text="Add product")
           | Add product
     div(v-if="!loadedItems")
@@ -17,13 +17,12 @@
           th.is-hidden-mobile Stock
           th.is-hidden-mobile Price
           th Status
-          th 
+          th
       tbody
         tr(is="product-table-cell" :item="item" v-for="(item, index) in loadedItems" @deleteItem="deleteItem")
 </template>
 
 <script>
-  import _ from 'lodash'
   import axios from 'axios'
   import ProductTableCell from '@/components/Admin/Products/ProductTableCell'
 
@@ -48,12 +47,10 @@
     },
 
     async fetch ({ store, params, error }) {
-      const paramId = params.id
       const token = store.getters['auth/token']
       const userId = store.getters['auth/userId']
-      const vm = this
 
-      return await axios.get(`${process.env.BASE_URL}/userProducts/${userId}.json?auth=${token}`)
+      return axios.get(`${process.env.BASE_URL}/userProducts/${userId}.json?auth=${token}`)
         .then((result) => {
           if (result.data !== null) {
             return store.commit('sellersItems/SET_SELLERS_ITEMS', result.data)
@@ -79,7 +76,6 @@
         const token = this.$store.getters['auth/token']
         const uniqueId = this.$store.getters['auth/userId']
         const loadingComponent = this.$loading.open()
-        const vm = this
         const productId = payload.product_id
         const category = payload.category
 
@@ -90,7 +86,6 @@
           .then(() => {
             loadingComponent.close()
             this.alertToast({ message: 'Item has been deleted', type: 'is-success' })
-            return
           })
           .catch(() => {
             this.alertToast({ message: 'Your item cannot be deleted', type: 'is-warning' })
@@ -104,12 +99,12 @@
 <style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
   @import '~assets/css/utilities/mixins.styl'
-  
+
   header
     justify-content space-between
     display flex
     margin-bottom 2rem
-    
+
     .button
       margin 0
 

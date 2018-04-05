@@ -40,9 +40,8 @@
       const paramId = params.id
       const token = store.getters['auth/token']
       const userId = store.getters['auth/userId']
-      const vm = this
 
-      return await axios.get(`${process.env.BASE_URL}/userProducts/${userId}/${paramId}.json?auth=${token}`)
+      return axios.get(`${process.env.BASE_URL}/userProducts/${userId}/${paramId}.json?auth=${token}`)
         .then(result => {
           console.log('TREVOR', result)
           if (result.data !== null) {
@@ -83,7 +82,7 @@
   .add-product-heading
     display inline-flex
     align-items center
-    
+
     .tag
       margin-left 1rem
 </style>
