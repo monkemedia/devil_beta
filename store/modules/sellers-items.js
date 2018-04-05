@@ -86,12 +86,38 @@ const store = {
       })
     },
 
-    createItem (vuexContext, itemDetails) {
-      const token = vuexContext.rootGetters['auth/token']
-      const username = vuexContext.rootGetters['auth/username']
-      const userId = vuexContext.rootGetters['auth/userId']
+    deleteItem ({ commit, getters }, data) {
+      let items = getters['loadedSellersItems']
+
+      return this.$axios.$delete(`${process.env.BASE_URL}/categories/${data.category}/${data.productId}.json?auth=${data.token}`)
+        .then(() => {
+          return this.$axios.$delete(`${process.env.BASE_URL}/products/${data.productId}.json?auth=${data.token}`)
+        })
+        .then(() => {
+          const removeItem =_.pickBy(items, (key) => {
+            console.log(key)
+            return data.productId !== key.product_id
+          })
+
+          if (_.isEmpty(removeItem)) {
+            return commit('SET_SELLERS_ITEMS', null)
+          }
+
+          commit('SET_SELLERS_ITEMS', removeItem)
+          return
+        })
+        .catch((err) => {
+          throw err
+        })
+    },
+
+    createItem ({ commit, dispatch, rootGetters }, itemDetails) {
+      const token = rootGetters['auth/token']
+      const username = rootGetters['auth/username']
+      const userId = rootGetters['auth/userId']
       const category = itemDetails.category
       let uniqueId
+      let productId
 
       if (itemDetails.product_id !== null) {
         uniqueId = itemDetails.product_id
@@ -105,38 +131,26 @@ const store = {
         product_id: uniqueId
       }
 
-      return this.$axios.$put(`${process.env.BASE_URL}/usersProducts/${userId}/${uniqueId}.json?auth=${token}`, itemData)
+      return this.$axios.$put(`${process.env.BASE_URL}/userProducts/${userId}/${uniqueId}.json?auth=${token}`, itemData)
         .then(() => {
           if (itemDetails.storefront === 'visible') {
-            return this.$axios.$put(`${process.env.BASE_URL}/categories/${category}/${uniqueId}.json?auth=${token}`, itemData)
-              .then(() => {
-                return this.$axios.$put(`${process.env.BASE_URL}/products/${uniqueId}.json?auth=${token}`, itemData)
-              })
+            return this.$axios.$patch(`${process.env.BASE_URL}/categories/${category}/${uniqueId}.json?auth=${token}`, { productId: uniqueId })
+            .then(() => {
+              return this.$axios.$put(`${process.env.BASE_URL}/products/${uniqueId}.json?auth=${token}`, itemData)
+            })
+          } else {
+            productId = uniqueId
+            return dispatch('deleteItem', { productId, category, token })
           }
+          return
         })
         .then(() => {
-          console.log(vuexContext)
-          vuexContext.commit('SET_SELLERS_ITEM', itemData)
+          commit('SET_SELLERS_ITEM', itemData)
           return itemData
         })
         .catch((err) => {
           throw err
         })
-    },
-
-    removeSellersItem ({ state, commit }, payload) {
-      let items = state.loadedSellersItems
-
-      const removeItem =_.pickBy(items, (key) => {
-        console.log(key)
-        return payload.product_id !== key.product_id
-      })
-
-      if (_.isEmpty(removeItem)) {
-        return commit('SET_SELLERS_ITEMS', null)
-      }
-
-      commit('SET_SELLERS_ITEMS', removeItem)
     }
   },
 
