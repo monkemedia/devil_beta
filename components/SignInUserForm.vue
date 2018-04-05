@@ -76,12 +76,12 @@
                 password: this.password
               })
                 .then(() => {
-                  // this.loading = false
+                  this.loading = false
                   this.$router.push('/admin')
                 })
                 .catch(err => {
                   this.isSignInError = _.lowerCase(err.message)
-                  // this.loading = false
+                  this.loading = false
                 })
             } else {
               VueScrollTo.scrollTo('.is-danger')
