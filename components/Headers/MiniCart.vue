@@ -14,11 +14,13 @@
           .dropdown-item(v-else)
             .columns(v-for="(cartItem, index) in loadedCartItems" v-if="index < 5")
               .column.is-4
-                figure
+                figure(v-if="cartItem.item.images")
                   lazy-image(
                     :src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
                     :small-src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
                     :alt="cartItem.item.images[0].alt")
+                figure.no-image(v-else)
+                  i.fa.fa-file-image-o(aria-hidden="true")
               .column
                 h6 
                   router-link(:to="'/' + cartItem.item.category + '/' + cartItem.item.product_id") {{ cartItem.item.title }}
@@ -190,6 +192,13 @@
       
       .button
         margin 0
+        
+    .no-image
+      justify-content center
+      align-items center
+      display flex
+      .fa
+        font-size 5rem
     
   @media only screen and (min-width: $desktop)
     .mini-cart-mobile
