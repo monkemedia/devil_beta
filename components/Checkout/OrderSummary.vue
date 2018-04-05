@@ -14,7 +14,7 @@
         span Estimated total
         span {{ cartSubtotal + shipping | currency }}
     footer
-      button.button.is-primary.is-fullwidth.is-flip 
+      button.button.is-primary.is-fullwidth.is-flip(:disabled="isSoldOut") 
         span(data-text="Check out") Check out
 
 </template>
@@ -24,6 +24,14 @@
 
   export default {
     name: 'OrderSummary',
+
+    props: {
+      isSoldOut: {
+        required: false,
+        type: Boolean,
+        default: false
+      }
+    },
 
     data () {
       return {
