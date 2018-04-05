@@ -42,7 +42,7 @@
       const userId = store.getters['auth/userId']
       const vm = this
 
-      return await axios.get(`${process.env.BASE_URL}/usersProducts/${userId}/${paramId}.json?auth=${token}`)
+      return await axios.get(`${process.env.BASE_URL}/userProducts/${userId}/${paramId}.json?auth=${token}`)
         .then(result => {
           console.log('TREVOR', result)
           if (result.data !== null) {

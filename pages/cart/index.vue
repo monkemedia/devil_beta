@@ -8,6 +8,7 @@
         h1 Your cart ({{ cartTotalItems }})
     .columns
       .column.is-8
+        b-message(type="is-danger" v-if="isSoldOut.length > 0") Looks like one or more items are out of stock. 
         .cart-box(:class="{ 'no-items' :  cartTotalItems < 1 }")
           span(v-if="cartTotalItems < 1")
             h2 There are no items in your cart.
@@ -24,13 +25,14 @@
                   .media-content
                     h6 {{ props.row.item.title }}
                     span.seller Seller: {{ props.row.item.username }}
+                    span.stock(:class="stock(props.row.item.stock, true)") {{ stock(props.row.item.stock) }}
                     span.ctas
                       a(@click="deleteModal(props.row, props.index)") Remove
               b-table-column.quantity(field="quantity" label="Quantity") 
                 increment-counter(:productDetails="{ quantity: props.row.quantity, product_id: props.row.item.product_id, cart_id: props.row.session_id }")
               b-table-column.subtotal(field="subtotal" label="Subtotal") {{ props.row.item.price * props.row.quantity | currency }}
       .column.is-4
-        order-summary
+        order-summary(:isSoldOut="isSoldOut.length > 0")
 
 </template>
 
@@ -39,6 +41,8 @@
   import IncrementCounter from '@/components/Checkout/IncrementCounter'
   import OrderSummary from '@/components/Checkout/OrderSummary'
   import axios from 'axios'
+  import _ from 'lodash'
+  import __ from 'lodash-addons'
 
   export default {
     middleware: [
@@ -61,23 +65,19 @@
       }
     },
 
-    // async fetch ({ store }) {
-    //   console.log('HERE PEOPLE');
-    //   store.dispatch('cart/fetchCartData')
-    // },
-
-    // mounted () {
-    //   if (process.client) {
-    //     this.$store.dispatch('cart/fetchCartData')
-    //   }
-    // },
-
     computed: {
       loadedCartItems () {
         return this.$store.getters['cart/loadedCartItems']
       },
+
       cartTotalItems () {
         return this.$store.getters['cart/cartTotalItems']
+      },
+
+      isSoldOut () {
+        return _.filter(this.loadedCartItems, (item) => {
+          return item.item.stock === 0
+        })
       }
     },
 
@@ -99,6 +99,14 @@
               })
           }
         })
+      },
+
+      stock (value, isClass) {
+        let stock = value > 0 ? 'In stock' : 'Sold out'
+        if (isClass) {
+          return __.slugify(stock)
+        }
+        return stock 
       }
     }
   }
@@ -117,6 +125,12 @@
     
     h6
       margin-bottom .5rem
+    
+    .stock
+      &.in-stock
+        color $green-dark
+      &.sold-out
+        color $red
       
     .ctas
       a
@@ -149,5 +163,5 @@
       .subtotal
         font-size $size-130
         font-weight bold
-  
+      
 </style>

@@ -76,7 +76,7 @@
                 password: this.password
               })
                 .then(() => {
-                  // this.loading = false
+                  this.loading = false
                   if (this.$route.name === 'checkout') {
                     this.$router.push('/shipping')
                   } else {
@@ -85,7 +85,7 @@
                 })
                 .catch(err => {
                   this.isSignInError = _.lowerCase(err.message)
-                  // this.loading = false
+                  this.loading = false
                 })
             } else {
               VueScrollTo.scrollTo('.is-danger')

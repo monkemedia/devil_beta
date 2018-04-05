@@ -258,7 +258,8 @@ const store = {
                 if (!sessionData) {
                   // If there isnt a session lets just stop here
                   console.log('If there isnt a session lets just stop here')
-                  return
+                  return false
+
                 }
 
                 // There is a cart session, so lets get all the product ID'S
@@ -286,7 +287,7 @@ const store = {
                 if (!sessionId) {
                   // If there isnt a session lets just stop here
                   console.log('If there isnt any CartIDs lets just stop here')
-                  return
+                  return false
                 }
 
                 // There are cart sessions, so lets get all the cart IDs
@@ -318,7 +319,6 @@ const store = {
 
       return this.$axios.$get(`${process.env.BASE_URL}/categories/${category}/${productId}/stock.json`)
         .then((stock) => {
-          console.log('livestock', 5)
           return stock
         })
         .catch((err) => {

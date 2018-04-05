@@ -53,14 +53,14 @@
       const userId = store.getters['auth/userId']
       const vm = this
 
-      return await axios.get(`${process.env.BASE_URL}/usersProducts/${userId}.json?auth=${token}`)
-        .then(result => {
+      return await axios.get(`${process.env.BASE_URL}/userProducts/${userId}.json?auth=${token}`)
+        .then((result) => {
           if (result.data !== null) {
             return store.commit('sellersItems/SET_SELLERS_ITEMS', result.data)
           }
           store.commit('sellersItems/SET_SELLERS_ITEMS', null)
         })
-        .catch(err => {
+        .catch((err) => {
           if (err.response) {
             return error({ statusCode: err.response.status, message: err.response.data.error })
           }
@@ -77,15 +77,20 @@
     methods: {
       deleteItem (payload) {
         const token = this.$store.getters['auth/token']
-        const userId = this.$store.getters['auth/userId']
+        const uniqueId = this.$store.getters['auth/userId']
         const loadingComponent = this.$loading.open()
         const vm = this
-        axios.delete(`${process.env.BASE_URL}/usersProducts/${userId}/${payload.product_id}.json?auth=${token}`)
+        const productId = payload.product_id
+        const category = payload.category
+
+        return axios.delete(`${process.env.BASE_URL}/userProducts/${uniqueId}/${productId}.json?auth=${token}`)
+          .then(() => {
+            return this.$store.dispatch('sellersItems/deleteItem', { productId, category, token })
+          })
           .then(() => {
             loadingComponent.close()
-            this.$delete(this.loadedItems, payload.product_id)
-            this.$store.dispatch('sellersItems/removeSellersItem', payload)
             this.alertToast({ message: 'Item has been deleted', type: 'is-success' })
+            return
           })
           .catch(() => {
             this.alertToast({ message: 'Your item cannot be deleted', type: 'is-warning' })

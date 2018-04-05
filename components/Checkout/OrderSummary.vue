@@ -25,6 +25,14 @@
   export default {
     name: 'OrderSummary',
 
+    props: {
+      isSoldOut: {
+        required: false,
+        type: Boolean,
+        default: false
+      }
+    },
+
     data () {
       return {
         shipping: 0
