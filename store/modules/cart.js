@@ -318,7 +318,6 @@ const store = {
 
       return this.$axios.$get(`${process.env.BASE_URL}/categories/${category}/${productId}/stock.json`)
         .then((stock) => {
-          console.log('livestock', 5)
           return stock
         })
         .catch((err) => {
