@@ -94,7 +94,7 @@ const store = {
           return this.$axios.$delete(`${process.env.BASE_URL}/products/${data.productId}.json?auth=${data.token}`)
         })
         .then(() => {
-          const removeItem =_.pickBy(items, (key) => {
+          const removeItem = _.pickBy(items, (key) => {
             console.log(key)
             return data.productId !== key.product_id
           })
@@ -104,7 +104,7 @@ const store = {
           }
 
           commit('SET_SELLERS_ITEMS', removeItem)
-          return
+          return true
         })
         .catch((err) => {
           throw err
@@ -135,14 +135,13 @@ const store = {
         .then(() => {
           if (itemDetails.storefront === 'visible') {
             return this.$axios.$patch(`${process.env.BASE_URL}/categories/${category}/${uniqueId}.json?auth=${token}`, { productId: uniqueId })
-            .then(() => {
-              return this.$axios.$put(`${process.env.BASE_URL}/products/${uniqueId}.json?auth=${token}`, itemData)
-            })
+              .then(() => {
+                return this.$axios.$put(`${process.env.BASE_URL}/products/${uniqueId}.json?auth=${token}`, itemData)
+              })
           } else {
             productId = uniqueId
             return dispatch('deleteItem', { productId, category, token })
           }
-          return
         })
         .then(() => {
           commit('SET_SELLERS_ITEM', itemData)
@@ -161,7 +160,7 @@ const store = {
 
     loadedSellersItems (state) {
       return state.loadedSellersItems
-    },
+    }
   }
 }
 

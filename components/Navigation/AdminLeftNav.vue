@@ -74,11 +74,11 @@
     box-shadow 0 2px 3px hsla(0,0%,7%,.1), 0 0 0 1px hsla(0,0%,7%,.1)
     overflow-y auto
     overflow-x hidden
-    
+
     @media only screen and (max-width $desktop)
       transform translate3d(-180px,0,0)
       transition transform 260ms ease, -webkit-transform 260ms
-    
+
     &.is-open
       transform translate3d(0, 0, 0)
 </style>

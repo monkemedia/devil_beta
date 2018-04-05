@@ -70,23 +70,23 @@
 
 <style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
-  
+
   div
     height 100%
-  
+
   div
     height 100%
-  
+
   .carousel-container
     display flex
     justify-content space-between
     height 100%
-    
+
     figure
       border 1px solid $grey-300
       height 70px
       width 70px
-      
+
       &.is-active
         border 2px solid $grey
 
@@ -94,15 +94,15 @@
       width 100%
       height 100%
       max-width 552px
-      
-    img 
+
+    img
       display block
       width 100%
       height auto
 
     .mobile-images
       width 100%
-    
+
     .no-image
       width 100%
       span
@@ -115,9 +115,9 @@
         .fa
           font-size 8rem
           color $grey
-  
+
   .thumbnails
     width 100px
     padding-left 15px
-  
+
 </style>

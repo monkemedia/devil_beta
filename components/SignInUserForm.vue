@@ -36,7 +36,7 @@
           .control
             button.button.is-primary.sign-in-button.is-flip(
               :class="{ 'is-loading': loading }"
-              type="submit") 
+              type="submit")
                 span(data-text="Sign in") Sign in
       .column.p-t-none.p-b-none.forgot-password
         nuxt-link(to="/create-account") Not yet registered?
@@ -45,7 +45,7 @@
 <script>
   import _ from 'lodash'
   import Vue from 'vue'
-  import VeeValidate, { Validator } from 'vee-validate'
+  import VeeValidate from 'vee-validate'
   import VueScrollTo from 'vue-scrollto'
 
   Vue.use(VeeValidate)

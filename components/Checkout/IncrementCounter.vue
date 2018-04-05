@@ -9,7 +9,7 @@
 
 <script>
   import _ from 'lodash'
-  
+
   export default {
     name: 'IncrementCounter',
 
@@ -43,7 +43,6 @@
 
         if (val === 'plus') {
           qty += 1
-          
         } else {
           qty -= 1
         }
@@ -58,9 +57,9 @@
 
 <style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
-  
+
   $increment-grey = $grey-light
-  
+
   .increment-counter
     padding .7rem 1rem
     background-color $increment-grey
@@ -68,11 +67,11 @@
     display inline-flex
     justify-content space-between
     align-items center
-  
+
   .minus
   .plus
     display inline-flex
-  
+
   input
     width 30px
     border 0
@@ -80,9 +79,9 @@
     font-size $size-130
     font-weight bold
     text-align center
-  
+
   .disabled
     pointer-events none
     color $grey
-  
+
 </style>

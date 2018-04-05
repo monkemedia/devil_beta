@@ -1,4 +1,4 @@
-<template lang="pug"> 
+<template lang="pug">
   .form-panel
     legend.legend Images
     .dropzone(@dragenter="hovering = true" ref="dropzone" @dragleave="hovering = false" :class="{ 'hovered': hovering, 'disabled': disabled }")
@@ -84,7 +84,7 @@
               this.$emit('passImages', this.images)
               this.isLoading = false
             })
-            .catch((err) => {
+            .catch(() => {
               this.isLoading = false
               this.temp_images_.pop() // Removes last image that was tried to be uploaded
               this.$dialog.alert({
@@ -249,7 +249,7 @@
 
         .remove-image
           display inline-flex
-          .icon 
+          .icon
             .fa
               color #f7f7f7
               font-size $size-150
@@ -263,7 +263,7 @@
         display inline-block
         margin-right 0
 
-        button   
+        button
           border 0
           height 100%
           width 100%

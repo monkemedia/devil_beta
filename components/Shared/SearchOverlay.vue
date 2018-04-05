@@ -39,5 +39,5 @@
     &.isOpen
       opacity .8
       visibility visible
-      display block 
+      display block
 </style>

@@ -11,17 +11,17 @@
 </template>
 
 <script>
-import BurgerMenu from '@/components/Headers/BurgerMenu'
-import MyAccount from '@/components/Headers/MyAccount'
+  import BurgerMenu from '@/components/Headers/BurgerMenu'
+  import MyAccount from '@/components/Headers/MyAccount'
 
-export default {
-  name: 'Header',
+  export default {
+    name: 'Header',
 
-  components: {
-    BurgerMenu,
-    MyAccount
+    components: {
+      BurgerMenu,
+      MyAccount
+    }
   }
-}
 </script>
 
 <style lang="stylus" scoped>
@@ -35,7 +35,7 @@ export default {
       align-items center
       padding 1rem 2rem
       height 60px
-      
+
       .navbar-item
         .main-logo
           height 30px

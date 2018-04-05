@@ -15,7 +15,7 @@
               .create-account-wrapper
                 h2.create-account-header Create account
                 p Accounts are for members only, so please create an account below, and if you are a member, your account will be approved.
-                nuxt-link.button.is-secondary.sign-in-button.is-flip(to="/create-account") 
+                nuxt-link.button.is-secondary.sign-in-button.is-flip(to="/create-account")
                   span(data-text="Create account") Create account
       .column.is-12-tablet.is-4-widescreen
         order-summary
@@ -49,10 +49,10 @@
     padding 2.4rem
     background $grey-light
     height 100%
-  
+
   .create-account-wrapper
     padding-top 5rem
-  
+
   @media only screen and (min-width: $tablet )
     .sign-in-wrapper
       padding 0 4rem 0 0

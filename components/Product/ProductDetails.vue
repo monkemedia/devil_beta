@@ -4,7 +4,7 @@
       h1 {{ product.title }}
       span.username By {{ product.username }}
       .price-container
-        span.price(v-if="product.on_sale") {{ product.sale_price | currency }} 
+        span.price(v-if="product.on_sale") {{ product.sale_price | currency }}
           span.was-price was {{ product.price | currency }}
         span.price(v-else) {{ product.price || 0 | currency }}
       hr
@@ -20,7 +20,7 @@
 
         button.button.is-secondary.is-fullwidth.is-flip.add-to-cart(
           :class="{ 'item-added' : itemAdded, 'is-loading' : loading }"
-          @click="addToCart" 
+          @click="addToCart"
           :disabled="product.stock === 0 || quantity === 'default'")
           span.add-to-cart-text(data-text="Add to cart") Add to cart
           span.added-to-cart-text Added
@@ -71,7 +71,7 @@
 
       addToCart () {
         const cartItems = this.$store.getters['cart/loadedCartItems']
-        const record = cartItems.find(element => element.product_id === this.product.product_id)
+        const record = cartItems.find(element => element.item.product_id === this.product.product_id)
         const payload = {
           category: this.product.category,
           product_id: this.product.product_id
@@ -83,7 +83,7 @@
           .then((liveStock) => {
             // Check to see if user is adding more items than the stock allows
             if (record && (record.quantity + this.quantity) > liveStock) {
-              throw 'no-stock'
+              throw new Error('no-stock')
             }
 
             return this.$store.dispatch('cart/addToCart', {
@@ -105,6 +105,8 @@
           .catch((err) => {
             this.loading = false
             this.itemAdded = false
+
+            console.log('ERROR', err)
 
             if (err === 'no-stock') {
               this.$dialog.alert({
@@ -134,22 +136,22 @@
     .card-header-title
       padding 3rem 3rem 0 3rem
       display flow-root
-      
+
       h1
         font-size 3rem
         width 100%
         margin-bottom 0
-      
+
       .username
         BoldUppercase()
         font-size 1.2rem
         color $grey
-      
+
       .price
         BoldUppercase()
         font-size 2rem
         color $primary
-      
+
       .was-price
         font-size 1.4rem
         color $grey
@@ -157,22 +159,22 @@
         text-transform uppercase
         text-decoration line-through
         font-family 'Avenir-Medium'
-    
+
     .card-content
       padding 0 3rem 3rem 3rem
-      
+
       .quantity
         select
-          background-color $grey-lighter  
+          background-color $grey-lighter
           font-size 1.2rem
           BoldUppercase()
           min-width 140px
           color $grey
-      
+
       .sold-out
         font-size $size-150
         font-weight bold
-      
+
       .add-to-cart
         .added-to-cart-text
           display none
@@ -193,17 +195,16 @@
             transform translateY(0)
           .add-to-cart-text
             display none
-        
-          
+
       .tabs
         li a
           padding-bottom .7em
-        li.is-active a 
+        li.is-active a
         li a:hover
         li a:focus
           border-bottom-width 1px
           position relative
-          
+
           &:after
             content ''
             display block
