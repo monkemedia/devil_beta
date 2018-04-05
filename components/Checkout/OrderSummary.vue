@@ -14,7 +14,7 @@
         span Estimated total
         span {{ cartSubtotal + shipping | currency }}
     footer(v-show="pageName !== 'checkout'")
-      nuxt-link(to="checkout").button.is-primary.is-fullwidth.is-flip 
+      nuxt-link(to="/checkout").button.is-primary.is-fullwidth.is-flip 
         span(data-text="Check out") Check out
 
 </template>

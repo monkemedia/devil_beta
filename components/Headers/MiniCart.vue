@@ -43,10 +43,10 @@
                   | {{ cartSubtotal | currency }}
             .columns
               .column
-                nuxt-link(to="cart").button.is-flip.is-fullwidth
+                nuxt-link(to="/cart").button.is-flip.is-fullwidth
                   span(data-text="View cart") View cart
               .column
-                nuxt-link(to="checkout").button.is-flip.is-secondary.is-fullwidth
+                nuxt-link(to="/checkout").button.is-flip.is-secondary.is-fullwidth
                   span(data-text="Checkout") Checkout
 </template>
 
