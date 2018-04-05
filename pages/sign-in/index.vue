@@ -3,7 +3,7 @@
     .columns
       .column
         h1 Sign In
-        Sign-in-user-form
+        sign-in-user-form
       .column
         h2.h3 Create account
         p Accounts are for members only, so please create an account below, and if you are a member, your account will be approved.
