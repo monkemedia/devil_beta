@@ -129,7 +129,7 @@
   .is-currency
     border 0 !important
     margin 0
-    font-size $size-normal
+    font-size $size-150
     line-height 1
     padding 0 .5rem
 

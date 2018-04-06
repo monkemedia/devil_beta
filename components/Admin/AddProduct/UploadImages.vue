@@ -252,7 +252,7 @@
           .icon
             .fa
               color #f7f7f7
-              font-size $size-normal
+              font-size $size-150
 
       &.upload-images-button
         border 1px dashed $grey-300

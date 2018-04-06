@@ -18,7 +18,7 @@
           .dropdown-content
             h6.h3.dropdown-header Hi, {{ username }}
             hr.dropdown-divider
-            nuxt-link.dropdown-item(v-for="item in items" :to="item.path") {{ item.name }}
+            nuxt-link.dropdown-item(v-for="item in items" :to="item.path" :key="item.name") {{ item.name }}
             .dropdown-item
               log-out(type="button is-secondary")
 </template>
@@ -75,20 +75,20 @@
 
   .user-login-buttons
     BoldUppercase()
-    font-size $size-small
+    font-size $size-120
 
     .or
       color $tertiary
       margin 0 .6rem
-
+  
   .user-logged-in
     BoldUppercase()
-    font-size $size-small
-
+    font-size $size-120
+    
     .user-logged-in-wrapper
       display flex
       align-items center
-
+    
     .avatar
       border-radius 50%
       background-color $grey-light
@@ -105,13 +105,13 @@
         left 5px
         &:before
           font-size 2rem
-
+    
     .dropdown-menu
       min-width 300px
       right 0
       left auto
       padding-top 2.7rem
-      .dropdown-content
+      .dropdown-content 
         padding 3rem
         border 1px solid $grey-light
         border-radius 0
@@ -120,16 +120,16 @@
         a.dropdown-item
           padding-top 1rem
           padding-bottom 1rem
-          font-size $size-small
+          font-size $size-120
           &:first-of-type
             margin-top 2rem
       &.Create
         padding-top 1.7rem
-
+    
     .icon-chevron
       margin-left .5rem
-
+    
     .dropdown-header
       margin-top 0
-
+      
 </style>

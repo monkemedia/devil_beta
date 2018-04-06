@@ -35,5 +35,5 @@
         position absolute
         left 0
         top 8px
-        font-size $size-smaller
+        font-size $size-100
 </style>

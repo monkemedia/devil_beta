@@ -1,7 +1,7 @@
 <template lang="pug">
   .navbar-menu(:class="{ 'is-active': isMobileMenuActive }")
     .navbar-start
-      nuxt-link.navbar-item(:to="nav.path" v-for="nav in navigation" :class="{ 'is-active': isActive(nav) }") {{ nav.title}}
+      nuxt-link.navbar-item(:to="nav.path" v-for="nav in navigation" :key="nav.title" :class="{ 'is-active': isActive(nav) }") {{ nav.title}}
     .navbar-end
       .navbar-item#search-bar-desktop
         search-bar

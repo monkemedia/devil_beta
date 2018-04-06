@@ -1,5 +1,5 @@
-import Cookie from 'js-cookie'
 import { key } from 'firebase-key'
+import { setAnonAuth, resetAnonAuth } from '~/utils/anonAuth'
 import Vue from 'vue'
 import _ from 'lodash'
 import axios from 'axios'
@@ -8,90 +8,23 @@ const store = {
   namespaced: true,
 
   state: {
-    cartItems: [],
-    anonToken: null,
-    anonUid: null
+    cartItems: []
   },
 
-  mutations: {
+  mutations: { 
     SET_CART_ITEMS (state, payload) {
-      console.log('SET_CART_ITEMS', payload)
-      // state.cartItems.push(payload)
-      // Vue.set(state.cartItems, payload.index, payload)
-      // Vue.set(state.cartItems, payload)
       state.cartItems = payload
-    },
-
-    SET_ANON_TOKEN (state, payload) {
-      state.anonToken = payload
-    },
-
-    SET_ANON_UID (state, payload) {
-      state.anonUid = payload
     },
 
     CLEAR_CART_ITEMS (state) {
       state.cartItems = []
-    },
-
-    CLEAR_ANON_TOKEN (state) {
-      state.anonToken = null
-    },
-
-    CLEAR_ANON_UID (state) {
-      state.anonUid = null
     }
   },
 
   actions: {
-    initCart ({ commit }, req) {
-      let token
-      let uid
-      let expirationDate
-
-      if (req) {
-        if (!req.headers.cookie) {
-          commit('CLEAR_ANON_TOKEN')
-          commit('CLEAR_ANON_UID')
-          return
-        }
-
-        let tokenCookie = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('anonToken='))
-
-        let uidCookie = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('anonUid='))
-
-        if (!tokenCookie) {
-          return
-        }
-
-        expirationDate = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('anonTokenExpiration='))
-          .split('=')[1]
-        token = tokenCookie.split('=')[1]
-        uid = uidCookie.split('=')[1]
-      } else if (process.client) {
-        expirationDate = localStorage.getItem('anonTokenExpiration')
-        token = localStorage.getItem('anonToken')
-        uid = localStorage.getItem('anonUid')
-      }
-
-      if (new Date().getTime() > parseInt(expirationDate)) {
-        console.log('no token or invalid token')
-        return
-      }
-
-      commit('SET_ANON_TOKEN', token)
-      commit('SET_ANON_UID', uid)
-    },
-
-    addToCart ({ dispatch, commit, getters, rootGetters }, payload) {
+    addToCart ({ dispatch, commit, rootGetters }, payload) {
       const isAuthenticated = rootGetters['auth/isAuthenticated']
-      const isAnonAuthenticated = getters['isAnonAuthenticated']
+      const isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
       const vm = this
       let token
       let uid
@@ -99,36 +32,12 @@ const store = {
       let cartId
       let currentQuantity
 
-      function signInUserAnonymously () {
-        const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${process.env.FB_API_KEY}`
-
-        console.log('KEY', process.env.FB_API_KEY)
-
-        return vm.$axios.$post(authUrl, {
-          returnSecureToken: true
-        })
-          .then((result) => {
-            const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
-
-            commit('SET_ANON_TOKEN', result.idToken)
-            commit('SET_ANON_UID', result.localId)
-
-            localStorage.setItem('anonToken', result.idToken)
-            localStorage.setItem('anonUid', result.localId)
-            localStorage.setItem('anonTokenExpiration', setExpirationDate)
-
-            Cookie.set('anonToken', result.idToken)
-            Cookie.set('anonUid', result.localId)
-            Cookie.set('anonTokenExpiration', setExpirationDate)
-            return result
-          })
-      }
-
       function cart (token, uid) {
         return vm.$axios.$get(`${process.env.BASE_URL}/users/${uid}/cart.json?auth=${token}`)
       }
 
       function productId (token, cartId, product) {
+        console.log('cartId', cartId)
         const productId = product.product_id
         return vm.$axios.$get(`${process.env.BASE_URL}/cartSessions/${cartId}/products/${productId}.json?auth=${token}`)
       }
@@ -157,23 +66,24 @@ const store = {
         return vm.$axios.$put(`${process.env.BASE_URL}/cartSessions/${cartId}/products/${item.product_id}.json?auth=${token}`, item)
       }
 
-      // User isnt signed in ANON nor Officially
+      // User isnt signed in ANON nor Officially 
       if (!isAuthenticated && !isAnonAuthenticated) {
         console.log('User isnt ANON nor official')
         // create ANON user
-        return signInUserAnonymously()
-          .then(() => {
+        return dispatch('anonAuth/signInUser', null, { root: true })
+          .then((result) => {
             // Cart session has been created
             // Product id and quantity has been added to it
-            token = getters['anonToken']
-            uid = getters['anonUid']
-            console.log('Cart session has been created')
+            token = result.idToken
+            uid = result.localId
+            console.log('Cart session has been created', token)
             return addAnonDataToCartSession(token, uid)
-              .then(() => {
-                return addItemToCartSessions(token, uid, payload)
-              })
+          })
+          .then(() => {
+            return addItemToCartSessions(token, uid, payload)
           })
           .catch((err) => {
+            console.log(err.response.data.error)
             throw err
           })
       }
@@ -184,8 +94,8 @@ const store = {
         // Need to add item to session
         // But does user already have the same product id in there
         console.log('User is Anonymous only')
-        token = getters['anonToken']
-        uid = getters['anonUid']
+        token = rootGetters['anonAuth/token']
+        uid = rootGetters['anonAuth/uid']
         return productId(token, uid, payload)
           .then((sessionDetails) => {
             console.log('SESSION DETAILS', sessionDetails)
@@ -193,14 +103,8 @@ const store = {
               return addAnonDataToCartSession(token, uid)
                 .then(() => {
                   console.log('New Product has been added to a new cart session')
-                  return addItemToCartSessions(token, uid, payload)
+                  return addItemToCartSessions(token, uid, payload,)
                 })
-                // If not, add the product to a new cart session
-
-                // .then(() => {
-                //   commit('SET_CART_ITEMS', payload)
-                //   return
-                // })
             }
             // If so, update quantity only
             console.log('Quantity has been updated', sessionDetails)
@@ -209,10 +113,12 @@ const store = {
               .then(() => {
                 return updateItemInCartSessions(token, uid, payload, currentQuantity)
               })
+            
           })
           .then(() => {
             // Fetch data from database and commit to state
             return dispatch('fetchCartData')
+
           })
           .catch((err) => {
             throw err
@@ -228,7 +134,7 @@ const store = {
 
         // Does the user have a cart stored in their profile
         console.log('Does the user have a cart session stored in their profile')
-
+        
         return cart(token, uid)
           .then((cartSessionId) => {
             console.log('CART', cartSessionId)
@@ -268,16 +174,18 @@ const store = {
       }
     },
 
-    deleteFromCart ({ getters, rootGetters }, data) {
-      console.log('DATA', data)
-      const token = rootGetters['auth/token'] || getters['anonToken']
+    deleteFromCart ({ rootGetters }, data) {
+      const token = rootGetters['auth/token'] || rootGetters['anonAuth/token']
 
       return this.$axios.$delete(`${process.env.BASE_URL}/cartSessions/${data.session_id}/products/${data.item.product_id}.json?auth=${token}`)
     },
 
-    fetchCartData ({ commit, dispatch, getters, rootGetters }) {
-      const isAuthenticated = rootGetters['auth/isAuthenticated']
-      const isAnonAuthenticated = getters['isAnonAuthenticated']
+    updateCartItemQuantity ({ rootGetters }, data) {
+      const token = rootGetters['auth/token'] || rootGetters['anonAuth/token']
+      return this.$axios.$patch(`${process.env.BASE_URL}/cartSessions/${data.cart_id}/products/${data.product_id}.json?auth=${token}`, { quantity: data.quantity })
+    },
+
+    fetchCartData ({ commit, dispatch, rootGetters }, req) {
       const vm = this
       let token
       let uid
@@ -286,13 +194,12 @@ const store = {
       let promises
       let cart
       let productIdPromise
+      let isAuthenticated
+      let isAnonAuthenticated
 
       function cartUidSession (token, cartId) {
-        console.log('TOKEN', token)
-        console.log('GET', cartId)
         return vm.$axios.$get(`${process.env.BASE_URL}/cartSessions/${cartId}/products/.json?auth=${token}`)
           .then((sessionData) => {
-            console.log('MONKEY')
             return {
               session_data: sessionData,
               cart_id: cartId
@@ -316,7 +223,7 @@ const store = {
                 quantity: key.quantity,
                 session_id: sessionData.cart_id
               }
-          }))
+            }))
         })
 
         // Add product data and quantity to cart items in state
@@ -330,76 +237,79 @@ const store = {
           })
       }
 
-      // User isnt ANON nor official user, so dont do anything
-      if (!isAuthenticated && !isAnonAuthenticated) {
-        console.log('User isnt ANON nor official user so clear cart items')
-        dispatch('auth/logoutAnonymousUser', null, { root: true })
-        commit('CLEAR_CART_ITEMS')
-        return false
-      }
+      return dispatch('anonAuth/initAuth', req, { root: true })
+        .then(() => {
+          isAuthenticated = rootGetters['auth/isAuthenticated']
+          isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
+          // User is ANON user
+          if (isAnonAuthenticated) {
 
-      // User is ANON user
-      if (isAnonAuthenticated) {
-        console.log('User is an ANON user')
-        // Get ANONUID and see if there is a CART SESSION
-        token = getters['anonToken']
-        uid = getters['anonUid']
-        console.log('Get ANONUID and see if there is a cart session')
-        console.log('uid', uid)
-        console.log('token', token)
-        return cartUidSession(token, uid)
-          .then((sessionData) => {
-            if (!sessionData) {
-              // If there isnt a session lets just stop here
-              console.log('If there isnt a session lets just stop here')
-              return
-            }
+            // Init anon auth first
+            console.log('Init anon auth first')
+            
+            console.log('User is an ANON user')
+            // Get ANONUID and see if there is a CART SESSION
+            token = rootGetters['anonAuth/token']
+            uid = rootGetters['anonAuth/uid']
+            console.log('Get ANONUID and see if there is a cart session')
+            console.log('token', token)
+            return cartUidSession(token, uid)
+              .then((sessionData) => {
+                if (!sessionData) {
+                  // If there isnt a session lets just stop here
+                  console.log('If there isnt a session lets just stop here')
+                  return
+                }
 
-            // There is a cart session, so lets get all the product ID'S
-            console.log('There is a cart session, so lets get all the product IDs', sessionData)
-            // Loop through Product IDs and get product data for each product ID
-            return getProductData(sessionData)
-          })
-          .then((result) => {
-            commit('SET_CART_ITEMS', result || [])
-            console.log('MONKEY', result)
-          })
-          .catch((err) => {
-            console.log(err)
-            throw err
-          })
-      }
+                // There is a cart session, so lets get all the product ID'S
+                console.log('There is a cart session, so lets get all the product IDs', sessionData)
+                // Loop through Product IDs and get product data for each product ID
+                return getProductData(sessionData)
+              })
+              .then((result) => {
+                commit('SET_CART_ITEMS', result || [])
+              })
+              .catch((err) => {
+                console.log(err.data)
+                throw err
+              })
+          }
 
-      // User is Officially signed in
-      if (isAuthenticated) {
-        console.log('User is Officially signed in')
-        token = rootGetters['auth/token']
-        userId = rootGetters['auth/userId']
+          // User is Officially signed in
+          if (isAuthenticated) {
+            console.log('User is Officially signed in')
+            token = rootGetters['auth/token']
+            userId = rootGetters['auth/userId']
 
-        return getCartId(token, userId)
-          .then((sessionId) => {
-            if (!sessionId) {
-              // If there isnt a session lets just stop here
-              console.log('If there isnt any CartIDs lets just stop here')
-              return
-            }
+            return getCartId(token, userId)
+              .then((sessionId) => {
+                if (!sessionId) {
+                  // If there isnt a session lets just stop here
+                  console.log('If there isnt any CartIDs lets just stop here')
+                  return
+                }
 
-            // There are cart sessions, so lets get all the cart IDs
-            console.log('There are cart sessions, so lets get all the cart IDs', sessionId)
-            // There are cart sessions, so lets get all the cart IDs
-            return cartUidSession(token, sessionId)
-          })
-          .then((sessionData) => {
-            return getProductData(sessionData)
-          })
-          .then((result) => {
-            commit('SET_CART_ITEMS', result)
-          })
-          .catch((err) => {
-            console.log(err)
-            throw err
-          })
-      }
+                // There are cart sessions, so lets get all the cart IDs
+                console.log('There are cart sessions, so lets get all the cart IDs', sessionId)
+                // There are cart sessions, so lets get all the cart IDs
+                return cartUidSession(token, sessionId)
+              })
+              .then((sessionData) => {
+                return getProductData(sessionData)
+              })
+              .then((result) => {
+                commit('SET_CART_ITEMS', result)
+              })
+              .catch((err) => {
+                console.log(err)
+                throw err
+              })
+          }
+        })
+        .catch((err) => {
+          console.log(err.data)
+          throw err
+        })
     },
 
     liveStock ({ commit }, payload) {
@@ -418,18 +328,6 @@ const store = {
   },
 
   getters: {
-    isAnonAuthenticated (state) {
-      return !!state.anonToken
-    },
-
-    anonToken (state) {
-      return state.anonToken
-    },
-
-    anonUid (state) {
-      return state.anonUid
-    },
-
     loadedCartItems (state) {
       return state.cartItems
     },
@@ -467,207 +365,3 @@ const store = {
 }
 
 export default store
-
-// import Cookies from 'js-cookie'
-
-// const store = {
-//   namespaced: true,
-
-//   state: {
-//     added: []
-//   },
-
-//   mutations: {
-//     PUSH_PRODUCT_TO_CART (state, product) {
-//       state.added.push({
-//         product_id: product.product_id,
-//         price: product.price,
-//         on_sale: product.on_sale,
-//         sale_price: product.sale_price,
-//         quantity: 1
-//       })
-//     },
-
-//     INCREMENT_ITEM_QUANTITY (state, product) {
-//       const cartItem = state.added.find(item => item.product_id === product.product_id)
-//       cartItem.quantity += product.quantity
-//     },
-
-//     SET_CART_ITEMS (state, items) {
-//       state.added = items
-//     }
-//   },
-
-//   actions: {
-//     addToDatabase ({ rootGetters }, payload) {
-//       const token = rootGetters['auth/token']
-//       const userId = rootGetters['auth/userId']
-//       const productId = payload.product_id
-
-//       return this.$axios.$put(`${process.env.BASE_URL}/cart/${userId}/${productId}.json?auth=${token}`, payload)
-//         .then((result) => {
-//           return result
-//         })
-//         .catch((err) => {
-//           throw err
-//         })
-//     },
-
-//     updateDatabase ({ state, rootGetters }, payload) {
-//       const token = rootGetters['auth/token']
-//       const userId = rootGetters['auth/userId']
-
-//       return this.$axios.$get(`${process.env.BASE_URL}/cart/${userId}/${payload.product_id}.json?auth=${token}`)
-//         .then((result) => {
-//           if (result) {
-//             result.quantity += payload.quantity
-//             return this.$axios.$patch(`${process.env.BASE_URL}/cart/${userId}/${payload.product_id}.json?auth=${token}`, { quantity: result.quantity })
-//           }
-//         })
-//         .then((result) => {
-//           return result
-//         })
-//         .catch((err) => {
-//           throw err
-//         })
-//     },
-
-//     addToCart ({ state, dispatch, commit, rootGetters }, product) {
-//       const cartItem = state.added.find(item => item.product_id === product.product_id)
-//       const isAuthenticated = rootGetters['auth/isAuthenticated']
-
-//       function saveMethod (location, product) {
-//         commit(location, product)
-//         localStorage.setItem('cart', JSON.stringify(state.added))
-//         Cookies.set('cart', state.added)
-//       }
-
-//       if (!cartItem) {
-//         if (isAuthenticated) {
-//           saveMethod('PUSH_PRODUCT_TO_CART', product)
-//           return dispatch('addToDatabase', product)
-//             .then((result) => {
-//               return result
-//             })
-//             .catch((err) => {
-//               throw err
-//             })
-//         }
-
-//         saveMethod('PUSH_PRODUCT_TO_CART', product)
-//       } else {
-//         const payload = {
-//           cartItem,
-//           quantity: product.quantity
-//         }
-
-//         if (isAuthenticated) {
-//           saveMethod('INCREMENT_ITEM_QUANTITY', product)
-//           return dispatch('updateDatabase', product) // HERE
-//             .then((result) => {
-//               console.log('result', product)
-//               return result
-//             })
-//             .catch((err) => {
-//               console.log('ERROR', err)
-//               throw err
-//             })
-//         }
-
-//         saveMethod('INCREMENT_ITEM_QUANTITY', product)
-//       }
-//     },
-
-//     initCart (vuexContext, req) {
-//       const isAuthenticated = vuexContext.rootGetters['auth/isAuthenticated']
-//       let token
-//       let userId
-//       let cart
-
-//       if (req) {
-//         if (!req.headers.cookie) {
-//           return
-//         }
-
-//         let cartCookie = req.headers.cookie
-//           .split(';')
-//           .find(c => c.trim().startsWith('cart='))
-
-//         if (!cartCookie) {
-//           // if there is no cart cookie, then lets see if user has cart saved on database
-//           if (isAuthenticated) {
-//             token = vuexContext.rootGetters['auth/token']
-//             userId = vuexContext.rootGetters['auth/userId']
-//             this.$axios.$get(`${process.env.BASE_URL}/cart/${userId}.json?auth=${token}`)
-//               .then((result) => {
-//                 console.log('user has cart on db' )
-//                 const newArray = []
-//                 Object.keys(result).forEach((item) => {
-//                   newArray.push(result[item])
-//                 })
-//                 vuexContext.commit('SET_CART_ITEMS', newArray)
-//               })
-//           }
-//           return
-//         }
-
-//         cart = cartCookie.split('=')[1]
-//         cart = decodeURIComponent(cart)
-//       } else if (process.client) {
-//         cart = localStorage.getItem('cart')
-//       }
-
-//       vuexContext.commit('SET_CART_ITEMS', JSON.parse(cart))
-//     },
-
-//     liveStock ({ commit }, payload) {
-//       const category = payload.category
-//       const productId = payload.product_id
-//       return this.$axios.$get(`${process.env.BASE_URL}/categories/${category}/${productId}/stock.json`)
-//         .then((stock) => {
-//           return stock
-//         })
-//         .catch((err) => {
-//           throw err
-//         })
-//     }
-//   },
-
-//   getters: {
-//     cartItems (state) {
-//       return state.added
-//     },
-
-//     cartTotalItems (state) {
-//       if (state.added) {
-//         const total = state.added.reduce((a, b) => {
-//           return {
-//             quantity: a.quantity + b.quantity
-//           }
-//         }, { quantity: 0 })
-
-//         return total.quantity
-//       }
-//       return 0
-//     },
-
-//     cartSubtotal (state) {
-//       if (state.added) {
-//         return state.added.reduce((a, b) => {
-//           const isOnSale = b.on_sale
-
-//           function price () {
-//             if (isOnSale) {
-//               return b.sale_price
-//             }
-//             return b.price
-//           }
-//           return a + price() * b.quantity
-//         }, 0)
-//       }
-//       return 0
-//     }
-//   }
-// }
-
-// export default store

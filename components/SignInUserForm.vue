@@ -105,5 +105,5 @@
     a
       BoldUppercase()
       Underline($secondary)
-      font-size $size-small
+      font-size $size-120
 </style>

@@ -70,7 +70,7 @@
           font-size 2.6rem
 
         input
-          font-size $size-large
+          font-size $size-240
           border 0
           outline-width 0
           padding-left 2rem

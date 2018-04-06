@@ -18,7 +18,7 @@
   export default {
     middleware: [
       'check-auth',
-      'cart'
+      'fetch-cart-data'
     ],
 
     components: {
@@ -37,9 +37,9 @@
         .then(result => {
           return {
             loadedItem: result,
-            breadcrumb: {
-              title: 'Back',
-              path: `/product/${result.category}`
+            breadcrumb: { 
+              title: 'Back', 
+              path: `/product/${result.category}` 
             }
           }
         })
@@ -57,5 +57,5 @@
   @import '~assets/css/utilities/variables.styl'
 
   .not-available
-    font-size $size-medium
+    font-size $size-180
 </style>
