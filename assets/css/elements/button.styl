@@ -59,6 +59,13 @@
     span
       position relative
       transition all .25s cubic-bezier(.4,.01,.1,1)
+      &:after
+        font-family FontAwesome
+        content attr(data-icon)
+        position absolute
+        top 100%
+        width 100%
+        left -30px
       &:before
         content attr(data-text)
         position absolute
