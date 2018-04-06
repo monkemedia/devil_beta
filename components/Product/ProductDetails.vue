@@ -106,9 +106,7 @@
             this.loading = false
             this.itemAdded = false
 
-            console.log('ERROR', err)
-
-            if (err === 'no-stock') {
+            if (err.message === 'no-stock') {
               this.$dialog.alert({
                 title: 'Whoops',
                 message: 'There isn\'t enough items in stock',
