@@ -89,9 +89,9 @@ const store = {
     deleteItem ({ commit, getters }, data) {
       let items = getters['loadedSellersItems']
 
-      return this.$axios.$delete(`${process.env.BASE_URL}/categories/${data.category}/${data.productId}.json?auth=${data.token}`)
+      return this.$axios.$delete(`${process.env.FB_URL}/categories/${data.category}/${data.productId}.json?auth=${data.token}`)
         .then(() => {
-          return this.$axios.$delete(`${process.env.BASE_URL}/products/${data.productId}.json?auth=${data.token}`)
+          return this.$axios.$delete(`${process.env.FB_URL}/products/${data.productId}.json?auth=${data.token}`)
         })
         .then(() => {
           const removeItem = _.pickBy(items, (key) => {
@@ -131,12 +131,12 @@ const store = {
         product_id: uniqueId
       }
 
-      return this.$axios.$put(`${process.env.BASE_URL}/userProducts/${userId}/${uniqueId}.json?auth=${token}`, itemData)
+      return this.$axios.$put(`${process.env.FB_URL}/userProducts/${userId}/${uniqueId}.json?auth=${token}`, itemData)
         .then(() => {
           if (itemDetails.storefront === 'visible') {
-            return this.$axios.$patch(`${process.env.BASE_URL}/categories/${category}/${uniqueId}.json?auth=${token}`, { productId: uniqueId })
+            return this.$axios.$patch(`${process.env.FB_URL}/categories/${category}/${uniqueId}.json?auth=${token}`, { productId: uniqueId })
               .then(() => {
-                return this.$axios.$put(`${process.env.BASE_URL}/products/${uniqueId}.json?auth=${token}`, itemData)
+                return this.$axios.$put(`${process.env.FB_URL}/products/${uniqueId}.json?auth=${token}`, itemData)
               })
           } else {
             productId = uniqueId

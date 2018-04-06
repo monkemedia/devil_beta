@@ -30,7 +30,7 @@
     asyncData (context) {
       const paramId = context.params.id
 
-      return context.app.$axios.$get(`${process.env.BASE_URL}/products/${paramId}.json`)
+      return context.app.$axios.$get(`${process.env.FB_URL}/products/${paramId}.json`)
         .then(result => {
           return {
             loadedItem: result,

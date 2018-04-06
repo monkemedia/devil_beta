@@ -18,7 +18,7 @@ const store = {
     loadUser ({ commit, rootState }) {
       const token = rootState.auth.token
 
-      return this.$axios.$get(`${process.env.BASE_URL}/users.json?auth=${token}`)
+      return this.$axios.$get(`${process.env.FB_URL}/users.json?auth=${token}`)
         .then(data => {
           return _.forOwn(data, (key, value) => {
             Cookie.set('user', key)

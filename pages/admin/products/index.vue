@@ -50,7 +50,7 @@
       const token = store.getters['auth/token']
       const userId = store.getters['auth/userId']
 
-      return axios.get(`${process.env.BASE_URL}/userProducts/${userId}.json?auth=${token}`)
+      return axios.get(`${process.env.FB_URL}/userProducts/${userId}.json?auth=${token}`)
         .then((result) => {
           if (result.data !== null) {
             return store.commit('sellersItems/SET_SELLERS_ITEMS', result.data)
@@ -79,7 +79,7 @@
         const productId = payload.product_id
         const category = payload.category
 
-        return axios.delete(`${process.env.BASE_URL}/userProducts/${uniqueId}/${productId}.json?auth=${token}`)
+        return axios.delete(`${process.env.FB_URL}/userProducts/${uniqueId}/${productId}.json?auth=${token}`)
           .then(() => {
             return this.$store.dispatch('sellersItems/deleteItem', { productId, category, token })
           })

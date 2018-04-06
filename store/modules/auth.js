@@ -38,7 +38,7 @@ const store = {
 
   actions: {
     validateUsername ({}, username) {
-      return this.$axios.$get(`${process.env.BASE_URL}/usernames.json`)
+      return this.$axios.$get(`${process.env.FB_URL}/usernames.json`)
         .then(data => {
           const filterUsernames = _.filter(data, (key) => {
             return key.username === username
@@ -63,36 +63,36 @@ const store = {
     saveUsernameToDatabase ({ state }, usernameDetails) {
       const username = usernameDetails.username
       const token = state.token
-      return this.$axios.$put(`${process.env.BASE_URL}/usernames/${username}.json?auth=${token}`, usernameDetails)
+      return this.$axios.$put(`${process.env.FB_URL}/usernames/${username}.json?auth=${token}`, usernameDetails)
     },
 
     saveUserDetailsToDatabase ({ state }, userDetails) {
       const userId = userDetails.userId
       const token = state.token
-      return this.$axios.$patch(`${process.env.BASE_URL}/users/${userId}.json?auth=${token}`, userDetails)
+      return this.$axios.$patch(`${process.env.FB_URL}/users/${userId}.json?auth=${token}`, userDetails)
     },
 
     transferAnonCartToSignedInCart ({ getters, dispatch, rootGetters }) {
       const vm = this
 
       function anonCartSessions (token, cartId) {
-        return vm.$axios.$get(`${process.env.BASE_URL}/cartSessions/${cartId}/products.json?auth=${token}`)
+        return vm.$axios.$get(`${process.env.FB_URL}/cartSessions/${cartId}/products.json?auth=${token}`)
       }
 
       function deleteAnonCartSessions (token, cartId) {
-        return vm.$axios.$delete(`${process.env.BASE_URL}/cartSessions/${cartId}.json?auth=${token}`)
+        return vm.$axios.$delete(`${process.env.FB_URL}/cartSessions/${cartId}.json?auth=${token}`)
       }
 
       function addUidToCart (userId, cartId) {
-        return vm.$axios.$patch(`${process.env.BASE_URL}/users/${userId}.json?auth=${token}`, { cart: cartId })
+        return vm.$axios.$patch(`${process.env.FB_URL}/users/${userId}.json?auth=${token}`, { cart: cartId })
       }
 
       function doesCartSessionExistInUserProfile (userId, token) {
-        return vm.$axios.$get(`${process.env.BASE_URL}/users/${userId}/cart.json?&auth=${token}`)
+        return vm.$axios.$get(`${process.env.FB_URL}/users/${userId}/cart.json?&auth=${token}`)
       }
 
       function addItemToCartSessions (token, cartId, items) {
-        return vm.$axios.$patch(`${process.env.BASE_URL}/cartSessions/${cartId}/products.json?auth=${token}`, items)
+        return vm.$axios.$patch(`${process.env.FB_URL}/cartSessions/${cartId}/products.json?auth=${token}`, items)
       }
       // Add anon cart uid to userprofile
       const isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
