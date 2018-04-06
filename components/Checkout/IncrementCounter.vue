@@ -67,13 +67,16 @@
 
       increment (val) {
         let qty = this.quantity
+
         if (val === 'plus') {
           qty += 1
         } else {
           qty -= 1
         }
+
         this.quantity = qty
         this.updateDb(qty, val)
+        this.$emit('quantity', qty)
       }
     }
   }

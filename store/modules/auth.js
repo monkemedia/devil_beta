@@ -160,6 +160,8 @@ const store = {
         .then((result) => {
           const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
 
+          console.log('RESULT', result)
+
           commit('SET_TOKEN', result.idToken)
           commit('SET_USERNAME', result.displayName)
           commit('SET_USERID', result.localId)

@@ -107,6 +107,7 @@ const store = {
               throw err
             })
         } else {
+          console.log('KERE', token)
           commit('SET_TOKEN', token)
         }
       } else if (process.client) {
@@ -131,6 +132,7 @@ const store = {
     },
 
     signInUser ({ commit }) {
+      console.log('signInUser')
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${process.env.FB_API_KEY}`
 
       return this.$axios.$post(authUrl, {

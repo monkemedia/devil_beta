@@ -2,6 +2,7 @@
   .order-summary
     header
       h2.h3 Order summary
+      hr
     section
       .cart-items(v-if="paramName !== 'cart'")
         mini-cart-items(v-for="(cartItem, index) in loadedCartItems" v-if="index < 5" :key="index" :cartItem="cartItem")
