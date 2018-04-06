@@ -64,10 +64,10 @@
 
     .field
       .control
-       
+
         button.button.is-primary.sign-in-button.is-flip(
           type="submit"
-          :class="{ 'is-loading': loading }") 
+          :class="{ 'is-loading': loading }")
           span(data-text="Create account") Create account
       p.have-account Already have an account? <nuxt-link to="/sign-in" class="underline"> Sign in</nuxt-link>
 
@@ -120,7 +120,7 @@
               email: this.email,
               password: this.password,
               username: this.username
-            } 
+            }
 
             return this.$store.dispatch('auth/registerUser', payload)
           })
@@ -158,7 +158,7 @@
 </script>
 <style lang="stylus">
   .account-types
-    .control[data-v-01644966] 
+    .control[data-v-01644966]
       .button
         width 100% !important
         margin-top 0

@@ -52,7 +52,7 @@
     &.is-open
       opacity 1
       visibility visible
-      display block 
+      display block
 
     .search-inner-wrapper
       background $white
@@ -75,7 +75,7 @@
           outline-width 0
           padding-left 2rem
           width 100%
-        
+
         .close
           font-size 2rem
 </style>

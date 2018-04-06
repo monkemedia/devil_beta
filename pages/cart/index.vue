@@ -47,8 +47,8 @@
 
     data () {
       return {
-        breadcrumb: { 
-          title: 'Continue shopping', 
+        breadcrumb: {
+          title: 'Continue shopping',
           path: '/'
         }
       }
@@ -60,7 +60,7 @@
 
     mounted () {
       if (process.client) {
-       //  this.$store.dispatch('cart/fetchCartData')
+        //  this.$store.dispatch('cart/fetchCartData')
       }
     },
 
@@ -94,7 +94,7 @@
       }
     }
   }
-  
+
 </script>
 
 <style lang="stylus">
@@ -102,14 +102,13 @@
   @import '~assets/css/utilities/mixins.styl'
 
   .cart-box
-    font-size $size-normal 
+    font-size $size-normal
     background $white
     padding 1rem 1.5rem
-    
-    
+
     h6
       margin-bottom .5rem
-      
+
     .ctas
       a
         BoldUppercase()
@@ -118,18 +117,18 @@
 
         &:first-child
           margin-right 1rem
-    
+
     &.no-items
       min-height 300px
       display flex
       justify-content center
       align-items center
-      
-      span 
+
+      span
         text-align center
         h2
           margin-top 0
-      
+
     .b-table
       width 100%
       table
@@ -142,5 +141,5 @@
       .subtotal
         font-size 1.3rem
         font-weight bold
-  
+
 </style>

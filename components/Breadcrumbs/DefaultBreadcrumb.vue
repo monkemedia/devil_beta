@@ -21,14 +21,14 @@
 <style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
   @import '~assets/css/utilities/mixins.styl'
-  
+
   .breadcrumb
     a
       padding-left 1.2rem !important
       BoldUppercase()
       font-size 1.2rem
       position relative
-      
+
       &:before
         content '\f053'
         font-family FontAwesome
@@ -36,6 +36,5 @@
         left 0
         top 8px
         font-size $size-smaller
-
 
 </style>

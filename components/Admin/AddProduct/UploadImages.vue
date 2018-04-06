@@ -1,4 +1,4 @@
-<template lang="pug"> 
+<template lang="pug">
   .form-panel
     legend.legend Images
     .dropzone(@dragenter="hovering = true" ref="dropzone" @dragleave="hovering = false" :class="{ 'hovered': hovering, 'disabled': disabled }")
@@ -249,7 +249,7 @@
 
         .remove-image
           display inline-flex
-          .icon 
+          .icon
             .fa
               color #f7f7f7
               font-size $size-normal
@@ -263,7 +263,7 @@
         display inline-block
         margin-right 0
 
-        button   
+        button
           border 0
           height 100%
           width 100%

@@ -37,9 +37,9 @@
         .then(result => {
           return {
             loadedItem: result,
-            breadcrumb: { 
-              title: 'Back', 
-              path: `/product/${result.category}` 
+            breadcrumb: {
+              title: 'Back',
+              path: `/product/${result.category}`
             }
           }
         })

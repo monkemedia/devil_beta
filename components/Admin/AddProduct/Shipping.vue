@@ -83,7 +83,7 @@
     },
 
     mounted () {
-      this.shippingOptions = this.shippingData && this.shippingData.length ?  this.shippingData : this.shippingOptions
+      this.shippingOptions = this.shippingData && this.shippingData.length ? this.shippingData : this.shippingOptions
     },
 
     methods: {
@@ -133,7 +133,7 @@
     line-height 1
     padding 0 .5rem
 
-    @media only screen and (min-width $desktop) 
+    @media only screen and (min-width $desktop)
       padding 0 1.2rem
 
   .remove-shipping-option

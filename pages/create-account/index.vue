@@ -25,5 +25,5 @@
 
 <style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
-  
+
 </style>

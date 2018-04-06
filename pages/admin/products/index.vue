@@ -2,7 +2,7 @@
   section.section
     header
       h1 Products
-      nuxt-link.button.is-primary.is-flip(to="/admin/add-product") 
+      nuxt-link.button.is-primary.is-flip(to="/admin/add-product")
         span(data-text="Add product")
           | Add product
     div(v-if="!loadedItems")
@@ -17,7 +17,7 @@
           th.is-hidden-mobile Stock
           th.is-hidden-mobile Price
           th Status
-          th 
+          th
       tbody
         tr(is="product-table-cell" :item="item" v-for="(item, index) in loadedItems" @deleteItem="deleteItem")
 </template>
@@ -100,12 +100,12 @@
 <style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
   @import '~assets/css/utilities/mixins.styl'
-  
+
   header
     justify-content space-between
     display flex
     margin-bottom 2rem
-    
+
     .button
       margin 0
 
