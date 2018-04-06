@@ -119,7 +119,7 @@ const store = {
                   return dispatch('logoutAnonymousUser')
                 })
             }
-    
+
             // User has cart session ID so add anon session products to it
             console.log('User has cart session ID so get anon session details then add it to offical cartSessions')
             token = rootGetters['cart/anonToken']
@@ -137,7 +137,6 @@ const store = {
       }
       // User doesnt have a ANON token so they don't have cart data saved anonymously, so don't do anything
       console.log('User doesnt have a ANON token so they dont have cart data saved anonymously, so dont do anything')
-      return
     },
 
     deleteUser ({}, token) {
@@ -160,25 +159,23 @@ const store = {
         localStorage.removeItem('anonUid')
         localStorage.removeItem('anonTokenExpiration')
       }
-
-      return
     },
 
     loginUser ({ commit, getters, dispatch, rootState, rootGetters }, authData) {
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${process.env.FB_API_KEY}`
-      
+
       return this.$axios.$post(authUrl, {
         email: authData.email,
         password: authData.password,
         returnSecureToken: true
       })
-        .then(result => {       
+        .then(result => {
           const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
-          
+
           commit('SET_TOKEN', result.idToken)
           commit('SET_USERNAME', result.displayName)
           commit('SET_USERID', result.localId)
-          
+
           localStorage.setItem('token', result.idToken)
           localStorage.setItem('tokenExpiration', setExpirationDate)
           localStorage.setItem('username', result.displayName)
@@ -213,18 +210,18 @@ const store = {
     registerUser ({ commit, dispatch, rootGetters }, authData) {
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${process.env.FB_API_KEY}`
       let response
-      
+
       return this.$axios.$post(authUrl, {
         email: authData.email,
         password: authData.password,
         displayName: authData.username,
         returnSecureToken: true
       })
-        .then((result) => {    
-          console.log('RESULT', result)   
+        .then((result) => {
+          console.log('RESULT', result)
           response = result
           const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
-          
+
           commit('SET_TOKEN', result.idToken)
           commit('SET_USERNAME', result.displayName)
           commit('SET_USERID', result.localId)
@@ -288,7 +285,7 @@ const store = {
         let userIdCookie = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('userId='))
-        
+
         if (!jwtCookie) {
           return
         }

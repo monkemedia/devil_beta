@@ -13,7 +13,7 @@ const store = {
     anonUid: null
   },
 
-  mutations: { 
+  mutations: {
     SET_CART_ITEMS (state, payload) {
       console.log('SET_CART_ITEMS', payload)
       // state.cartItems.push(payload)
@@ -63,7 +63,7 @@ const store = {
         let uidCookie = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('anonUid='))
-        
+
         if (!tokenCookie) {
           return
         }
@@ -157,7 +157,7 @@ const store = {
         return vm.$axios.$put(`${process.env.BASE_URL}/cartSessions/${cartId}/products/${item.product_id}.json?auth=${token}`, item)
       }
 
-      // User isnt signed in ANON nor Officially 
+      // User isnt signed in ANON nor Officially
       if (!isAuthenticated && !isAnonAuthenticated) {
         console.log('User isnt ANON nor official')
         // create ANON user
@@ -193,10 +193,10 @@ const store = {
               return addAnonDataToCartSession(token, uid)
                 .then(() => {
                   console.log('New Product has been added to a new cart session')
-                  return addItemToCartSessions(token, uid, payload,)
+                  return addItemToCartSessions(token, uid, payload)
                 })
-              // If not, add the product to a new cart session
-              
+                // If not, add the product to a new cart session
+
                 // .then(() => {
                 //   commit('SET_CART_ITEMS', payload)
                 //   return
@@ -209,12 +209,10 @@ const store = {
               .then(() => {
                 return updateItemInCartSessions(token, uid, payload, currentQuantity)
               })
-            
           })
           .then(() => {
             // Fetch data from database and commit to state
             return dispatch('fetchCartData')
-
           })
           .catch((err) => {
             throw err
@@ -230,7 +228,7 @@ const store = {
 
         // Does the user have a cart stored in their profile
         console.log('Does the user have a cart session stored in their profile')
-        
+
         return cart(token, uid)
           .then((cartSessionId) => {
             console.log('CART', cartSessionId)
@@ -318,7 +316,7 @@ const store = {
                 quantity: key.quantity,
                 session_id: sessionData.cart_id
               }
-            }))
+          }))
         })
 
         // Add product data and quantity to cart items in state
@@ -332,7 +330,7 @@ const store = {
           })
       }
 
-      //User isnt ANON nor official user, so dont do anything
+      // User isnt ANON nor official user, so dont do anything
       if (!isAuthenticated && !isAnonAuthenticated) {
         console.log('User isnt ANON nor official user so clear cart items')
         dispatch('auth/logoutAnonymousUser', null, { root: true })
@@ -342,7 +340,6 @@ const store = {
 
       // User is ANON user
       if (isAnonAuthenticated) {
-      
         console.log('User is an ANON user')
         // Get ANONUID and see if there is a CART SESSION
         token = getters['anonToken']
@@ -595,7 +592,7 @@ export default store
 //         let cartCookie = req.headers.cookie
 //           .split(';')
 //           .find(c => c.trim().startsWith('cart='))
-        
+
 //         if (!cartCookie) {
 //           // if there is no cart cookie, then lets see if user has cart saved on database
 //           if (isAuthenticated) {

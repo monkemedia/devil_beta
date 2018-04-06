@@ -127,7 +127,7 @@ const store = {
     removeSellersItem ({ state, commit }, payload) {
       let items = state.loadedSellersItems
 
-      const removeItem =_.pickBy(items, (key) => {
+      const removeItem = _.pickBy(items, (key) => {
         console.log(key)
         return payload.product_id !== key.product_id
       })
@@ -147,7 +147,7 @@ const store = {
 
     loadedSellersItems (state) {
       return state.loadedSellersItems
-    },
+    }
   }
 }
 

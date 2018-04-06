@@ -10,7 +10,7 @@
 <script>
   if (process.browser) {
     const $ = window.jQuery = require('jquery')
-    require('jquery-zoom');
+    require('jquery-zoom')
   }
 
   export default {
