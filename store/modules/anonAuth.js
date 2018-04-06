@@ -48,7 +48,7 @@ const store = {
 
       if (req) {
         if (!req.headers.cookie) {
-          console.log('RESET ANON AUTH');
+          console.log('RESET ANON AUTH')
           commit('CLEAR_TOKEN')
           commit('CLEAR_UID')
           resetAnonAuth()
@@ -108,7 +108,7 @@ const store = {
               throw err
             })
         } else {
-          console.log("KERE", token);
+          console.log('KERE', token)
           commit('SET_TOKEN', token)
         }
       } else if (process.client) {
@@ -130,35 +130,34 @@ const store = {
       Cookies.remove('anon-expiration-date')
 
       resetAnonAuth()
-      return
     },
 
     signInUser ({ commit }) {
-        console.log('signInUser')
-        const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${process.env.FB_API_KEY}`
+      console.log('signInUser')
+      const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${process.env.FB_API_KEY}`
 
-        return this.$axios.$post(authUrl, {
-          returnSecureToken: true
+      return this.$axios.$post(authUrl, {
+        returnSecureToken: true
+      })
+        .then((result) => {
+          const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
+
+          commit('SET_TOKEN', result.idToken)
+          commit('SET_UID', result.localId)
+
+          setAnonAuthToken(result.idToken)
+          setAnonAuthUid(result.localId)
+          setAnonAuthRefreshToken(result.idToken)
+          setAnonExpirationDate(setExpirationDate)
+
+          Cookies.set('anon-token', result.idToken)
+          Cookies.set('anon-uid', result.localId)
+          Cookies.set('anon-refresh-token', result.refreshToken)
+          Cookies.set('anon-expiration-date', setExpirationDate)
+
+          return result
         })
-          .then((result) => {
-            const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
-
-            commit('SET_TOKEN', result.idToken)
-            commit('SET_UID', result.localId)
-
-            setAnonAuthToken(result.idToken)
-            setAnonAuthUid(result.localId)
-            setAnonAuthRefreshToken(result.idToken)
-            setAnonExpirationDate(setExpirationDate)
-
-            Cookies.set('anon-token', result.idToken)
-            Cookies.set('anon-uid', result.localId)
-            Cookies.set('anon-refresh-token', result.refreshToken)
-            Cookies.set('anon-expiration-date', setExpirationDate)
-
-            return result
-          })
-    },
+    }
   },
 
   getters: {

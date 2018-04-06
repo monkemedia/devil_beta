@@ -26,7 +26,7 @@
                     span.seller Seller: {{ props.row.item.username }}
                     span.ctas
                       a(@click="deleteModal(props.row, props.index)") Remove
-              b-table-column.quantity(field="quantity" label="Quantity") 
+              b-table-column.quantity(field="quantity" label="Quantity")
                 increment-counter(:productDetails="{ quantity: props.row.quantity, product_id: props.row.item.product_id, cart_id: props.row.session_id }")
               b-table-column.subtotal(field="subtotal" label="Subtotal") {{ props.row.item.price * props.row.quantity | currency }}
       .column.is-4
@@ -54,8 +54,8 @@
 
     data () {
       return {
-        breadcrumb: { 
-          title: 'Continue shopping', 
+        breadcrumb: {
+          title: 'Continue shopping',
           path: '/'
         }
       }
@@ -102,7 +102,7 @@
       }
     }
   }
-  
+
 </script>
 
 <style lang="stylus">
@@ -110,14 +110,14 @@
   @import '~assets/css/utilities/mixins.styl'
 
   .cart-box
-    font-size $size-150 
+    font-size $size-150
     background $white
     padding 1rem 1.5rem
     min-height 351px
-    
+
     h6
       margin-bottom .5rem
-      
+
     .ctas
       a
         BoldUppercase()
@@ -126,17 +126,17 @@
 
         &:first-child
           margin-right 1rem
-    
+
     &.no-items
       display flex
       justify-content center
       align-items center
-      
-      span 
+
+      span
         text-align center
         h2
           margin-top 0
-      
+
     .b-table
       width 100%
       table
@@ -149,5 +149,5 @@
       .subtotal
         font-size $size-130
         font-weight bold
-  
+
 </style>

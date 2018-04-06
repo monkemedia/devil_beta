@@ -11,7 +11,7 @@ const store = {
     cartItems: []
   },
 
-  mutations: { 
+  mutations: {
     SET_CART_ITEMS (state, payload) {
       state.cartItems = payload
     },
@@ -66,7 +66,7 @@ const store = {
         return vm.$axios.$put(`${process.env.BASE_URL}/cartSessions/${cartId}/products/${item.product_id}.json?auth=${token}`, item)
       }
 
-      // User isnt signed in ANON nor Officially 
+      // User isnt signed in ANON nor Officially
       if (!isAuthenticated && !isAnonAuthenticated) {
         console.log('User isnt ANON nor official')
         // create ANON user
@@ -103,7 +103,7 @@ const store = {
               return addAnonDataToCartSession(token, uid)
                 .then(() => {
                   console.log('New Product has been added to a new cart session')
-                  return addItemToCartSessions(token, uid, payload,)
+                  return addItemToCartSessions(token, uid, payload)
                 })
             }
             // If so, update quantity only
@@ -113,12 +113,10 @@ const store = {
               .then(() => {
                 return updateItemInCartSessions(token, uid, payload, currentQuantity)
               })
-            
           })
           .then(() => {
             // Fetch data from database and commit to state
             return dispatch('fetchCartData')
-
           })
           .catch((err) => {
             throw err
@@ -134,7 +132,7 @@ const store = {
 
         // Does the user have a cart stored in their profile
         console.log('Does the user have a cart session stored in their profile')
-        
+
         return cart(token, uid)
           .then((cartSessionId) => {
             console.log('CART', cartSessionId)
@@ -223,7 +221,7 @@ const store = {
                 quantity: key.quantity,
                 session_id: sessionData.cart_id
               }
-            }))
+          }))
         })
 
         // Add product data and quantity to cart items in state
@@ -243,10 +241,9 @@ const store = {
           isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
           // User is ANON user
           if (isAnonAuthenticated) {
-
             // Init anon auth first
             console.log('Init anon auth first')
-            
+
             console.log('User is an ANON user')
             // Get ANONUID and see if there is a CART SESSION
             token = rootGetters['anonAuth/token']

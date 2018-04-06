@@ -1,6 +1,6 @@
 <template lang="pug">
   div
-    .mini-cart-mobile 
+    .mini-cart-mobile
       span {{ cartTotalItems }}
     .dropdown.mini-cart-desktop-container(:class="{ 'is-active': isActive }")
       .dropdown-trigger
@@ -20,7 +20,7 @@
                     :small-src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
                     :alt="cartItem.item.images[0].alt")
               .column
-                h6 
+                h6
                   router-link(:to="'/' + cartItem.item.category + '/' + cartItem.item.product_id") {{ cartItem.item.title }}
                 span.seller By {{ cartItem.item.username }}
                 .level
@@ -37,7 +37,7 @@
               .subtotal
                 .column
                   | Subtotal
-                .column.has-text-right 
+                .column.has-text-right
                   | {{ cartSubtotal | currency }}
             .columns
               .column
@@ -101,7 +101,7 @@
 <style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
   @import '~assets/css/utilities/mixins.styl'
-  
+
   .mini-cart-mobile
     background-image url('~assets/images/mini-cart-icon.svg')
     margin 0 0 0 2.4rem
@@ -119,7 +119,7 @@
       line-height 1
       font-family $family-primary
       font-size $size-100
-  
+
   .mini-cart-desktop-container
     display none
     .mini-cart-desktop
@@ -142,13 +142,13 @@
     left auto
     right 20px
     padding-top 2.1rem
-    
+
     .dropdown-content
       padding 3rem 1.5rem
       box-shadow none
       border 3px solid $primary
       border-radius 0
-      
+
       .dropdown-item
         min-height 200px
         .view-more
@@ -163,7 +163,7 @@
           display flex
           p
             color $secondary
-    
+
       figure
         width 70px
         height 70px
@@ -178,7 +178,7 @@
       .price
         font-size $size-130
         BoldUppercase()
-      
+
       .subtotal
         border-top 1px solid $grey-300
         border-bottom 1px solid $grey-300
@@ -187,10 +187,10 @@
         display flex
         width 100%
         BoldUppercase()
-      
+
       .button
         margin 0
-    
+
   @media only screen and (min-width: $desktop)
     .mini-cart-mobile
       display none

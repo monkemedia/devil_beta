@@ -80,15 +80,15 @@
     .or
       color $tertiary
       margin 0 .6rem
-  
+
   .user-logged-in
     BoldUppercase()
     font-size $size-120
-    
+
     .user-logged-in-wrapper
       display flex
       align-items center
-    
+
     .avatar
       border-radius 50%
       background-color $grey-light
@@ -105,13 +105,13 @@
         left 5px
         &:before
           font-size 2rem
-    
+
     .dropdown-menu
       min-width 300px
       right 0
       left auto
       padding-top 2.7rem
-      .dropdown-content 
+      .dropdown-content
         padding 3rem
         border 1px solid $grey-light
         border-radius 0
@@ -125,11 +125,11 @@
             margin-top 2rem
       &.Create
         padding-top 1.7rem
-    
+
     .icon-chevron
       margin-left .5rem
-    
+
     .dropdown-header
       margin-top 0
-      
+
 </style>

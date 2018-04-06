@@ -14,7 +14,7 @@
         span Estimated total
         span {{ cartSubtotal + shipping | currency }}
     footer
-      button.button.is-primary.is-fullwidth.is-flip 
+      button.button.is-primary.is-fullwidth.is-flip
         span(data-text="Check out") Check out
 
 </template>
@@ -53,17 +53,17 @@
 <style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
   @import '~assets/css/utilities/mixins.styl'
-  
+
   .order-summary
     background-color $white
     padding 2.5rem 2rem
     BoldUppercase()
     font-size $size-140
     border 4px solid $secondary
-  
+
   h2
     margin-top 0
-  
+
   .row
     padding 1.5rem 0
     justify-content space-between
@@ -74,7 +74,7 @@
         color $grey
       &:last-child
         font-size $size-150
-    
+
     &.total
       span
         &:first-child
@@ -82,8 +82,8 @@
           font-size $size-240
         &:last-child
           font-size $size-240
-    
+
   .button
     margin-bottom 0
-      
+
 </style>
