@@ -1,7 +1,7 @@
 <template lang="pug">
   div
     nuxt-link(:to="'/posts/' + 1")
-      article 
+      article
         h2 Post title {{ id }}
         p {{ title }}
 </template>
