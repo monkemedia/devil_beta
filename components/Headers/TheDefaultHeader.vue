@@ -14,7 +14,7 @@
 
 <script>
   import SearchBar from '@/components/Headers/SearchBar'
-  import MiniCart from '@/components/Headers/MiniCart'
+  import MiniCartDropdown from '@/components/Headers/MiniCartDropdown'
   import BurgerMenu from '@/components/Headers/BurgerMenu'
   import MainNavigation from '@/components/Navigation/TheMainNavigation'
   import SearchBarOverlay from '@/components/Headers/SearchBarOverlay'
@@ -27,7 +27,7 @@
 
     components: {
       SearchBar,
-      MiniCart,
+      MiniCartDropdown,
       BurgerMenu,
       MainNavigation,
       SearchBarOverlay
