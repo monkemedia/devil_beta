@@ -27,29 +27,53 @@
     },
 
     methods: {
-      updateDb: _.debounce(function (qty) {
-        console.log('debounce')
-        this.$store.dispatch('cart/updateCartItemQuantity', {
-          ...this.productDetails,
-          quantity: qty
-        })
+      updateDb: _.debounce(function (qty, val) {
+        this.$store.dispatch('cart/liveStock', this.productDetails)
+          .then((liveStock) => {
+            console.log(qty)
+            // Check to see if user is adding more items than the stock allows
+            if (qty > liveStock) {
+              this.quantity = liveStock
+              throw new Error('no-stock')
+            }
+
+            return this.$store.dispatch('cart/updateCartItemQuantity', {
+              ...this.productDetails,
+              quantity: qty
+            })
+          })
           .then(() => {
+            console.log('val', val)
+            this.$emit('quantity', qty)
             return this.$store.dispatch('cart/fetchCartData')
+          })
+          .catch((err) => {
+            if (err.message === 'no-stock') {
+              this.$dialog.alert({
+                title: 'Whoops',
+                message: 'There isn\'t enough items in stock',
+                confirmText: 'Agree'
+              })
+              return
+            }
+
+            this.$dialog.alert({
+              title: 'Whoops',
+              message: 'Looks like something has gone wrong',
+              confirmText: 'Agree'
+            })
           })
       }, 300),
 
       increment (val) {
         let qty = this.quantity
-
         if (val === 'plus') {
           qty += 1
         } else {
           qty -= 1
         }
-
         this.quantity = qty
-        this.updateDb(qty)
-        this.$emit('quantity', qty)
+        this.updateDb(qty, val)
       }
     }
   }
