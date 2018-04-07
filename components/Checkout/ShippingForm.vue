@@ -6,20 +6,19 @@
     .card-content
       .content
         .columns
-          .column
+          .column.is-6
             .field
               label.label Email #[sup *]
               .control
                 input.input(
                   name="email"
                   id="email"
-                  v-model="email"
+                  v-model="form.email"
                   type="email"
                   data-vv-delay="600"
                   :class="{ 'is-danger': errors.has('email') }"
                   v-validate="'required|email'")
                 p(v-show="errors.has('email')" class="help is-danger" v-html="errors.first('email')")
-          .column
         .columns
           .column
             .field
@@ -28,7 +27,7 @@
                 input.input(
                   name="firstName"
                   id="firstName"
-                  v-model="firstName"
+                  v-model="form.firstName"
                   type="text"
                   data-vv-delay="600"
                   :class="{ 'is-danger': errors.has('firstName') }"
@@ -41,7 +40,7 @@
                 input.input(
                   name="lastName"
                   id="lastName"
-                  v-model="lastName"
+                  v-model="form.lastName"
                   type="text"
                   data-vv-delay="600"
                   :class="{ 'is-danger': errors.has('lastName') }"
@@ -55,7 +54,7 @@
                 input.input(
                   name="addressOne"
                   id="addressOne"
-                  v-model="addressOne"
+                  v-model="form.addressOne"
                   type="text"
                   data-vv-delay="600"
                   :class="{ 'is-danger': errors.has('addressOne') }"
@@ -68,7 +67,7 @@
                 input.input(
                   name="addressTwo"
                   id="addressTwo"
-                  v-model="addressTwo"
+                  v-model="form.addressTwo"
                   type="text"
                   :class="{ 'is-danger': errors.has('addressTwo') }")
         .columns
@@ -79,7 +78,7 @@
                 input.input(
                   name="city"
                   id="city"
-                  v-model="city"
+                  v-model="form.city"
                   type="text"
                   data-vv-delay="600"
                   :class="{ 'is-danger': errors.has('city') }"
@@ -92,7 +91,7 @@
                 input.input(
                   name="county"
                   id="county"
-                  v-model="county"
+                  v-model="form.county"
                   type="text"
                   :class="{ 'is-danger': errors.has('county') }")
         .columns
@@ -103,7 +102,7 @@
                 input.input(
                   name="postcode"
                   id="postcode"
-                  v-model="postcode"
+                  v-model="form.postcode"
                   type="text"
                   data-vv-delay="600"
                   :class="{ 'is-danger': errors.has('postcode') }"
@@ -117,13 +116,47 @@
                   select(
                     name="country"
                     id="country"
-                    v-model="country"
+                    v-model="form.country"
                     data-vv-delay="600"
                     :class="{ 'is-danger': errors.has('country') }"
                     v-validate="'required'")
                     option(disabled value="") Please select a country
                     option(v-for="country in countries" :value="country.abbreviatio") {{ country.country }}
                 p(v-show="errors.has('country')" class="help is-danger" v-html="errors.first('country')")
+        .columns
+          .column.is-6
+            b-checkbox(v-model="showPassword") I would like to create an account
+        .password-container(v-if="showPassword")
+          .columns
+            .column
+              .field
+                label.label Password
+                .control
+                  input.input(
+                    name="password"
+                    id="password"
+                    v-model="form.password"
+                    type="password"
+                    data-vv-delay="600"
+                    :class="{ 'is-danger': errors.has('password') }"
+                    v-validate="'required|min:6'")
+                  p(v-show="errors.has('password')" class="help is-danger" v-html="errors.first('password')")
+            .column
+              .field
+                label.label Confirm password
+                .control
+                  input.input(
+                    name="password"
+                    id="confirmPassword"
+                    v-model="form.confirmPassword"
+                    type="password"
+                    data-vv-delay="600"
+                    :class="{ 'is-danger': errors.has('confirmPassword') }"
+                    v-validate="'required|confirmed:password'")
+                  p(v-show="errors.has('confirmPassword')" class="help is-danger" v-html="errors.first('confirmPassword')")
+        .columns
+          .column.is-6
+            b-checkbox(v-model="showBilling") Use this address for billing
 </template>
 
 <script>
@@ -138,25 +171,30 @@
 
     data () {
       return {
-        countries: countries
+        countries: countries,
+        form: {
+          email: '',
+          firstName: '',
+          lastName: '',
+          addressOne: '',
+          addressTwo: '',
+          city: '',
+          county: '',
+          country: ''
+        },
+        showPassword: false,
+        showBilling: true
       }
-    },
-
-    mounted () {
-      console.log(countries)
     }
-
-    // mounted () {
-    //   axios.get(`${process.env.BASE_URL}/countries.json`, { httpsAgent: agent })
-    //     .then((res) => {
-    //       console.log('RES', res.data)
-    //       this.countries = res.data
-    //     })
-    // }
   }
 </script>
 
 <style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
+
+  .password-container
+    padding 2rem
+    background $grey-light
+    margin-bottom 2rem
 
 </style>

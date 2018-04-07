@@ -2,6 +2,7 @@
   .order-summary
     header
       h2.h3 Order summary
+      nuxt-link.edit-cart(to="/cart") Edit cart
     section
       .cart-items(v-if="paramName !== 'cart'")
         mini-cart-items(v-for="(cartItem, index) in loadedCartItems" v-if="index < 5" :key="index" :cartItem="cartItem")
@@ -89,6 +90,13 @@
 
   header
     border-bottom 1px solid $grey-300
+    justify-content space-between
+    display flex
+
+    .edit-cart
+      font-size $size-110
+      color $grey
+      Underline()
 
   h2
     margin-top 0

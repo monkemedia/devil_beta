@@ -11,6 +11,7 @@
   border-color transparent
   box-shadow $input-shadow
   border-radius $input-radius
+  font-size $size-150
   
   &:focus
   &:hover
@@ -103,12 +104,21 @@
   &:hover input[type=checkbox] + .check
     display inline-flex
     border-color: $secondary
+  input[type=checkbox] + .check
+    border-radius 0
+    width 1.4rem
+    height 1.4rem
   input[type=checkbox]:checked + .check
     border-color: $secondary
     background-color $secondary
+  &:focus input[type=checkbox] + .check
+  &:focus input[type=checkbox]:checked + .check
+    box-shadow none
   
   .control-label
     BoldUppercase()
+    font-size $size-140
+    line-height 1
 sup
   vertical-align baseline
   position relative
