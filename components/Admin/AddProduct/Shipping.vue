@@ -26,7 +26,7 @@
                     @change="onShippingChange")
                       option(disabled value="") Please select a shipping option
                       option(v-for="service in shippingServices" :value="service.value") {{ service.label }}
-                p(v-show="errors.has(shipping.option_slug)" class="help is-danger") The shipping option field is required.
+                p(v-show="errors.has(shipping.option_slug)" class="help is-danger") Whoops! Shipping is required.
           td(width="30%")
             span.field.has-addons
               .control.button.is-static.is-currency £

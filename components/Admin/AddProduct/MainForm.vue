@@ -126,13 +126,32 @@
 
 <script>
   import Vue from 'vue'
-  import VeeValidate from 'vee-validate'
+  import VeeValidate, { Validator } from 'vee-validate'
   import VueScrollTo from 'vue-scrollto'
   import Variants from '@/components/Admin/AddProduct/Variants'
   import UploadImages from '@/components/Admin/AddProduct/UploadImages'
   import Shipping from '@/components/Admin/AddProduct/Shipping'
 
   Vue.use(VeeValidate)
+
+  const dict = {
+    custom: {
+      title: {
+        required: 'Whoops! Title is required'
+      },
+      category: {
+        required: 'Whoops! Category is required'
+      },
+      stock: {
+        required: 'Whoops! Stock is required'
+      },
+      price: {
+        required: 'Whoops! Price is required'
+      }
+    }
+  }
+
+  Validator.localize('en', dict)
 
   export default {
     name: 'AddProductForm',
