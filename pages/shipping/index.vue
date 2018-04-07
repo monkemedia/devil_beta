@@ -3,10 +3,11 @@
     .columns
       .column
         h1 Checkout
-    .columns
-      .column.is-12-tablet.is-8-widescreen
+        b-message(type="is-danger" v-if="isRegisterError") {{ isRegisterError }}
+    .columns.is-multiline
+      .column.is-12-tablet.is-7-widescreen
         shipping-form
-      .column.is-12-tablet.is-4-widescreen
+      .column.is-12-tablet.is-4-widescreen.is-offset-1-widescreen
         order-summary
 
 </template>

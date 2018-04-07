@@ -6,8 +6,8 @@
     .columns
       .column
         h1 Your cart ({{ cartTotalItems }})
-    .columns
-      .column.is-8
+    .columns.is-multiline
+      .column.is-12-tablet.is-7-widescreen
         b-message(type="is-danger" v-if="isSoldOut.length > 0") Looks like one or more items are out of stock.
         .cart-box(:class="{ 'no-items' :  cartTotalItems < 1 }")
           span(v-if="cartTotalItems < 1")
@@ -33,7 +33,7 @@
               b-table-column.quantity(field="quantity" label="Quantity")
                 increment-counter(:productDetails="{ quantity: props.row.quantity, product_id: props.row.item.product_id, cart_id: props.row.session_id }")
               b-table-column.subtotal(field="subtotal" label="Subtotal") {{ props.row.item.price * props.row.quantity | currency }}
-      .column.is-4
+      .column.is-12-tablet.is-4-widescreen.is-offset-1-widescreen
         order-summary(:isSoldOut="isSoldOut.length > 0")
 
 </template>
@@ -65,17 +65,6 @@
         }
       }
     },
-
-    // async fetch ({ store }) {
-    //   console.log('HERE PEOPLE');
-    //   store.dispatch('cart/fetchCartData')
-    // },
-
-    // mounted () {
-    //   if (process.client) {
-    //     this.$store.dispatch('cart/fetchCartData')
-    //   }
-    // },
 
     computed: {
       loadedCartItems () {
