@@ -18,7 +18,7 @@
     footer(v-show="pageName !== 'checkout'")
       nuxt-link(to="/checkout" v-if="pageName !== 'shipping'").button.is-primary.is-fullwidth.is-flip
         span(data-text="Check out") Check out
-      nuxt-link(to="/payment" v-if="pageName === 'shipping'").button.is-primary.is-fullwidth.is-flip.pay-button
+      button(v-if="pageName === 'shipping'").button.is-primary.is-fullwidth.is-flip.pay-button
         span.icon
           i.fa.fa-lock
         span(data-text="Pay" data-icon=" ") Pay
