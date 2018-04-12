@@ -460,8 +460,9 @@
           .catch((err) => {
             if (err.name === 'exists') {
               VueScrollTo.scrollTo('.is-danger')
-              this.$emit('errorMessage', err.message)
               this.errors.add('email', 'Whoops! This email address already exists')
+            } else {
+              this.$emit('errorMessage', err.message)
             }
           })
       }
