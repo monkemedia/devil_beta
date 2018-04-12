@@ -120,7 +120,7 @@
                       :class="{ 'is-danger': errors.has('shippingCountry') }"
                       v-validate="'required'")
                       option(disabled value="") Please select a country
-                      option(v-for="country in countries" :value="country.abbreviatio") {{ country.country }}
+                      option(v-for="country in countries" :value="country.abbreviation") {{ country.country }}
                   p(v-show="errors.has('shippingCountry')" class="help is-danger" v-html="errors.first('shippingCountry')")
           .create-account
             .columns
@@ -286,6 +286,7 @@
 <script>
   import Vue from 'vue'
   import VeeValidate, { Validator } from 'vee-validate'
+  import VueScrollTo from 'vue-scrollto'
   import countries from '@/assets/data/countries.json'
 
   Vue.use(VeeValidate)
@@ -294,7 +295,8 @@
     custom: {
       email: {
         required: 'Whoops! Email is required',
-        email: 'Whoops! Email address must be valid'
+        email: 'Whoops! Email address must be valid',
+        exists: 'Whoops! This email address already exists'
       },
       shippingFirstName: {
         required: 'Whoops! First name is required'
@@ -355,18 +357,19 @@
       return {
         countries: countries,
         form: {
-          email: '',
+          email: 'info@monkemedia.co.uk',
           username: '',
           password: '',
           confirmPassword: '',
           shipping: {
-            firstName: '',
-            lastName: '',
-            addressOne: '',
+            firstName: 'richard',
+            lastName: 'roberts',
+            addressOne: '27 bellevue',
             addressTwo: '',
-            city: '',
+            city: 'swansea',
             county: '',
-            country: ''
+            postcode: 'SA2 7PD',
+            country: 'GB'
           },
           billing: {
             firstName: '',
@@ -375,6 +378,7 @@
             addressTwo: '',
             city: '',
             county: '',
+            postcode: '',
             country: ''
           }
         },
@@ -392,22 +396,27 @@
 
     methods: {
       validateShipping ({ dispatch, rootGetters }) {
+        const vm = this
+
+        function seeIfEmailExists (email) {
+          const url = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/createAuthUri?key=${process.env.FB_API_KEY}`
+
+          return vm.$axios.$post(url, {
+            identifier: email,
+            continueUri: 'http://localhost:3000'
+          })
+            .then((res) => {
+              return res
+            })
+        }
         // hide errors first
         this.isRegisterError = false
         // Validate form first
         this.$validator.validateAll()
           .then(() => {
             let username
+
             this.loading = true
-
-            function seeIfEmailExists () {
-              const url = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/createAuthUri?key=${process.env.FB_API_KEY}`
-
-              return this.$axios.$post(url)
-                .then((res) => {
-                  console.log('res', res)
-                })
-            }
 
             // User is unregistered
             if (this.$route.query.visitor === 'unregistered') {
@@ -426,14 +435,34 @@
             return true
           })
           .then(() => {
-            const isAuthenticated = rootGetters['anonAuth/isAuthenticated']
+            return seeIfEmailExists(this.form.email)
+            // const isAuthenticated = rootGetters['anonAuth/isAuthenticated']
 
-            if (!isAuthenticated) {
-              // User isn't authenticated so, sign them in anonymously
-              return
-            }
+            // if (!isAuthenticated) {
+            //   // User isn't authenticated so, sign them in anonymously
+            //   return
+            // }
             // Save shipping data to database
-            return dispatch('checkout/saveShippingData')
+            // return dispatch('checkout/saveShippingData')
+          })
+          .then((emailResponse) => {
+            console.log(emailResponse)
+            if (emailResponse.registered) {
+              // Email address already exists
+              const newError = {
+                name: 'exists',
+                message: 'Looks like this email address already exists'
+              }
+
+              throw newError
+            }
+          })
+          .catch((err) => {
+            if (err.name === 'exists') {
+              VueScrollTo.scrollTo('.is-danger')
+              this.$emit('errorMessage', err.message)
+              this.errors.add('email', 'Whoops! This email address already exists')
+            }
           })
       }
     }

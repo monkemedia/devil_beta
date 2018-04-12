@@ -3,10 +3,10 @@
     .columns
       .column
         h1 Checkout
-        b-message(type="is-danger" v-if="isRegisterError") {{ isRegisterError }}
     .columns.is-multiline
       .column.is-12-tablet.is-7-widescreen
-        shipping-form
+        b-message(type="is-danger" v-if="isRegisterError") {{ isRegisterError }}
+        shipping-form(@errorMessage="errorMessage")
       .column.is-12-tablet.is-4-widescreen.is-offset-1-widescreen
         order-summary
 
@@ -22,6 +22,19 @@
     components: {
       ShippingForm,
       OrderSummary
+    },
+
+    data () {
+      return {
+        isRegisterError: ''
+      }
+    },
+
+    methods: {
+      errorMessage (err) {
+        console.log('TEST', err)
+        this.isRegisterError = err
+      }
     }
   }
 </script>
