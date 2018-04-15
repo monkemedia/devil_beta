@@ -331,7 +331,7 @@
           })
           .then(() => {
             this.loading = false
-            //
+            this.$router.push({ path: this.$route.path, query: { step: 'shippingMethod' } })
           })
           .catch((err) => {
             this.loading = false

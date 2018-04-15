@@ -2,24 +2,22 @@ const store = {
   namespaced: true,
 
   state: {
-    shipping: null
+    address: null
   },
 
   mutations: {
     SET_SHIPPING_DATA (state, payload) {
-      state.shipping = payload
+      state.address = payload
     }
   },
 
   actions: {
     getShippingData ({ commit, rootGetters }) {
-      console.log('HERE')
       const token = rootGetters['auth/token']
       const uid = rootGetters['auth/userId']
 
       return this.$axios.$get(`${process.env.FB_URL}/users/${uid}/address.json?auth=${token}`)
         .then((response) => {
-          console.log('monkey', response)
           commit('SET_SHIPPING_DATA', response)
           return response
         })
@@ -29,9 +27,9 @@ const store = {
       const token = rootGetters['auth/token']
       const uid = rootGetters['auth/userId']
 
-      return this.$axios.$patch(`${process.env.FB_URL}/users/${uid}.json?auth=${token}`, { address: shippingData })
+      return this.$axios.$patch(`${process.env.FB_URL}/users/${uid}/address.json?auth=${token}`, shippingData)
         .then((response) => {
-          commit('SET_SHIPPING_DATA', { address: response })
+          commit('SET_SHIPPING_DATA', shippingData)
           return response
         })
     }
@@ -39,7 +37,7 @@ const store = {
 
   getters: {
     loadedShippingData (state) {
-      return state.shipping
+      return state.address
     }
   }
 }

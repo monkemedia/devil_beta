@@ -7,6 +7,7 @@
       .column.is-12-tablet.is-7-widescreen
         b-message(type="is-danger" v-if="isRegisterError") {{ isRegisterError }}
         shipping-form(@errorMessage="errorMessage" :shippingData="shippingData")
+        shipping-result(:shippingData="shippingData")
         shipping-method
       .column.is-12-tablet.is-4-widescreen.is-offset-1-widescreen
         order-summary
@@ -15,6 +16,7 @@
 
 <script>
   import ShippingForm from '@/components/Checkout/ShippingForm'
+  import ShippingResult from '@/components/Checkout/ShippingResult'
   import ShippingMethod from '@/components/Checkout/ShippingMethod'
   import OrderSummary from '@/components/Checkout/OrderSummary'
 
@@ -22,11 +24,13 @@
     name: 'Shipping',
 
     middleware: [
-      'check-auth'
+      'check-auth',
+      'auth'
     ],
 
     components: {
       ShippingForm,
+      ShippingResult,
       ShippingMethod,
       OrderSummary
     },
@@ -35,15 +39,20 @@
       return store.dispatch('checkout/getShippingData')
     },
 
+    mounted () {
+      if (process.client) {
+        return this.$store.dispatch('checkout/getShippingData')
+      }
+    },
+
     data () {
       return {
-        isRegisterError: ''
+        isRegisterError: false
       }
     },
 
     methods: {
       errorMessage (err) {
-        console.log('TEST', err)
         this.isRegisterError = err
       }
     },
