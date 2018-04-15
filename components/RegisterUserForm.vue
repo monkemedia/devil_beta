@@ -124,44 +124,26 @@
         this.isRegisterError = false
         // Validate form first
         this.$validator.validateAll()
-          .then((response) => {
+          .then(() => {
             // Validate username first
-            const username = this.username
-            this.loading = true
-            return this.$store.dispatch('auth/validateUsername', username)
-          })
-          .then((response) => {
             const payload = {
               email: this.email,
               password: this.password,
-              username: this.username
+              username: this.username,
+              accountType: 'buyer'
             }
 
+            this.loading = true
             return this.$store.dispatch('auth/registerUser', payload)
           })
-          .then((data) => {
-            console.log('localId', data)
-            const usernameDetails = {
-              username: this.username,
-              userId: data.localId
-            }
 
-            return this.$store.dispatch('auth/saveUsernameToDatabase', usernameDetails)
-          })
-          .then((data) => {
-            const userDetails = {
-              email: this.email,
-              username: this.username,
-              accountType: this.accountType,
-              userId: data.userId,
-              cartIds: null
-            }
-
-            return this.$store.dispatch('auth/saveUserDetailsToDatabase', userDetails)
-          })
-          .then((success) => {
+          .then(() => {
             this.loading = false
-            this.$router.push('/admin')
+            if (this.$route.query.visitor === 'unregistered') {
+              this.$router.push('/shipping')
+            } else {
+              this.$router.push('/admin')
+            }
           })
           .catch((err) => {
             this.loading = false

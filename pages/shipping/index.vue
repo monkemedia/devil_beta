@@ -6,7 +6,8 @@
     .columns.is-multiline
       .column.is-12-tablet.is-7-widescreen
         b-message(type="is-danger" v-if="isRegisterError") {{ isRegisterError }}
-        shipping-form(@errorMessage="errorMessage")
+        shipping-form(@errorMessage="errorMessage" :shippingData="shippingData")
+        shipping-method
       .column.is-12-tablet.is-4-widescreen.is-offset-1-widescreen
         order-summary
 
@@ -14,14 +15,24 @@
 
 <script>
   import ShippingForm from '@/components/Checkout/ShippingForm'
+  import ShippingMethod from '@/components/Checkout/ShippingMethod'
   import OrderSummary from '@/components/Checkout/OrderSummary'
 
   export default {
     name: 'Shipping',
 
+    middleware: [
+      'check-auth'
+    ],
+
     components: {
       ShippingForm,
+      ShippingMethod,
       OrderSummary
+    },
+
+    async fetch ({ store }) {
+      return store.dispatch('checkout/getShippingData')
     },
 
     data () {
@@ -34,6 +45,12 @@
       errorMessage (err) {
         console.log('TEST', err)
         this.isRegisterError = err
+      }
+    },
+
+    computed: {
+      shippingData () {
+        return this.$store.getters['checkout/loadedShippingData']
       }
     }
   }

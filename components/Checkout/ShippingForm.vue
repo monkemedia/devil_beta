@@ -6,20 +6,6 @@
     .card-content
       .content
         form
-          .columns(v-if="isUnregistered")
-            .column.is-6
-              .field
-                label.label Email #[sup *]
-                .control
-                  input.input(
-                    name="email"
-                    id="email"
-                    v-model="form.email"
-                    type="email"
-                    data-vv-delay="600"
-                    :class="{ 'is-danger': errors.has('email') }"
-                    v-validate="'required|email'")
-                  p(v-show="errors.has('email')" class="help is-danger" v-html="errors.first('email')")
           .columns
             .column
               .field
@@ -122,52 +108,7 @@
                       option(disabled value="") Please select a country
                       option(v-for="country in countries" :value="country.abbreviation") {{ country.country }}
                   p(v-show="errors.has('shippingCountry')" class="help is-danger" v-html="errors.first('shippingCountry')")
-          .create-account
-            .columns
-              .column.is-6
-                b-checkbox(v-model="showPassword" v-if="isUnregistered") I would like to create an account
-          .password-container(v-if="showPassword && isUnregistered")
-            .columns
-              .column
-                .field
-                  label.label Username #[sup *]
-                  .control
-                    input.input(
-                      name="username"
-                      id="username"
-                      v-model="form.username"
-                      type="text"
-                      data-vv-delay="600"
-                      :class="{ 'is-danger': errors.has('username') }"
-                      v-validate="'required|alpha_dash|min:3'")
-                    p(v-show="errors.has('username')" class="help is-danger" v-html="errors.first('username')")
-            .columns
-              .column
-                .field
-                  label.label Password
-                  .control
-                    input.input(
-                      name="password"
-                      id="password"
-                      v-model="form.password"
-                      type="password"
-                      data-vv-delay="600"
-                      :class="{ 'is-danger': errors.has('password') }"
-                      v-validate="'required|min:6'")
-                    p(v-show="errors.has('password')" class="help is-danger" v-html="errors.first('password')")
-              .column
-                .field
-                  label.label Confirm password
-                  .control
-                    input.input(
-                      name="password"
-                      id="confirmPassword"
-                      v-model="form.confirmPassword"
-                      type="password"
-                      data-vv-delay="600"
-                      :class="{ 'is-danger': errors.has('confirmPassword') }"
-                      v-validate="'required|confirmed:password'")
-                    p(v-show="errors.has('confirmPassword')" class="help is-danger" v-html="errors.first('confirmPassword')")
+
           .columns
             .column.is-6
               b-checkbox(v-model="showBilling") Use this address for billing
@@ -280,24 +221,22 @@
               .field.is-right
                 hr
                 .buttons.is-right
-                  button.button.is-primary(@click.prevent="validateShipping") Continue to shipping method
+                  button.button.is-primary.sign-in-button.is-flip(
+                    :class="{ 'is-loading': loading }"
+                    @click.prevent="validateShipping")
+                      span(data-text="Continue to shipping method") Continue to shipping method
 </template>
 
 <script>
   import Vue from 'vue'
   import VeeValidate, { Validator } from 'vee-validate'
-  import VueScrollTo from 'vue-scrollto'
+  // import VueScrollTo from 'vue-scrollto'
   import countries from '@/assets/data/countries.json'
 
   Vue.use(VeeValidate)
 
   const dict = {
     custom: {
-      email: {
-        required: 'Whoops! Email is required',
-        email: 'Whoops! Email address must be valid',
-        exists: 'Whoops! This email address already exists'
-      },
       shippingFirstName: {
         required: 'Whoops! First name is required'
       },
@@ -315,17 +254,6 @@
       },
       shippingCountry: {
         required: 'Whoops! Country is required'
-      },
-      username: {
-        required: 'Whoops! Username is required'
-      },
-      password: {
-        required: 'Whoops! Password is required',
-        min: 'Whoops! Password must be at least 6 characters'
-      },
-      confirmPassword: {
-        required: 'Whoops! Password confirmation is required',
-        confirmed: 'Whoops! Passwords don\'t match'
       },
       billingFirstName: {
         required: 'Whoops! First name is required'
@@ -353,23 +281,26 @@
   export default {
     name: 'ShippingForm',
 
+    props: {
+      shippingData: {
+        type: Object,
+        required: false
+      }
+    },
+
     data () {
       return {
         countries: countries,
-        form: {
-          email: 'info@monkemedia.co.uk',
-          username: '',
-          password: '',
-          confirmPassword: '',
+        form: this.shippingData ? { ...this.shippingData } : {
           shipping: {
-            firstName: 'richard',
-            lastName: 'roberts',
-            addressOne: '27 bellevue',
+            firstName: '',
+            lastName: '',
+            addressOne: '',
             addressTwo: '',
-            city: 'swansea',
+            city: '',
             county: '',
-            postcode: 'SA2 7PD',
-            country: 'GB'
+            postcode: '',
+            country: ''
           },
           billing: {
             firstName: '',
@@ -382,88 +313,29 @@
             country: ''
           }
         },
-        showPassword: false,
         showBilling: true,
         loading: false
       }
     },
 
-    computed: {
-      isUnregistered () {
-        return this.$route.query.visitor === 'unregistered'
-      }
-    },
-
     methods: {
-      validateShipping ({ dispatch, rootGetters }) {
-        const vm = this
-
-        function seeIfEmailExists (email) {
-          const url = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/createAuthUri?key=${process.env.FB_API_KEY}`
-
-          return vm.$axios.$post(url, {
-            identifier: email,
-            continueUri: 'http://localhost:3000'
-          })
-            .then((res) => {
-              return res
-            })
-        }
+      validateShipping () {
         // hide errors first
-        this.isRegisterError = false
+        this.$emit('errorMessage', false)
         // Validate form first
         this.$validator.validateAll()
           .then(() => {
-            let username
-
             this.loading = true
-
-            // User is unregistered
-            if (this.$route.query.visitor === 'unregistered') {
-              // If user is creating a new account
-              if (this.showPassword && this.form.username !== null) {
-                // lets see if username exists
-                username = this.form.username
-                return this.$store.dispatch('auth/validateUsername', username)
-              }
-              // If user is signing in as a guest
-              // Lets see if email address already exists
-            }
-
-            // User is registered
-            // Save straight to database
-            return true
+            // Save shipping data
+            return this.$store.dispatch('checkout/saveShippingData', this.form)
           })
           .then(() => {
-            return seeIfEmailExists(this.form.email)
-            // const isAuthenticated = rootGetters['anonAuth/isAuthenticated']
-
-            // if (!isAuthenticated) {
-            //   // User isn't authenticated so, sign them in anonymously
-            //   return
-            // }
-            // Save shipping data to database
-            // return dispatch('checkout/saveShippingData')
-          })
-          .then((emailResponse) => {
-            console.log(emailResponse)
-            if (emailResponse.registered) {
-              // Email address already exists
-              const newError = {
-                name: 'exists',
-                message: 'Looks like this email address already exists'
-              }
-
-              throw newError
-            }
+            this.loading = false
+            //
           })
           .catch((err) => {
-            if (err.name === 'exists') {
-              VueScrollTo.scrollTo('.is-danger')
-              this.errors.add('email', 'Whoops! This email address already exists')
-            } else {
-              this.$emit('errorMessage', err.message)
-            }
+            this.loading = false
+            this.$emit('errorMessage', err)
           })
       }
     }

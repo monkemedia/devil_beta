@@ -39,23 +39,35 @@ const store = {
   actions: {
     validateUsername ({}, username) {
       return this.$axios.$get(`${process.env.FB_URL}/usernames.json`)
-        .then(data => {
+        .then((data) => {
           const filterUsernames = _.filter(data, (key) => {
             return key.username === username
           })
 
           if (filterUsernames.length) {
             const myError = {
-              code: 'failed',
-              message: 'This username already exists, please try again.'
+              response: {
+                data: {
+                  error: {
+                    code: 'failed',
+                    message: 'This username already exists, please try again.'
+                  }
+                }
+              }
             }
 
             throw myError
           }
 
           return {
-            code: 'success',
-            message: 'This username is available'
+            response: {
+              data: {
+                error: {
+                  code: 'success',
+                  message: 'This username is available'
+                }
+              }
+            }
           }
         })
     },
@@ -144,6 +156,10 @@ const store = {
     deleteUser ({}, token) {
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/deleteAccount?key=${process.env.FB_API_KEY}`
 
+      if (!token) {
+        return
+      }
+
       return this.$axios.$post(authUrl, {
         idToken: token
       })
@@ -205,16 +221,21 @@ const store = {
         })
     },
 
-    registerUser ({ commit, dispatch, rootGetters }, authData) {
+    registerUser ({ commit, dispatch, getters, rootGetters }, authData) {
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${process.env.FB_API_KEY}`
       let response
 
-      return this.$axios.$post(authUrl, {
-        email: authData.email,
-        password: authData.password,
-        displayName: authData.username,
-        returnSecureToken: true
-      })
+      console.log(authData)
+
+      return dispatch('validateUsername', authData.username)
+        .then(() => {
+          return this.$axios.$post(authUrl, {
+            email: authData.email,
+            password: authData.password,
+            displayName: authData.username,
+            returnSecureToken: true
+          })
+        })
         .then((result) => {
           response = result
           const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
@@ -247,6 +268,25 @@ const store = {
           // then Log out ANON user
           console.log('LOGOUT OUT ANON USER')
           return dispatch('anonAuth/logoutUser', null, { root: true })
+        })
+        .then((data) => {
+          const usernameDetails = {
+            username: authData.username,
+            userId: getters['userId']
+          }
+
+          return dispatch('saveUsernameToDatabase', usernameDetails)
+        })
+        .then(() => {
+          const userDetails = {
+            email: authData.email,
+            username: authData.username,
+            accountType: authData.accountType,
+            userId: getters['userId'],
+            cartIds: null
+          }
+
+          return dispatch('saveUserDetailsToDatabase', userDetails)
         })
         .then(() => {
           return response
