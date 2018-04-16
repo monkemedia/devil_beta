@@ -8,18 +8,17 @@
         form
           .columns
             .column
-              .field
-                label.label First name #[sup *]
-                .control
-                  input.input(
-                    name="shippingFirstName"
-                    id="shippingFirstName"
-                    v-model="form.shipping.firstName"
-                    type="text"
-                    data-vv-delay="600"
-                    :class="{ 'is-danger': errors.has('shippingFirstName') }"
-                    v-validate="'required'")
-                  p(v-show="errors.has('shippingFirstName')" class="help is-danger" v-html="errors.first('shippingFirstName')")
+              .columns
+                .column
+                  .field
+                    b-radio(v-model="radio" native-value="free") Free
+                .column
+                  p hello
+              .columns
+                .column
+                  .field
+                    b-radio(v-model="radio" native-value="2.99") £2.99
+
 </template>
 
 <script>
@@ -45,11 +44,7 @@
 
     data () {
       return {
-        form: {
-          shipping: {
-            firstName: 'richard'
-          }
-        }
+        radio: 'free'
       }
     },
 
@@ -72,5 +67,9 @@
 
   .continue-container
     border-top 1px solid $grey-300
+
+  .card-content
+    padding-top 4rem
+    padding-bottom 4rem
 
 </style>
