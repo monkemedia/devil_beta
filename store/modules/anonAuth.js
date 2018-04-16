@@ -29,16 +29,15 @@ const store = {
 
   actions: {
     initAuth ({ dispatch, commit, getters }, req) {
+      const vm = this
       let token
       let uid
       let refreshToken
       let expirationDate
-      let vm = this
 
       console.log('anon auth')
 
       function refreshAnonToken (refreshTok) {
-        console.log('DEVIL', refreshTok)
         const authUrl = `https://securetoken.googleapis.com/v1/token?key=${process.env.FB_API_KEY}`
         return vm.$axios.$post(authUrl, {
           grant_type: 'refresh_token',
@@ -57,18 +56,20 @@ const store = {
         let anonToken = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('anon-token='))
+
         let anonUid = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('anon-uid='))
+
         let anonRefreshToken = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('anon-refresh-token='))
+
         let anonExpirationDate = req.headers.cookie
           .split(';')
           .find(c => c.trim().startsWith('anon-expiration-date='))
 
         if (!anonToken) {
-          console.log('not here')
           return
         }
 
@@ -146,7 +147,7 @@ const store = {
 
           setAnonAuthToken(result.idToken)
           setAnonAuthUid(result.localId)
-          setAnonAuthRefreshToken(result.idToken)
+          setAnonAuthRefreshToken(result.refreshToken)
           setAnonExpirationDate(setExpirationDate)
 
           Cookies.set('anon-token', result.idToken)
