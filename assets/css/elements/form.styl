@@ -119,6 +119,30 @@
     BoldUppercase()
     font-size $size-140
     line-height 1
+
+.b-radio.radio
+  input[type=radio] + .check
+  &:hover input[type=radio] + .check
+    display inline-flex
+    border-color: $secondary
+  input[type=radio] + .check
+    // border-radius 0
+    width 1.6rem
+    height 1.6rem
+  input[type=radio]:checked + .check
+    border-color: $secondary
+    // background-color $secondary
+    &:before
+      background $secondary
+  &:focus input[type=radio] + .check
+  &:focus input[type=radio]:checked + .check
+    box-shadow none
+  
+  .control-label
+    BoldUppercase()
+    font-size $size-140
+    line-height 1
+
 sup
   vertical-align baseline
   position relative
