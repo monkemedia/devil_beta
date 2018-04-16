@@ -108,7 +108,6 @@
 
         .column.is-half
           upload-images(@passImages="updateFormDataImages" :imagesData="formData.images")
-          shipping(@passShipping="updateFormDataShipping" :shippingData="formData.shipping")
 
       .columns
         .column.is-one-quarter
@@ -130,7 +129,6 @@
   import VueScrollTo from 'vue-scrollto'
   import Variants from '@/components/Admin/AddProduct/Variants'
   import UploadImages from '@/components/Admin/AddProduct/UploadImages'
-  import Shipping from '@/components/Admin/AddProduct/Shipping'
 
   Vue.use(VeeValidate)
 
@@ -165,8 +163,7 @@
 
     components: {
       Variants,
-      UploadImages,
-      Shipping
+      UploadImages
     },
 
     data () {
@@ -182,7 +179,6 @@
             on_sale: false,
             sale_price: 0,
             variants: [],
-            shipping: [],
             images: [],
             storefront: 'hidden'
           },
@@ -236,8 +232,8 @@
               }
               vm.loading = false
             })
-            .catch((error) => {
-              vm.alertToast({ message: error.message, type: 'is-danger' })
+            .catch((err) => {
+              vm.alertToast({ message: err.message, type: 'is-danger' })
               vm.loading = false
             })
         }
@@ -259,10 +255,6 @@
 
       updateFormDataVariants (data) {
         this.formData.variants = data
-      },
-
-      updateFormDataShipping (data) {
-        this.formData.shipping = data
       },
 
       updateFormDataImages (data) {
