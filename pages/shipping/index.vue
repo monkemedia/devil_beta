@@ -6,8 +6,8 @@
     .columns.is-multiline
       .column.is-12-tablet.is-7-widescreen
         b-message(type="is-danger" v-if="isRegisterError") {{ isRegisterError }}
-        shipping-form(@errorMessage="errorMessage" :shippingData="shippingData")
-        shipping-result(:shippingData="shippingData")
+        shipping-form(v-show="getParams !== 'shippingMethod'" @errorMessage="errorMessage" :shippingData="shippingData")
+        shipping-result(v-show="getParams === 'shippingMethod'" :shippingData="shippingData")
         shipping-method
       .column.is-12-tablet.is-4-widescreen.is-offset-1-widescreen
         order-summary
@@ -60,6 +60,16 @@
     computed: {
       shippingData () {
         return this.$store.getters['checkout/loadedShippingData']
+      },
+
+      getParams () {
+        return this.$route.query.step
+      }
+    },
+
+    watch: {
+      getParams () {
+
       }
     }
   }
