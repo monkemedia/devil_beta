@@ -357,4 +357,8 @@
   .continue-container
     border-top 1px solid $grey-300
 
+  .card-content
+    padding-top 4rem
+    padding-bottom 4rem
+
 </style>
