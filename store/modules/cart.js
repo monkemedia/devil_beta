@@ -33,7 +33,6 @@ const store = {
       }
 
       function productId (token, cartId, product) {
-        console.log('cartId', cartId)
         const productId = product.product_id
         return vm.$axios.$get(`${process.env.FB_URL}/cartSessions/${cartId}/products/${productId}.json?auth=${token}`)
       }
@@ -43,13 +42,11 @@ const store = {
         return vm.$axios.$patch(`${process.env.FB_URL}/cartSessions/${cartId}/products/${item.product_id}.json?auth=${token}`, { quantity })
       }
 
-      function addUidToCart (userId, cartId) {
-        console.log('ADDUIDTOCART', userId, cartId)
-        return vm.$axios.$patch(`${process.env.FB_URL}/users/${userId}.json?auth=${token}`, { cart: cartId })
+      function addUidToCart (uid, cartId) {
+        return vm.$axios.$patch(`${process.env.FB_URL}/users/${uid}.json?auth=${token}`, { cart: cartId })
       }
 
       function addAnonDataToCartSession (token, cartId) {
-        console.log('Add anon data', cartId)
         return vm.$axios.$patch(`${process.env.FB_URL}/cartSessions/${cartId}.json?auth=${token}`, {
           last_updated: {
             '.sv': 'timestamp'
@@ -124,7 +121,7 @@ const store = {
         // let newUid
         console.log('User is Official')
         token = rootGetters['auth/token']
-        uid = rootGetters['auth/userId']
+        uid = rootGetters['auth/uid']
 
         // Does the user have a cart stored in their profile
         console.log('Does the user have a cart session stored in their profile')
@@ -183,7 +180,6 @@ const store = {
       const vm = this
       let token
       let uid
-      let userId
       let promises
       let isAuthenticated
       let isAnonAuthenticated
@@ -198,8 +194,8 @@ const store = {
           })
       }
 
-      function getCartId (token, userId) {
-        return vm.$axios.$get(`${process.env.FB_URL}/users/${userId}/cart.json?auth=${token}`)
+      function getCartId (token, uid) {
+        return vm.$axios.$get(`${process.env.FB_URL}/users/${uid}/cart.json?auth=${token}`)
       }
 
       function getProductData (sessionData) {
@@ -269,9 +265,9 @@ const store = {
           if (isAuthenticated) {
             console.log('User is Officially signed in')
             token = rootGetters['auth/token']
-            userId = rootGetters['auth/userId']
+            uid = rootGetters['auth/uid']
 
-            return getCartId(token, userId)
+            return getCartId(token, uid)
               .then((sessionId) => {
                 if (!sessionId) {
                   // If there isnt a session lets just stop here

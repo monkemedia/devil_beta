@@ -104,6 +104,8 @@ const store = {
         commit('SET_UID', uid)
         commit('SET_USERNAME', username)
 
+        console.log('expirationDate', expirationDate)
+
         if (new Date().getTime() >= expirationDate) {
           console.log('TOKEN HAS EXPIRED')
           return refreshTokenApi(refreshToken)
@@ -175,9 +177,9 @@ const store = {
     },
 
     saveUserDetailsToDatabase ({ state }, userDetails) {
-      const userId = userDetails.userId
+      const uid = userDetails.uid
       const token = state.token
-      return this.$axios.$patch(`${process.env.FB_URL}/users/${userId}.json?auth=${token}`, userDetails)
+      return this.$axios.$patch(`${process.env.FB_URL}/users/${uid}.json?auth=${token}`, userDetails)
     },
 
     transferAnonCartToSignedInCart ({ getters, dispatch, rootGetters }) {
@@ -191,12 +193,12 @@ const store = {
         return vm.$axios.$delete(`${process.env.FB_URL}/cartSessions/${cartId}.json?auth=${token}`)
       }
 
-      function addUidToCart (userId, cartId) {
-        return vm.$axios.$patch(`${process.env.FB_URL}/users/${userId}.json?auth=${token}`, { cart: cartId })
+      function addUidToCart (uid, cartId) {
+        return vm.$axios.$patch(`${process.env.FB_URL}/users/${uid}.json?auth=${token}`, { cart: cartId })
       }
 
-      function doesCartSessionExistInUserProfile (userId, token) {
-        return vm.$axios.$get(`${process.env.FB_URL}/users/${userId}/cart.json?&auth=${token}`)
+      function doesCartSessionExistInUserProfile (uid, token) {
+        return vm.$axios.$get(`${process.env.FB_URL}/users/${uid}/cart.json?&auth=${token}`)
       }
 
       function addItemToCartSessions (token, cartId, items) {
@@ -204,25 +206,25 @@ const store = {
       }
       // Add anon cart uid to userprofile
       const isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
-      let userId
+      let uid
       let token
       let cartId
 
       // When the user signs in Officially, let's see it they have a ANON token
       console.log('User has signed in officially, lets see if they a ANON token')
       if (isAnonAuthenticated) {
-        userId = getters['userId']
+        uid = getters['uid']
         token = getters['token']
         cartId = rootGetters['anonAuth/uid']
         // User has ANON token, let's see if they have a cart session
         console.log('User has signed in officially, and they do have a anon token')
-        return doesCartSessionExistInUserProfile(userId, token)
+        return doesCartSessionExistInUserProfile(uid, token)
           .then((sessionId) => {
             console.log('sessionId PEOPLE', sessionId)
             if (!sessionId) {
               console.log('Officially signed in user does not have a sessionCart Id ib user profile')
               console.log('So add ANON cart session ID to user profile')
-              return addUidToCart(userId, cartId)
+              return addUidToCart(uid, cartId)
                 .then(() => {
                   // Log out ANON user
                   console.log('LOGOUT OUT ANON USER')
@@ -351,7 +353,7 @@ const store = {
           Cookies.set('token', result.idToken)
           Cookies.set('expiration-date', setExpirationDate)
           Cookies.set('username', result.displayName)
-          Cookies.set('userId', result.localId)
+          Cookies.set('uid', result.localId)
 
           return { result }
         })
@@ -371,7 +373,7 @@ const store = {
         .then((data) => {
           const usernameDetails = {
             username: authData.username,
-            userId: getters['userId']
+            uid: getters['uid']
           }
 
           return dispatch('saveUsernameToDatabase', usernameDetails)
@@ -381,7 +383,7 @@ const store = {
             email: authData.email,
             username: authData.username,
             accountType: authData.accountType,
-            userId: getters['userId'],
+            uid: getters['uid'],
             cartIds: null
           }
 
@@ -426,7 +428,7 @@ const store = {
       return state.username
     },
 
-    userId (state) {
+    uid (state) {
       return state.uid
     }
   }
