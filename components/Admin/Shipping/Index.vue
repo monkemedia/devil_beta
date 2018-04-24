@@ -22,11 +22,10 @@
                     v-model="shipping.option"
                     data-vv-delay="600"
                     :class="{ 'is-danger': errors.has(shipping.option_slug) }"
-                    v-validate="'required'"
-                    @change="onShippingChange")
+                    v-validate="'required'")
                       option(disabled value="") Please select a shipping option
                       option(v-for="service in shippingServices" :value="service.value") {{ service.label }}
-                p(v-show="errors.has(shipping.option_slug)" class="help is-danger") The shipping option field is required.
+                p(v-show="errors.has(shipping.option_slug)" class="help is-danger") Whoops! Shipping is required.
           td(width="30%")
             span.field.has-addons
               .control.button.is-static.is-currency £
@@ -35,7 +34,6 @@
                   :name="shipping.price_slug"
                   :id="shipping.price_slug"
                   v-model.number="shipping.price"
-                  @change="onShippingChange"
                   type="number")
           td(width="10%")
             span
@@ -47,18 +45,26 @@
               .control
                 a.add-additional-link(@click="cloneShippingOption")
                   | Offer additional shipping options
+    .field
+      .control
+        button.button.is-primary.is-flip(@click.prevent="onSubmitForm" :class="{ 'is-loading': loading }")
+          span(data-text="Save") Save
 </template>
 
 <script>
-  export default {
-    name: 'Shipping',
+  import Vue from 'vue'
+  import VeeValidate from 'vee-validate'
+  import axios from 'axios'
 
-    inject: ['$validator'],
+  Vue.use(VeeValidate)
+
+  export default {
+    name: 'ShippingForm',
 
     props: {
       shippingData: {
         type: Array,
-        required: false
+        required: true
       }
     },
 
@@ -78,7 +84,8 @@
         ],
         isInternationalShipping: false,
         isDomesticExpressShipping: false,
-        isInternationalExpressShipping: false
+        isInternationalExpressShipping: false,
+        loading: false
       }
     },
 
@@ -101,20 +108,42 @@
         })
       },
 
-      onShippingChange () {
+      onSubmitForm () {
         const array = []
-        this.shippingOptions.forEach((item) => {
-          if (item.option !== '') {
-            const data = {
-              option_slug: item.option_slug,
-              price_slug: item.price_slug,
-              option: item.option,
-              price: item.price
+        const vm = this
+        const uid = this.$store.getters['auth/uid']
+        const token = this.$store.getters['auth/token']
+
+        this.loading = true
+        this.$validator.validateAll()
+          .then((result) => {
+            if (!result) {
+              this.loading = false
             }
-            array.push(data)
-          }
-        })
-        this.$emit('passShipping', array)
+
+            this.shippingOptions.forEach((item) => {
+              if (item.option !== '') {
+                const data = {
+                  option_slug: item.option_slug,
+                  price_slug: item.price_slug,
+                  option: item.option,
+                  price: item.price
+                }
+                array.push(data)
+              }
+            })
+            console.log(array)
+            axios.put(`${process.env.FB_URL}/users/${uid}/shippingMethods.json?auth=${token}`, array)
+              .then(() => {
+                this.loading = false
+              })
+              .catch((err) => {
+                this.loading = false
+                vm.alertToast({ message: err.message, type: 'is-danger' })
+              })
+          })
+
+          // this.$emit('passShipping', array)
       }
     }
   }

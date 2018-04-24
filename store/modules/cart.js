@@ -29,28 +29,25 @@ const store = {
       let currentQuantity
 
       function cart (token, uid) {
-        return vm.$axios.$get(`${process.env.BASE_URL}/users/${uid}/cart.json?auth=${token}`)
+        return vm.$axios.$get(`${process.env.FB_URL}/users/${uid}/cart.json?auth=${token}`)
       }
 
       function productId (token, cartId, product) {
-        console.log('cartId', cartId)
         const productId = product.product_id
-        return vm.$axios.$get(`${process.env.BASE_URL}/cartSessions/${cartId}/products/${productId}.json?auth=${token}`)
+        return vm.$axios.$get(`${process.env.FB_URL}/cartSessions/${cartId}/products/${productId}.json?auth=${token}`)
       }
 
       function updateItemInCartSessions (token, cartId, item, existingQty) {
         const quantity = item.quantity += existingQty
-        return vm.$axios.$patch(`${process.env.BASE_URL}/cartSessions/${cartId}/products/${item.product_id}.json?auth=${token}`, { quantity })
+        return vm.$axios.$patch(`${process.env.FB_URL}/cartSessions/${cartId}/products/${item.product_id}.json?auth=${token}`, { quantity })
       }
 
-      function addUidToCart (userId, cartId) {
-        console.log('ADDUIDTOCART', userId, cartId)
-        return vm.$axios.$patch(`${process.env.BASE_URL}/users/${userId}.json?auth=${token}`, { cart: cartId })
+      function addUidToCart (uid, cartId) {
+        return vm.$axios.$patch(`${process.env.FB_URL}/users/${uid}.json?auth=${token}`, { cart: cartId })
       }
 
       function addAnonDataToCartSession (token, cartId) {
-        console.log('Add anon data', cartId)
-        return vm.$axios.$patch(`${process.env.BASE_URL}/cartSessions/${cartId}.json?auth=${token}`, {
+        return vm.$axios.$patch(`${process.env.FB_URL}/cartSessions/${cartId}.json?auth=${token}`, {
           last_updated: {
             '.sv': 'timestamp'
           },
@@ -58,8 +55,9 @@ const store = {
         })
       }
 
-      function addItemToCartSessions (token, cartId, item, isAnon) {
-        return vm.$axios.$put(`${process.env.BASE_URL}/cartSessions/${cartId}/products/${item.product_id}.json?auth=${token}`, item)
+      function addItemToCartSessions (token, cartId, item) {
+        console.log('ITEM', item)
+        return vm.$axios.$put(`${process.env.FB_URL}/cartSessions/${cartId}/products/${item.product_id}.json?auth=${token}`, item)
       }
 
       // User isnt signed in ANON nor Officially
@@ -124,7 +122,7 @@ const store = {
         // let newUid
         console.log('User is Official')
         token = rootGetters['auth/token']
-        uid = rootGetters['auth/userId']
+        uid = rootGetters['auth/uid']
 
         // Does the user have a cart stored in their profile
         console.log('Does the user have a cart session stored in their profile')
@@ -168,28 +166,40 @@ const store = {
       }
     },
 
-    deleteFromCart ({ rootGetters }, data) {
+    deleteFromCart ({ state, commit, getters, rootGetters }, data) {
       const token = rootGetters['auth/token'] || rootGetters['anonAuth/token']
 
-      return this.$axios.$delete(`${process.env.BASE_URL}/cartSessions/${data.session_id}/products/${data.item.product_id}.json?auth=${token}`)
+      return this.$axios.$delete(`${process.env.FB_URL}/cartSessions/${data.session_id}/products/${data.item.product_id}.json?auth=${token}`)
+        .then(() => {
+          const removeItem = _.pickBy(data, (key) => {
+            console.log(key)
+            return data.productId !== key.product_id
+          })
+
+          if (_.isEmpty(removeItem)) {
+            return commit('SET_CART_ITEMS', null)
+          }
+
+          commit('SET_CART_ITEMS', removeItem)
+        })
     },
 
     updateCartItemQuantity ({ rootGetters }, data) {
       const token = rootGetters['auth/token'] || rootGetters['anonAuth/token']
-      return this.$axios.$patch(`${process.env.BASE_URL}/cartSessions/${data.cart_id}/products/${data.product_id}.json?auth=${token}`, { quantity: data.quantity })
+      return this.$axios.$patch(`${process.env.FB_URL}/cartSessions/${data.cart_id}/products/${data.product_id}.json?auth=${token}`, { quantity: data.quantity })
     },
 
     fetchCartData ({ commit, dispatch, rootGetters }, req) {
+      console.log('FETCH CART DATA 2')
       const vm = this
       let token
       let uid
-      let userId
       let promises
       let isAuthenticated
       let isAnonAuthenticated
 
       function cartUidSession (token, cartId) {
-        return vm.$axios.$get(`${process.env.BASE_URL}/cartSessions/${cartId}/products/.json?auth=${token}`)
+        return vm.$axios.$get(`${process.env.FB_URL}/cartSessions/${cartId}/products/.json?auth=${token}`)
           .then((sessionData) => {
             return {
               session_data: sessionData,
@@ -198,15 +208,15 @@ const store = {
           })
       }
 
-      function getCartId (token, userId) {
-        return vm.$axios.$get(`${process.env.BASE_URL}/users/${userId}/cart.json?auth=${token}`)
+      function getCartId (token, uid) {
+        return vm.$axios.$get(`${process.env.FB_URL}/users/${uid}/cart.json?auth=${token}`)
       }
 
       function getProductData (sessionData) {
         promises = []
 
         _.filter(sessionData.session_data, (key) => {
-          promises.push(axios.get(`${process.env.BASE_URL}/products/${key.product_id}.json`)
+          promises.push(axios.get(`${process.env.FB_URL}/products/${key.product_id}.json`)
             .then((res) => {
               return {
                 item: res.data,
@@ -269,9 +279,9 @@ const store = {
           if (isAuthenticated) {
             console.log('User is Officially signed in')
             token = rootGetters['auth/token']
-            userId = rootGetters['auth/userId']
+            uid = rootGetters['auth/uid']
 
-            return getCartId(token, userId)
+            return getCartId(token, uid)
               .then((sessionId) => {
                 if (!sessionId) {
                   // If there isnt a session lets just stop here
@@ -288,6 +298,7 @@ const store = {
                 return getProductData(sessionData)
               })
               .then((result) => {
+                console.log('result', result)
                 commit('SET_CART_ITEMS', result)
               })
               .catch((err) => {
@@ -305,7 +316,7 @@ const store = {
     liveStock ({ commit }, payload) {
       const productId = payload.product_id
 
-      return this.$axios.$get(`${process.env.BASE_URL}/products/${productId}/stock.json`)
+      return this.$axios.$get(`${process.env.FB_URL}/products/${productId}/stock.json`)
         .then((stock) => {
           return stock
         })

@@ -30,8 +30,8 @@
     asyncData (context) {
       const paramId = context.params.id
 
-      return context.app.$axios.$get(`${process.env.BASE_URL}/products/${paramId}.json`)
-        .then(result => {
+      return context.app.$axios.$get(`${process.env.FB_URL}/products/${paramId}.json`)
+        .then((result) => {
           return {
             loadedItem: result,
             breadcrumb: {
@@ -40,7 +40,7 @@
             }
           }
         })
-        .catch(err => {
+        .catch((err) => {
           if (err.response) {
             return context.error({ statusCode: err.response.status, message: err.response.data.error })
           }

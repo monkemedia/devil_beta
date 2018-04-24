@@ -18,6 +18,7 @@ export function setAnonExpirationDate (expirationDate) {
 
 export function resetAnonAuth () {
   delete axios.defaults.headers.common['anon-token']
+  delete axios.defaults.headers.common['anon-uid']
   delete axios.defaults.headers.common['anon-refresh-token']
   delete axios.defaults.headers.common['anon-expiration-date']
 }

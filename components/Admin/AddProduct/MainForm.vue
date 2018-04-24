@@ -108,7 +108,6 @@
 
         .column.is-half
           upload-images(@passImages="updateFormDataImages" :imagesData="formData.images")
-          shipping(@passShipping="updateFormDataShipping" :shippingData="formData.shipping")
 
       .columns
         .column.is-one-quarter
@@ -126,13 +125,31 @@
 
 <script>
   import Vue from 'vue'
-  import VeeValidate from 'vee-validate'
+  import VeeValidate, { Validator } from 'vee-validate'
   import VueScrollTo from 'vue-scrollto'
   import Variants from '@/components/Admin/AddProduct/Variants'
   import UploadImages from '@/components/Admin/AddProduct/UploadImages'
-  import Shipping from '@/components/Admin/AddProduct/Shipping'
 
   Vue.use(VeeValidate)
+
+  const dict = {
+    custom: {
+      title: {
+        required: 'Whoops! Title is required'
+      },
+      category: {
+        required: 'Whoops! Category is required'
+      },
+      stock: {
+        required: 'Whoops! Stock is required'
+      },
+      price: {
+        required: 'Whoops! Price is required'
+      }
+    }
+  }
+
+  Validator.localize('en', dict)
 
   export default {
     name: 'AddProductForm',
@@ -146,8 +163,7 @@
 
     components: {
       Variants,
-      UploadImages,
-      Shipping
+      UploadImages
     },
 
     data () {
@@ -163,7 +179,6 @@
             on_sale: false,
             sale_price: 0,
             variants: [],
-            shipping: [],
             images: [],
             storefront: 'hidden'
           },
@@ -217,8 +232,8 @@
               }
               vm.loading = false
             })
-            .catch((error) => {
-              vm.alertToast({ message: error.message, type: 'is-danger' })
+            .catch((err) => {
+              vm.alertToast({ message: err.message, type: 'is-danger' })
               vm.loading = false
             })
         }
@@ -240,10 +255,6 @@
 
       updateFormDataVariants (data) {
         this.formData.variants = data
-      },
-
-      updateFormDataShipping (data) {
-        this.formData.shipping = data
       },
 
       updateFormDataImages (data) {

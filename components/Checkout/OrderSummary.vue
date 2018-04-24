@@ -2,7 +2,7 @@
   .order-summary
     header
       h2.h3 Order summary
-      hr
+      nuxt-link.edit-cart(to="/cart") Edit cart
     section
       .cart-items(v-if="paramName !== 'cart'")
         mini-cart-items(v-for="(cartItem, index) in loadedCartItems" v-if="index < 5" :key="index" :cartItem="cartItem")
@@ -16,8 +16,12 @@
         span Estimated total
         span {{ cartSubtotal + shipping | currency }}
     footer(v-show="pageName !== 'checkout'")
-      nuxt-link(to="/checkout").button.is-primary.is-fullwidth.is-flip
+      nuxt-link(to="/checkout" v-if="pageName !== 'shipping'").button.is-primary.is-fullwidth.is-flip
         span(data-text="Check out") Check out
+      button(v-if="pageName === 'shipping'").button.is-primary.is-fullwidth.is-flip.pay-button
+        span.icon
+          i.fa.fa-lock
+        span(data-text="Pay" data-icon=" ") Pay
 
 </template>
 
@@ -86,6 +90,13 @@
 
   header
     border-bottom 1px solid $grey-300
+    justify-content space-between
+    display flex
+
+    .edit-cart
+      font-size $size-110
+      color $grey
+      Underline()
 
   h2
     margin-top 0
@@ -123,5 +134,13 @@
 
   .button
     margin-bottom 0
+
+    &.pay-button
+      font-size $size-180
+      .icon
+        margin-right 0
+        height 100%
+      .fa
+        font-size $size-180
 
 </style>

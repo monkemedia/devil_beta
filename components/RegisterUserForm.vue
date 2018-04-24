@@ -11,7 +11,7 @@
         native-value="seller") Seller
 
     .field
-      label.label Username
+      label.label Username #[sup *]
       .control
         input.input(
           name="username"
@@ -24,7 +24,7 @@
         p(v-show="errors.has('username')" class="help is-danger" v-html="errors.first('username')")
 
     .field
-      label.label Email
+      label.label Email #[sup *]
       .control
         input.input(
           name="email"
@@ -37,7 +37,7 @@
         p(v-show="errors.has('email')" class="help is-danger" v-html="errors.first('email')")
 
     .field
-      label.label Password
+      label.label Password #[sup *]
       .control
         input.input(
           name="password"
@@ -50,21 +50,20 @@
         p(v-show="errors.has('password')" class="help is-danger" v-html="errors.first('password')")
 
     .field
-      label.label Confirm password
+      label.label Confirm password #[sup *]
       .control
         input.input(
-          name="password"
-          id="confirmPassword"
-          v-model="confirmPassword"
+          name="confirmedPassword"
+          id="confirmedPassword"
+          v-model="confirmedPassword"
           type="password"
           data-vv-delay="600"
-          :class="{ 'is-danger': errors.has('confirmPassword') }"
+          :class="{ 'is-danger': errors.has('confirmedPassword') }"
           v-validate="'required|confirmed:password'")
-        p(v-show="errors.has('confirmPassword')" class="help is-danger" v-html="errors.first('confirmPassword')")
+        p(v-show="errors.has('confirmedPassword')" class="help is-danger" v-html="errors.first('confirmedPassword')")
 
     .field
       .control
-
         button.button.is-primary.sign-in-button.is-flip(
           type="submit"
           :class="{ 'is-loading': loading }")
@@ -75,11 +74,32 @@
 
 <script>
   import Vue from 'vue'
-  import VeeValidate from 'vee-validate'
+  import VeeValidate, { Validator } from 'vee-validate'
   import VueScrollTo from 'vue-scrollto'
   import _ from 'lodash'
 
   Vue.use(VeeValidate)
+
+  const dict = {
+    custom: {
+      username: {
+        required: 'Whoops! Username is required'
+      },
+      email: {
+        required: 'Whoops! Email is required'
+      },
+      password: {
+        required: 'Whoops! Password is required',
+        min: 'Whoops! Password must be at least 6 characters'
+      },
+      confirmedPassword: {
+        required: 'Whoops! Password confirmation is required',
+        confirmed: 'Whoops! Passwords don\'t match'
+      }
+    }
+  }
+
+  Validator.localize('en', dict)
 
   export default {
     name: 'RegisterUserForm',
@@ -90,17 +110,11 @@
         username: 'incubusrich',
         email: 'incubusrich@hotmail.com',
         password: '1111qqqq',
-        confirmPassword: '1111qqqq',
+        confirmedPassword: '1111qqqq',
         pass: '',
         confirmPass: '',
         isRegisterError: null,
         loading: false
-      }
-    },
-
-    computed: {
-      comparePasswords () {
-        return this.password !== this.confirmPassword ? 'Passwords do not match' : true
       }
     },
 
@@ -110,44 +124,26 @@
         this.isRegisterError = false
         // Validate form first
         this.$validator.validateAll()
-          .then((response) => {
+          .then(() => {
             // Validate username first
-            const username = this.username
-            this.loading = true
-            return this.$store.dispatch('auth/validateUsername', username)
-          })
-          .then((response) => {
             const payload = {
               email: this.email,
               password: this.password,
-              username: this.username
+              username: this.username,
+              accountType: 'buyer'
             }
 
+            this.loading = true
             return this.$store.dispatch('auth/registerUser', payload)
           })
-          .then((data) => {
-            console.log('localId', data)
-            const usernameDetails = {
-              username: this.username,
-              userId: data.localId
-            }
 
-            return this.$store.dispatch('auth/saveUsernameToDatabase', usernameDetails)
-          })
-          .then((data) => {
-            const userDetails = {
-              email: this.email,
-              username: this.username,
-              accountType: this.accountType,
-              userId: data.userId,
-              cartIds: null
-            }
-
-            return this.$store.dispatch('auth/saveUserDetailsToDatabase', userDetails)
-          })
-          .then((success) => {
+          .then(() => {
             this.loading = false
-            this.$router.push('/admin')
+            if (this.$route.query.visitor === 'unregistered') {
+              this.$router.push('/shipping')
+            } else {
+              this.$router.push('/admin')
+            }
           })
           .catch((err) => {
             this.loading = false

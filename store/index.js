@@ -5,6 +5,7 @@ import sellersItems from './modules/sellers-items.js'
 import cart from './modules/cart.js'
 import modals from './modules/modals.js'
 import navigation from './modules/navigation.js'
+import checkout from './modules/checkout.js'
 
 const createStore = () => {
   return new Vuex.Store({
@@ -14,7 +15,8 @@ const createStore = () => {
       sellersItems,
       cart,
       modals,
-      navigation
+      navigation,
+      checkout
     },
     actions: {
       async nuxtServerInit ({ dispatch }, context) {

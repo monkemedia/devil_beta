@@ -1,3 +1,4 @@
+import { setAuthToken, setAuthUid, setAuthUsername, setAuthRefreshToken, setAuthExpirationDate, resetAuth } from '~/utils/auth'
 import Cookies from 'js-cookie'
 import _ from 'lodash'
 
@@ -7,7 +8,7 @@ const store = {
   state: {
     token: null,
     username: null,
-    userId: null
+    uid: null
   },
 
   mutations: {
@@ -19,8 +20,8 @@ const store = {
       state.username = username
     },
 
-    SET_USERID (state, userId) {
-      state.userId = userId
+    SET_UID (state, payload) {
+      state.uid = payload
     },
 
     CLEAR_USERNAME (state) {
@@ -31,31 +32,140 @@ const store = {
       state.token = null
     },
 
-    CLEAR_USERID (state) {
-      state.userId = null
+    CLEAR_UID (state) {
+      state.uid = null
     }
   },
 
   actions: {
+    initAuth ({ commit, dispatch }, req) {
+      const vm = this
+      let token
+      let expirationDate
+      let username
+      let uid
+      let refreshToken
+
+      function refreshTokenApi (refreshTok) {
+        const authUrl = `https://securetoken.googleapis.com/v1/token?key=${process.env.FB_API_KEY}`
+        return vm.$axios.$post(authUrl, {
+          grant_type: 'refresh_token',
+          refresh_token: refreshTok
+        })
+      }
+
+      if (req) {
+        if (!req.headers.cookie) {
+          console.log('CLEAR')
+          commit('CLEAR_TOKEN')
+          commit('CLEAR_USERNAME')
+          commit('CLEAR_UID')
+
+          resetAuth()
+          return
+        }
+
+        let tokenCookies = req.headers.cookie
+          .split(';')
+          .find(c => c.trim().startsWith('token='))
+
+        let usernameCookies = req.headers.cookie
+          .split(';')
+          .find(c => c.trim().startsWith('username='))
+
+        let uidCookies = req.headers.cookie
+          .split(';')
+          .find(c => c.trim().startsWith('uid='))
+
+        let expirationDateCookies = req.headers.cookie
+          .split(';')
+          .find(c => c.trim().startsWith('expiration-date='))
+
+        let refreshTokenCookies = req.headers.cookie
+          .split(';')
+          .find(c => c.trim().startsWith('refresh-token='))
+
+        if (!tokenCookies) {
+          return
+        }
+
+        token = tokenCookies.split('=')[1]
+        username = usernameCookies.split('=')[1]
+        uid = uidCookies.split('=')[1]
+        refreshToken = refreshTokenCookies.split('=')[1]
+        expirationDate = expirationDateCookies.split('=')[1]
+
+        setAuthToken(token)
+        setAuthUid(uid)
+        setAuthUsername(username)
+        setAuthRefreshToken(refreshToken)
+        setAuthExpirationDate(expirationDate)
+
+        commit('SET_UID', uid)
+        commit('SET_USERNAME', username)
+
+        console.log('expirationDate', expirationDate)
+
+        if (new Date().getTime() >= expirationDate) {
+          console.log('TOKEN HAS EXPIRED')
+          return refreshTokenApi(refreshToken)
+            .then((result) => {
+              console.log('REFRESH_RESULT', result.id_token)
+              const setExpirationDate = new Date().getTime() + parseInt(result.expires_in) * 1000
+
+              commit('SET_TOKEN', result.id_token)
+
+              setAuthToken(result.id_token)
+              setAuthRefreshToken(result.refreshToken)
+              setAuthExpirationDate(setExpirationDate)
+            })
+            .catch((err) => {
+              console.log(err.response.data.error)
+              throw err
+            })
+        } else {
+          commit('SET_TOKEN', token)
+        }
+      } else if (process.client) {
+        token = Cookies.get('token')
+        expirationDate = Cookies.get('expiration-date')
+        refreshToken = Cookies.get('refresh-token')
+        username = Cookies.get('username')
+        uid = Cookies.get('uid')
+      }
+    },
+
     validateUsername ({}, username) {
-      return this.$axios.$get(`${process.env.BASE_URL}/usernames.json`)
-        .then(data => {
+      return this.$axios.$get(`${process.env.FB_URL}/usernames.json`)
+        .then((data) => {
           const filterUsernames = _.filter(data, (key) => {
             return key.username === username
           })
 
           if (filterUsernames.length) {
             const myError = {
-              code: 'failed',
-              message: 'This username already exists, please try again.'
+              response: {
+                data: {
+                  error: {
+                    code: 'failed',
+                    message: 'This username already exists, please try again.'
+                  }
+                }
+              }
             }
 
             throw myError
           }
 
           return {
-            code: 'success',
-            message: 'This username is available'
+            response: {
+              data: {
+                error: {
+                  code: 'success',
+                  message: 'This username is available'
+                }
+              }
+            }
           }
         })
     },
@@ -63,58 +173,58 @@ const store = {
     saveUsernameToDatabase ({ state }, usernameDetails) {
       const username = usernameDetails.username
       const token = state.token
-      return this.$axios.$put(`${process.env.BASE_URL}/usernames/${username}.json?auth=${token}`, usernameDetails)
+      return this.$axios.$put(`${process.env.FB_URL}/usernames/${username}.json?auth=${token}`, usernameDetails)
     },
 
     saveUserDetailsToDatabase ({ state }, userDetails) {
-      const userId = userDetails.userId
+      const uid = userDetails.uid
       const token = state.token
-      return this.$axios.$patch(`${process.env.BASE_URL}/users/${userId}.json?auth=${token}`, userDetails)
+      return this.$axios.$patch(`${process.env.FB_URL}/users/${uid}.json?auth=${token}`, userDetails)
     },
 
     transferAnonCartToSignedInCart ({ getters, dispatch, rootGetters }) {
       const vm = this
 
       function anonCartSessions (token, cartId) {
-        return vm.$axios.$get(`${process.env.BASE_URL}/cartSessions/${cartId}/products.json?auth=${token}`)
+        return vm.$axios.$get(`${process.env.FB_URL}/cartSessions/${cartId}/products.json?auth=${token}`)
       }
 
       function deleteAnonCartSessions (token, cartId) {
-        return vm.$axios.$delete(`${process.env.BASE_URL}/cartSessions/${cartId}.json?auth=${token}`)
+        return vm.$axios.$delete(`${process.env.FB_URL}/cartSessions/${cartId}.json?auth=${token}`)
       }
 
-      function addUidToCart (userId, cartId) {
-        return vm.$axios.$patch(`${process.env.BASE_URL}/users/${userId}.json?auth=${token}`, { cart: cartId })
+      function addUidToCart (uid, cartId) {
+        return vm.$axios.$patch(`${process.env.FB_URL}/users/${uid}.json?auth=${token}`, { cart: cartId })
       }
 
-      function doesCartSessionExistInUserProfile (userId, token) {
-        return vm.$axios.$get(`${process.env.BASE_URL}/users/${userId}/cart.json?&auth=${token}`)
+      function doesCartSessionExistInUserProfile (uid, token) {
+        return vm.$axios.$get(`${process.env.FB_URL}/users/${uid}/cart.json?&auth=${token}`)
       }
 
       function addItemToCartSessions (token, cartId, items) {
-        return vm.$axios.$patch(`${process.env.BASE_URL}/cartSessions/${cartId}/products.json?auth=${token}`, items)
+        return vm.$axios.$patch(`${process.env.FB_URL}/cartSessions/${cartId}/products.json?auth=${token}`, items)
       }
       // Add anon cart uid to userprofile
       const isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
-      let userId
+      let uid
       let token
       let cartId
 
       // When the user signs in Officially, let's see it they have a ANON token
       console.log('User has signed in officially, lets see if they a ANON token')
       if (isAnonAuthenticated) {
-        userId = getters['userId']
+        uid = getters['uid']
         token = getters['token']
         cartId = rootGetters['anonAuth/uid']
         // User has ANON token, let's see if they have a cart session
         console.log('User has signed in officially, and they do have a anon token')
-        return doesCartSessionExistInUserProfile(userId, token)
+        return doesCartSessionExistInUserProfile(uid, token)
           .then((sessionId) => {
             console.log('sessionId PEOPLE', sessionId)
             if (!sessionId) {
               console.log('Officially signed in user does not have a sessionCart Id ib user profile')
               console.log('So add ANON cart session ID to user profile')
-              return addUidToCart(userId, cartId)
+              return addUidToCart(uid, cartId)
                 .then(() => {
                   // Log out ANON user
                   console.log('LOGOUT OUT ANON USER')
@@ -144,6 +254,10 @@ const store = {
     deleteUser ({}, token) {
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/deleteAccount?key=${process.env.FB_API_KEY}`
 
+      if (!token) {
+        return
+      }
+
       return this.$axios.$post(authUrl, {
         idToken: token
       })
@@ -164,17 +278,19 @@ const store = {
 
           commit('SET_TOKEN', result.idToken)
           commit('SET_USERNAME', result.displayName)
-          commit('SET_USERID', result.localId)
+          commit('SET_UID', result.localId)
 
-          localStorage.setItem('token', result.idToken)
-          localStorage.setItem('tokenExpiration', setExpirationDate)
-          localStorage.setItem('username', result.displayName)
-          localStorage.setItem('userId', result.localId)
+          setAuthToken(result.idToken)
+          setAuthUid(result.localId)
+          setAuthUsername(result.displayName)
+          setAuthRefreshToken(result.refreshToken)
+          setAuthExpirationDate(setExpirationDate)
 
-          Cookies.set('jwt', result.idToken)
-          Cookies.set('expirationDate', setExpirationDate)
+          Cookies.set('token', result.idToken)
+          Cookies.set('expiration-date', setExpirationDate)
           Cookies.set('username', result.displayName)
-          Cookies.set('userId', result.localId)
+          Cookies.set('refresh-token', result.refreshToken)
+          Cookies.set('uid', result.localId)
 
           return result
         })
@@ -205,33 +321,39 @@ const store = {
         })
     },
 
-    registerUser ({ commit, dispatch, rootGetters }, authData) {
+    registerUser ({ commit, dispatch, getters, rootGetters }, authData) {
       const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${process.env.FB_API_KEY}`
       let response
 
-      return this.$axios.$post(authUrl, {
-        email: authData.email,
-        password: authData.password,
-        displayName: authData.username,
-        returnSecureToken: true
-      })
+      console.log(authData)
+
+      return dispatch('validateUsername', authData.username)
+        .then(() => {
+          return this.$axios.$post(authUrl, {
+            email: authData.email,
+            password: authData.password,
+            displayName: authData.username,
+            returnSecureToken: true
+          })
+        })
         .then((result) => {
           response = result
           const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
 
           commit('SET_TOKEN', result.idToken)
           commit('SET_USERNAME', result.displayName)
-          commit('SET_USERID', result.localId)
+          commit('SET_UID', result.localId)
 
-          localStorage.setItem('token', result.idToken)
-          localStorage.setItem('tokenExpiration', setExpirationDate)
-          localStorage.setItem('username', result.displayName)
-          localStorage.setItem('userId', result.localId)
+          setAuthToken(result.idToken)
+          setAuthUid(result.localId)
+          setAuthUsername(result.displayName)
+          setAuthRefreshToken(result.idToken)
+          setAuthExpirationDate(setExpirationDate)
 
-          Cookies.set('jwt', result.idToken)
-          Cookies.set('expirationDate', setExpirationDate)
+          Cookies.set('token', result.idToken)
+          Cookies.set('expiration-date', setExpirationDate)
           Cookies.set('username', result.displayName)
-          Cookies.set('userId', result.localId)
+          Cookies.set('uid', result.localId)
 
           return { result }
         })
@@ -248,6 +370,25 @@ const store = {
           console.log('LOGOUT OUT ANON USER')
           return dispatch('anonAuth/logoutUser', null, { root: true })
         })
+        .then((data) => {
+          const usernameDetails = {
+            username: authData.username,
+            uid: getters['uid']
+          }
+
+          return dispatch('saveUsernameToDatabase', usernameDetails)
+        })
+        .then(() => {
+          const userDetails = {
+            email: authData.email,
+            username: authData.username,
+            accountType: authData.accountType,
+            uid: getters['uid'],
+            cartIds: null
+          }
+
+          return dispatch('saveUserDetailsToDatabase', userDetails)
+        })
         .then(() => {
           return response
         })
@@ -257,98 +398,20 @@ const store = {
         })
     },
 
-    initAuth ({ commit, dispatch }, req) {
-      let token
-      let expirationDate
-      let username
-      let userId
-
-      if (req) {
-        if (!req.headers.cookie) {
-          console.log('CLEAR')
-          commit('CLEAR_TOKEN')
-          commit('CLEAR_USERNAME')
-          commit('CLEAR_USERID')
-
-          dispatch('logout')
-          return
-        }
-
-        let jwtCookies = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('jwt='))
-
-        let usernameCookies = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('username='))
-
-        let userIdCookies = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('userId='))
-
-        if (!jwtCookies) {
-          return
-        }
-
-        token = jwtCookies.split('=')[1]
-        expirationDate = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('expirationDate='))
-          .split('=')[1]
-        username = usernameCookies.split('=')[1]
-        userId = userIdCookies.split('=')[1]
-      } else if (process.client) {
-        token = localStorage.getItem('token')
-        expirationDate = localStorage.getItem('tokenExpiration')
-        username = localStorage.getItem('username')
-        userId = localStorage.getItem('userId')
-      }
-
-      console.log('TOKEN', token)
-
-      if (new Date().getTime() > parseInt(expirationDate) || !token) {
-        console.log('no token or invalid token')
-        dispatch('logout')
-        return
-      }
-
-      commit('SET_TOKEN', token)
-      commit('SET_USERNAME', username)
-      commit('SET_USERID', userId)
-    },
-
     logout ({ commit, rootState, rootGetters }) {
       console.log('LOGGED OUT')
       commit('CLEAR_TOKEN')
       commit('CLEAR_USERNAME')
-      commit('CLEAR_USERID')
+      commit('CLEAR_UID')
       commit('cart/CLEAR_CART_ITEMS', null, { root: true })
 
-      Cookies.remove('jwt')
-      Cookies.remove('expirationDate')
+      Cookies.remove('token')
+      Cookies.remove('uid')
       Cookies.remove('username')
-      Cookies.remove('userId')
+      Cookies.remove('refresh-token')
+      Cookies.remove('expiration-date')
 
-      if (process.client) {
-        localStorage.removeItem('token')
-        localStorage.removeItem('tokenExpiration')
-        localStorage.removeItem('username')
-        localStorage.removeItem('userId')
-      }
-
-      // if (rootGetters['cart/isAnonAuthenticated']) {
-      //   rootState['cart/CLEAR_ANON_TOKEN'] = null
-      //   rootState['cart/CLEAR_ANON_UID'] = null
-      //   Cookies.remove('anonToken')
-      //   Cookies.remove('anonUid')
-      //   Cookies.remove('anonTokenExpiration')
-
-      //   if (process.client) {
-      //     localStorage.removeItem('anonToken')
-      //     localStorage.removeItem('anonUid')
-      //     localStorage.removeItem('anonTokenExpiration')
-      //   }
-      // }
+      resetAuth()
     }
   },
 
@@ -365,8 +428,8 @@ const store = {
       return state.username
     },
 
-    userId (state) {
-      return state.userId
+    uid (state) {
+      return state.uid
     }
   }
 }

@@ -67,19 +67,15 @@
       }
     },
 
-    async fetch ({ store }) {
-      store.dispatch('cart/fetchCartData')
+    methods: {
+      away () {
+        this.isActive = false
+      }
     },
 
     mounted () {
       if (process.client) {
         this.$store.dispatch('cart/fetchCartData')
-      }
-    },
-
-    methods: {
-      away () {
-        this.isActive = false
       }
     },
 

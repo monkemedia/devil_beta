@@ -3,7 +3,7 @@
     b-message(type="is-danger" v-if="isSignInError") {{ isSignInError }}
 
     .field
-      label.label Email
+      label.label Email #[sup *]
       .control
         input.input(
           name="email"
@@ -17,7 +17,7 @@
         p(v-show="errors.has('email')" class="help is-danger" v-html="errors.first('email')")
 
     .field
-      label.label Password
+      label.label Password #[sup *]
       .control
         input.input(
           name="password"
@@ -45,10 +45,23 @@
 <script>
   import _ from 'lodash'
   import Vue from 'vue'
-  import VeeValidate from 'vee-validate'
+  import VeeValidate, { Validator } from 'vee-validate'
   import VueScrollTo from 'vue-scrollto'
 
   Vue.use(VeeValidate)
+
+  const dict = {
+    custom: {
+      email: {
+        required: 'Whoops! Email is required'
+      },
+      password: {
+        required: 'Whoops! Password is required'
+      }
+    }
+  }
+
+  Validator.localize('en', dict)
 
   export default {
     name: 'SignInUserForm',
@@ -107,6 +120,7 @@
     align-items center
     justify-content center
     display flex
+    margin-top 2rem
     a
       BoldUppercase()
       Underline($secondary)

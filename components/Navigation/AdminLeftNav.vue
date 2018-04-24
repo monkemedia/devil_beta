@@ -38,6 +38,10 @@
             ]
           },
           {
+            title: 'Shipping',
+            route: '/admin/shipping'
+          },
+          {
             title: 'Customers',
             route: '/admin/customers'
           }
