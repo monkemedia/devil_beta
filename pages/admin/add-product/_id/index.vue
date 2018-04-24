@@ -39,9 +39,9 @@
     async fetch ({ store, params, error }) {
       const paramId = params.id
       const token = store.getters['auth/token']
-      const userId = store.getters['auth/userId']
+      const uid = store.getters['auth/uid']
 
-      return axios.get(`${process.env.FB_URL}/userProducts/${userId}/${paramId}.json?auth=${token}`)
+      return axios.get(`${process.env.FB_URL}/userProducts/${uid}/${paramId}.json?auth=${token}`)
         .then(result => {
           console.log('TREVOR', result)
           if (result.data !== null) {

@@ -2,7 +2,7 @@
   .card
     header.card-header
       .card-header-title
-        p 1. Shipping
+        p 1. Shipping address
     .card-content
       .content
         form
@@ -279,7 +279,7 @@
   Validator.localize('en', dict)
 
   export default {
-    name: 'ShippingForm',
+    name: 'ShippingAddressForm',
 
     props: {
       shippingData: {

@@ -12,9 +12,16 @@
       h6
         router-link(:to="'/' + cartItem.item.category + '/' + cartItem.item.product_id") {{ cartItem.item.title }}
       span.seller By {{ cartItem.item.username }}
-      .level
+      .level(v-if="getPath !== 'shipping'")
         .level-left.quantity Qty: {{ cartItem.quantity }}
         .level-right.price
+          span(v-if="cartItem.item.on_sale")
+            | {{ cartItem.item.sale_price | currency }}
+          span(v-else)
+            | {{ cartItem.item.price | currency }}
+      div(v-if="getPath === 'shipping'")
+        .quantity Qty: {{ cartItem.quantity }}
+        .price
           span(v-if="cartItem.item.on_sale")
             | {{ cartItem.item.sale_price | currency }}
           span(v-else)
@@ -30,6 +37,12 @@
         type: Object,
         required: true
       }
+    },
+
+    computed: {
+      getPath () {
+        return this.$route.name
+      }
     }
   }
 </script>
@@ -41,6 +54,7 @@
   figure
     width 70px
     height 70px
+    margin 0
     img
       max-height 100%
       width 100%

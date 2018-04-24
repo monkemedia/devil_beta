@@ -55,7 +55,8 @@ const store = {
         })
       }
 
-      function addItemToCartSessions (token, cartId, item, isAnon) {
+      function addItemToCartSessions (token, cartId, item) {
+        console.log('ITEM', item)
         return vm.$axios.$put(`${process.env.FB_URL}/cartSessions/${cartId}/products/${item.product_id}.json?auth=${token}`, item)
       }
 
@@ -165,10 +166,22 @@ const store = {
       }
     },
 
-    deleteFromCart ({ rootGetters }, data) {
+    deleteFromCart ({ state, commit, getters, rootGetters }, data) {
       const token = rootGetters['auth/token'] || rootGetters['anonAuth/token']
 
       return this.$axios.$delete(`${process.env.FB_URL}/cartSessions/${data.session_id}/products/${data.item.product_id}.json?auth=${token}`)
+        .then(() => {
+          const removeItem = _.pickBy(data, (key) => {
+            console.log(key)
+            return data.productId !== key.product_id
+          })
+
+          if (_.isEmpty(removeItem)) {
+            return commit('SET_CART_ITEMS', null)
+          }
+
+          commit('SET_CART_ITEMS', removeItem)
+        })
     },
 
     updateCartItemQuantity ({ rootGetters }, data) {
@@ -177,6 +190,7 @@ const store = {
     },
 
     fetchCartData ({ commit, dispatch, rootGetters }, req) {
+      console.log('FETCH CART DATA 2')
       const vm = this
       let token
       let uid
@@ -284,6 +298,7 @@ const store = {
                 return getProductData(sessionData)
               })
               .then((result) => {
+                console.log('result', result)
                 commit('SET_CART_ITEMS', result)
               })
               .catch((err) => {

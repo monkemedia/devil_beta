@@ -48,9 +48,9 @@
 
     async fetch ({ store, params, error }) {
       const token = store.getters['auth/token']
-      const userId = store.getters['auth/userId']
+      const uid = store.getters['auth/uid']
 
-      return axios.get(`${process.env.FB_URL}/userProducts/${userId}.json?auth=${token}`)
+      return axios.get(`${process.env.FB_URL}/userProducts/${uid}.json?auth=${token}`)
         .then((result) => {
           if (result.data !== null) {
             return store.commit('sellersItems/SET_SELLERS_ITEMS', result.data)
@@ -74,7 +74,7 @@
     methods: {
       deleteItem (payload) {
         const token = this.$store.getters['auth/token']
-        const uniqueId = this.$store.getters['auth/userId']
+        const uniqueId = this.$store.getters['auth/uid']
         const loadingComponent = this.$loading.open()
         const productId = payload.product_id
         const category = payload.category

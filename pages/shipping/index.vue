@@ -6,18 +6,18 @@
     .columns.is-multiline
       .column.is-12-tablet.is-7-widescreen
         b-message(type="is-danger" v-if="isRegisterError") {{ isRegisterError }}
-        shipping-form(v-show="getParams !== 'shippingMethod'" @errorMessage="errorMessage" :shippingData="shippingData")
-        shipping-result(v-show="getParams === 'shippingMethod'" :shippingData="shippingData")
-        shipping-method
+        shipping-address-form(v-if="getParams !== 'shippingMethod'" @errorMessage="errorMessage" :shippingData="shippingData")
+        shipping-result(v-if="getParams === 'shippingMethod'" :shippingData="shippingData")
+        review-items-and-shipping(:shippingMethodData="shippingMethodData")
       .column.is-12-tablet.is-4-widescreen.is-offset-1-widescreen
         order-summary
 
 </template>
 
 <script>
-  import ShippingForm from '@/components/Checkout/ShippingForm'
+  import ShippingAddressForm from '@/components/Checkout/ShippingAddressForm'
   import ShippingResult from '@/components/Checkout/ShippingResult'
-  import ShippingMethod from '@/components/Checkout/ShippingMethod'
+  import ReviewItemsAndShipping from '@/components/Checkout/ReviewItemsAndShipping'
   import OrderSummary from '@/components/Checkout/OrderSummary'
 
   export default {
@@ -25,13 +25,14 @@
 
     middleware: [
       'check-auth',
+      'fetch-cart-data',
       'auth'
     ],
 
     components: {
-      ShippingForm,
+      ShippingAddressForm,
       ShippingResult,
-      ShippingMethod,
+      ReviewItemsAndShipping,
       OrderSummary
     },
 
@@ -60,6 +61,10 @@
     computed: {
       shippingData () {
         return this.$store.getters['checkout/loadedShippingData']
+      },
+
+      shippingMethodData () {
+        return this.$store.getters['checkout/loadedShippingMethodData']
       },
 
       getParams () {

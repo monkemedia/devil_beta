@@ -114,7 +114,7 @@ const store = {
     createItem ({ commit, dispatch, rootGetters }, itemDetails) {
       const token = rootGetters['auth/token']
       const username = rootGetters['auth/username']
-      const userId = rootGetters['auth/userId']
+      const uid = rootGetters['auth/uid']
       const category = itemDetails.category
       let uniqueId
       let productId
@@ -128,10 +128,11 @@ const store = {
       const itemData = {
         ...itemDetails,
         username,
+        uid,
         product_id: uniqueId
       }
 
-      return this.$axios.$put(`${process.env.FB_URL}/userProducts/${userId}/${uniqueId}.json?auth=${token}`, itemData)
+      return this.$axios.$put(`${process.env.FB_URL}/userProducts/${uid}/${uniqueId}.json?auth=${token}`, itemData)
         .then(() => {
           if (itemDetails.storefront === 'visible') {
             return this.$axios.$patch(`${process.env.FB_URL}/categories/${category}/${uniqueId}.json?auth=${token}`, { productId: uniqueId })
