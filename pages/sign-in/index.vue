@@ -18,8 +18,7 @@
     name: 'SignIn',
 
     middleware: [
-      'check-auth',
-      'fetch-cart-data'
+      'check-auth'
     ],
 
     components: {

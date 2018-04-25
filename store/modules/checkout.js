@@ -49,6 +49,13 @@ const store = {
           commit('SET_SHIPPING_DATA', shippingData)
           return response
         })
+    },
+
+    cartItems ({ state, rootGetters }) {
+      const cartItems = rootGetters['cart/loadedCartItems']
+
+      console.log(cartItems)
+      return 'test'
     }
   },
 

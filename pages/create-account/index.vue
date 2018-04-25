@@ -13,8 +13,7 @@
     name: 'Register',
 
     middleware: [
-      'check-auth',
-      'fetch-cart-data'
+      'check-auth'
     ],
 
     components: {

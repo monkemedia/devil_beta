@@ -32,7 +32,7 @@
                       a(@click="deleteModal(props.row, props.index)") Remove
               b-table-column.quantity(field="quantity" label="Quantity")
                 increment-counter(:productDetails="{ quantity: props.row.quantity, product_id: props.row.item.product_id, cart_id: props.row.session_id }")
-              b-table-column.subtotal(field="subtotal" label="Subtotal") {{ props.row.item.price * props.row.quantity | currency }}
+              b-table-column.subtotal(field="subtotal" label="Subtotal") {{ props.row.item.on_sale ? props.row.item.sale_price : props.row.item.price * props.row.quantity | currency }}
       .column.is-12-tablet.is-4-widescreen.is-offset-1-widescreen
         order-summary(:isSoldOut="isSoldOut.length > 0")
 
@@ -47,8 +47,7 @@
 
   export default {
     middleware: [
-      'check-auth',
-      'fetch-cart-data'
+      'check-auth'
     ],
 
     components: {
@@ -63,6 +62,12 @@
           title: 'Continue shopping',
           path: '/'
         }
+      }
+    },
+
+    created () {
+      if (process.client) {
+        this.$store.dispatch('cart/fetchCartData')
       }
     },
 

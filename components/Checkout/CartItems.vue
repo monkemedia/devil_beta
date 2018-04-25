@@ -12,9 +12,9 @@
       h6
         router-link(:to="'/' + cartItem.item.category + '/' + cartItem.item.product_id") {{ cartItem.item.title }}
       span.seller By {{ cartItem.item.username }}
-      .level
-        .level-left.quantity Qty: {{ cartItem.quantity }}
-        .level-right.price
+      div
+        .quantity Qty: {{ cartItem.quantity }}
+        .price
           span(v-if="cartItem.item.on_sale")
             | {{ cartItem.item.sale_price | currency }}
           span(v-else)
@@ -23,12 +23,12 @@
 
 <script>
   export default {
-    name: 'MiniCartItems',
+    name: 'CartItems',
 
     props: {
       cartItem: {
         type: Object,
-        required: true
+        required: false
       }
     },
 

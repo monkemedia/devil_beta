@@ -170,18 +170,18 @@ const store = {
       const token = rootGetters['auth/token'] || rootGetters['anonAuth/token']
 
       return this.$axios.$delete(`${process.env.FB_URL}/cartSessions/${data.session_id}/products/${data.item.product_id}.json?auth=${token}`)
-        .then(() => {
-          const removeItem = _.pickBy(data, (key) => {
-            console.log(key)
-            return data.productId !== key.product_id
-          })
+      //   .then(() => {
+      //     const removeItem = _.pickBy(data, (key) => {
+      //       console.log(key)
+      //       return data.productId !== key.product_id
+      //     })
 
-          if (_.isEmpty(removeItem)) {
-            return commit('SET_CART_ITEMS', null)
-          }
+      //     if (_.isEmpty(removeItem)) {
+      //       return commit('SET_CART_ITEMS', null)
+      //     }
 
-          commit('SET_CART_ITEMS', removeItem)
-        })
+      //     commit('SET_CART_ITEMS', removeItem)
+      //   })
     },
 
     updateCartItemQuantity ({ rootGetters }, data) {
@@ -190,13 +190,21 @@ const store = {
     },
 
     fetchCartData ({ commit, dispatch, rootGetters }, req) {
-      console.log('FETCH CART DATA 2')
       const vm = this
       let token
       let uid
       let promises
       let isAuthenticated
       let isAnonAuthenticated
+
+      if (req) {
+        if (!req.headers.cookie) {
+          // clear cart
+          console.log('clear cart')
+          commit('SET_CART_ITEMS', [])
+          return
+        }
+      }
 
       function cartUidSession (token, cartId) {
         return vm.$axios.$get(`${process.env.FB_URL}/cartSessions/${cartId}/products/.json?auth=${token}`)
@@ -238,79 +246,72 @@ const store = {
           })
       }
 
-      return dispatch('anonAuth/initAuth', req, { root: true })
-        .then(() => {
-          isAuthenticated = rootGetters['auth/isAuthenticated']
-          isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
-          // User is ANON user
-          if (isAnonAuthenticated) {
-            // Init anon auth first
-            console.log('Init anon auth first')
+      isAuthenticated = rootGetters['auth/isAuthenticated']
+      isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
+      // User is ANON user
+      if (isAnonAuthenticated) {
+        // Init anon auth first
+        console.log('Init anon auth first')
 
-            console.log('User is an ANON user')
-            // Get ANONUID and see if there is a CART SESSION
-            token = rootGetters['anonAuth/token']
-            uid = rootGetters['anonAuth/uid']
-            console.log('Get ANONUID and see if there is a cart session')
-            console.log('token', token)
-            return cartUidSession(token, uid)
-              .then((sessionData) => {
-                if (!sessionData) {
-                  // If there isnt a session lets just stop here
-                  console.log('If there isnt a session lets just stop here')
-                  return false
-                }
+        console.log('User is an ANON user')
+        // Get ANONUID and see if there is a CART SESSION
+        token = rootGetters['anonAuth/token']
+        uid = rootGetters['anonAuth/uid']
+        console.log('Get ANONUID and see if there is a cart session')
+        console.log('token', token)
+        return cartUidSession(token, uid)
+          .then((sessionData) => {
+            if (!sessionData) {
+              // If there isnt a session lets just stop here
+              console.log('If there isnt a session lets just stop here')
+              return false
+            }
 
-                // There is a cart session, so lets get all the product ID'S
-                console.log('There is a cart session, so lets get all the product IDs', sessionData)
-                // Loop through Product IDs and get product data for each product ID
-                return getProductData(sessionData)
-              })
-              .then((result) => {
-                commit('SET_CART_ITEMS', result || [])
-              })
-              .catch((err) => {
-                console.log(err.data)
-                throw err
-              })
-          }
+            // There is a cart session, so lets get all the product ID'S
+            console.log('There is a cart session, so lets get all the product IDs', sessionData)
+            // Loop through Product IDs and get product data for each product ID
+            return getProductData(sessionData)
+          })
+          .then((result) => {
+            commit('SET_CART_ITEMS', result || [])
+          })
+          .catch((err) => {
+            console.log(err.data)
+            throw err
+          })
+      }
 
-          // User is Officially signed in
-          if (isAuthenticated) {
-            console.log('User is Officially signed in')
-            token = rootGetters['auth/token']
-            uid = rootGetters['auth/uid']
+      console.log('FETCH CART DATA 2', isAuthenticated)
+      // User is Officially signed in
+      if (isAuthenticated) {
+        console.log('User is Officially signed in')
+        token = rootGetters['auth/token']
+        uid = rootGetters['auth/uid']
 
-            return getCartId(token, uid)
-              .then((sessionId) => {
-                if (!sessionId) {
-                  // If there isnt a session lets just stop here
-                  console.log('If there isnt any CartIDs lets just stop here')
-                  return false
-                }
+        return getCartId(token, uid)
+          .then((sessionId) => {
+            if (!sessionId) {
+              // If there isnt a session lets just stop here
+              console.log('If there isnt any CartIDs lets just stop here')
+              return false
+            }
 
-                // There are cart sessions, so lets get all the cart IDs
-                console.log('There are cart sessions, so lets get all the cart IDs', sessionId)
-                // There are cart sessions, so lets get all the cart IDs
-                return cartUidSession(token, sessionId)
-              })
-              .then((sessionData) => {
-                return getProductData(sessionData)
-              })
-              .then((result) => {
-                console.log('result', result)
-                commit('SET_CART_ITEMS', result)
-              })
-              .catch((err) => {
-                console.log(err)
-                throw err
-              })
-          }
-        })
-        .catch((err) => {
-          console.log(err.data)
-          throw err
-        })
+            // There are cart sessions, so lets get all the cart IDs
+            console.log('There are cart sessions, so lets get all the cart IDs', sessionId)
+            // There are cart sessions, so lets get all the cart IDs
+            return cartUidSession(token, sessionId)
+          })
+          .then((sessionData) => {
+            return getProductData(sessionData)
+          })
+          .then((result) => {
+            commit('SET_CART_ITEMS', result)
+          })
+          .catch((err) => {
+            console.log(err)
+            throw err
+          })
+      }
     },
 
     liveStock ({ commit }, payload) {

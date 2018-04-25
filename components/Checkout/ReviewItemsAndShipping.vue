@@ -8,15 +8,18 @@
         form
           .columns
             .column
-              .columns.cart-items(v-for="(cartItem, index) in loadedCartItems" :key="index")
+              .columns.cart-items(v-for="(cartItem, index) in cartItems()" :key="index")
                 .column
-                  mini-cart-items(:cartItem="cartItem")
+                  .columns(v-for="item in cartItem.items")
+                    .column
+                      cart-items(:cartItem="item")
                 .column
-                  shipping-methods(:uid="cartItem.item.uid" v-if="cartItem")
+                  //- shipping-methods(:uid="cartItem.item.uid" v-if="cartItem")
 </template>
 
 <script>
-  import MiniCartItems from '@/components/MiniCart/items.vue'
+  import _ from 'lodash'
+  import CartItems from '@/components/Checkout/cartItems.vue'
   import ShippingMethods from '@/components/Checkout/ShippingMethods'
   // import VueScrollTo from 'vue-scrollto'
   // import axios from 'axios'
@@ -32,7 +35,7 @@
     },
 
     components: {
-      MiniCartItems,
+      CartItems,
       ShippingMethods
     },
 
@@ -42,9 +45,33 @@
       }
     },
 
+    created () {
+      this.cartItems()
+    },
+
     computed: {
       loadedCartItems () {
         return this.$store.getters['cart/loadedCartItems']
+      }
+    },
+
+    methods: {
+      cartItems () {
+        const cartItems = this.loadedCartItems
+
+        const result = _.chain(cartItems)
+          .groupBy((e) => {
+            return e.item.username
+          })
+          .map((el, index) => {
+            return {
+              username: index,
+              items: el
+            }
+          })
+          .value()
+
+        return result
       }
     }
   }

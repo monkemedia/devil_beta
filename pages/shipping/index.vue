@@ -25,7 +25,6 @@
 
     middleware: [
       'check-auth',
-      'fetch-cart-data',
       'auth'
     ],
 

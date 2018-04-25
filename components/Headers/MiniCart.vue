@@ -73,7 +73,7 @@
       }
     },
 
-    mounted () {
+    created () {
       if (process.client) {
         this.$store.dispatch('cart/fetchCartData')
       }

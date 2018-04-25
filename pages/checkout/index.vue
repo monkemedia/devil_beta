@@ -36,9 +36,12 @@
 
     middleware: [
       'check-auth',
-      'fetch-cart-data',
       'checkout-auth'
-    ]
+    ],
+
+    created () {
+      this.$store.dispatch('auth/initAuth')
+    }
   }
 </script>
 
