@@ -13,8 +13,8 @@
                   .columns(v-for="item in cartItem.items")
                     .column
                       cart-items(:cartItem="item")
-                .column
-                  //- shipping-methods(:uid="cartItem.item.uid" v-if="cartItem")
+                    .column
+                      shipping-methods(:uid="cartItem.uid")
 </template>
 
 <script>
@@ -61,15 +61,17 @@
 
         const result = _.chain(cartItems)
           .groupBy((e) => {
-            return e.item.username
+            return e.item.uid
           })
           .map((el, index) => {
             return {
-              username: index,
+              uid: index,
               items: el
             }
           })
           .value()
+
+        console.log('result', result)
 
         return result
       }

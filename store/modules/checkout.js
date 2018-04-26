@@ -2,17 +2,12 @@ const store = {
   namespaced: true,
 
   state: {
-    address: null,
-    methods: null
+    address: null
   },
 
   mutations: {
     SET_SHIPPING_DATA (state, payload) {
       state.address = payload
-    },
-
-    SET_SHIPPING_METHOD_DATA (state, payload) {
-      state.methods = payload
     }
   },
 
@@ -31,12 +26,9 @@ const store = {
     getShippingMethodData ({ commit, rootGetters }, uid) {
       const token = rootGetters['auth/token']
 
-      console.log('UID', uid)
-
       return this.$axios.$get(`${process.env.FB_URL}/users/${uid}/shippingMethods.json?auth=${token}`)
         .then((response) => {
-          console.log('response', response)
-          commit('SET_SHIPPING_METHOD_DATA', response)
+          return response
         })
     },
 

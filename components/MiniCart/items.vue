@@ -55,6 +55,11 @@
     font-size $size-150
     margin-bottom .4rem
 
+  .media + .media
+    border-top 0
+    margin-top 0
+    padding-top 0
+
   .quantity
   .price
     font-size $size-130

@@ -23,21 +23,22 @@
         shippingServices: [
           { label: 'Royal Mail 2nd Class (2 to 3 working days)', value: 'royal_mail_2nd_class' },
           { label: 'Test 2', value: 'test_2' }
-        ]
+        ],
+        orderedShippingMethods: null
       }
     },
 
     mounted () {
       this.$store.dispatch('checkout/getShippingMethodData', this.uid)
+        .then((res) => {
+          console.log('res', res)
+          this.orderedShippingMethods = _.orderBy(res, 'price')
+        })
     },
 
     computed: {
       getShippingMethods () {
         return this.$store.getters['checkout/loadedShippingMethodData']
-      },
-
-      orderedShippingMethods () {
-        return _.orderBy(this.getShippingMethods, 'price')
       }
     },
 

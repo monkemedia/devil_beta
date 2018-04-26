@@ -26,7 +26,7 @@
 </template>
 
 <script>
-  import MiniCartItems from '@/components/MiniCart/items'
+  import MiniCartItems from '@/components/MiniCart/Items.vue'
 
   export default {
     name: 'OrderSummary',
