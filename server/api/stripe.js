@@ -1,6 +1,7 @@
+require('dotenv').config()
 const { Router } = require('express')
 const stripe = require("stripe")(
-  "sk_test_h6JCY8bTshgzwjeucvlzgDjI"
+  process.env.STRIPE_KEY
 )
 
 const router = Router()
