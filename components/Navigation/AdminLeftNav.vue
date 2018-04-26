@@ -42,6 +42,10 @@
             route: '/admin/shipping'
           },
           {
+            title: 'Bank account',
+            route: '/admin/bank-account'
+          },
+          {
             title: 'Customers',
             route: '/admin/customers'
           }

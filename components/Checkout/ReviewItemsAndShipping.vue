@@ -14,7 +14,7 @@
                     .column
                       cart-items(:cartItem="item")
                     .column
-                      shipping-methods(:uid="cartItem.uid")
+                      shipping-methods(:uid="cartItem.uid" :cartItem="item" @shippingPrice="shippingPrice")
 </template>
 
 <script>
@@ -74,6 +74,10 @@
         console.log('result', result)
 
         return result
+      },
+
+      shippingPrice (val) {
+        console.log('VALUE', val)
       }
     }
   }

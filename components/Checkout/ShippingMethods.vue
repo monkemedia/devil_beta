@@ -1,7 +1,8 @@
 <template lang="pug">
   div
     .field(v-for="(shipping, index) in orderedShippingMethods")
-      b-radio(v-model="radio" :native-value="shipping.option") {{ shipping.price | currency }} <span class="label">{{ filterShipping(shipping.option)[0].label }}</span>
+      input(type="radio" :name="cartItem.item.product_id" :value="shipping.price" :checked="index === 0" @input="test")
+      label {{ shipping.price | currency }} <span class="label">{{ filterShipping(shipping.option)[0].label }}</span>
 </template>
 
 <script>
@@ -14,12 +15,15 @@
       uid: {
         type: String,
         required: true
+      },
+      cartItem: {
+        type: Object,
+        required: true
       }
     },
 
     data () {
       return {
-        radio: 0,
         shippingServices: [
           { label: 'Royal Mail 2nd Class (2 to 3 working days)', value: 'royal_mail_2nd_class' },
           { label: 'Test 2', value: 'test_2' }
@@ -31,15 +35,22 @@
     mounted () {
       this.$store.dispatch('checkout/getShippingMethodData', this.uid)
         .then((res) => {
-          console.log('res', res)
           this.orderedShippingMethods = _.orderBy(res, 'price')
         })
+    },
+
+    created () {
+      console.log('mnkye', this.orderedShippingMethods)
     },
 
     computed: {
       getShippingMethods () {
         return this.$store.getters['checkout/loadedShippingMethodData']
       }
+
+      // orderedShippingMethods () {
+      //   return _.orderBy(this.getShippingMethods, 'price')
+      // }
     },
 
     methods: {
@@ -47,12 +58,10 @@
         return _.filter(this.shippingServices, (item) => {
           return item.value === value
         })
-      }
-    },
+      },
 
-    watch: {
-      radio () {
-        console.log(this.radio)
+      test (el) {
+        console.log('value', Number(el.target.value))
       }
     }
   }
