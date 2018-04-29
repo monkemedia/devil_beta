@@ -18,7 +18,6 @@
     name: 'SignIn',
 
     middleware: [
-      'check-auth'
     ],
 
     components: {

@@ -1,437 +1,141 @@
-import { setAuthToken, setAuthUid, setAuthUsername, setAuthRefreshToken, setAuthExpirationDate, resetAuth } from '~/utils/auth'
-import Cookies from 'js-cookie'
-import _ from 'lodash'
+import Cookie from 'js-cookie'
+import api from '~/api'
 
-const store = {
-  namespaced: true,
+const state = () => ({
+  token: null,
+  customerId: null
+})
 
-  state: {
-    token: null,
-    username: null,
-    uid: null
+const mutations = {
+  SET_TOKEN (store, data) {
+    store.token = data
   },
 
-  mutations: {
-    SET_TOKEN (state, token) {
-      state.token = token
-    },
-
-    SET_USERNAME (state, username) {
-      state.username = username
-    },
-
-    SET_UID (state, payload) {
-      state.uid = payload
-    },
-
-    CLEAR_USERNAME (state) {
-      state.username = null
-    },
-
-    CLEAR_TOKEN (state) {
-      state.token = null
-    },
-
-    CLEAR_UID (state) {
-      state.uid = null
-    }
+  SET_CUSTOMER_ID (store, data) {
+    store.customerId = data
   },
 
-  actions: {
-    initAuth ({ commit, dispatch }, req) {
-      const vm = this
-      let token
-      let expirationDate
-      let username
-      let uid
-      let refreshToken
+  CLEAR_TOKEN (store) {
+    store.token = null
+  },
 
-      function refreshTokenApi (refreshTok) {
-        const authUrl = `https://securetoken.googleapis.com/v1/token?key=${process.env.FB_API_KEY}`
-        return vm.$axios.$post(authUrl, {
-          grant_type: 'refresh_token',
-          refresh_token: refreshTok
-        })
+  CLEAR_CUSTOMER_ID (store) {
+    store.customerId = null
+  }
+}
+
+const actions = {
+  initAuth ({ dispatch, commit, getters }, req) {
+    let token
+    let customerId
+    let username
+    let merchantType
+
+    if (req) {
+      if (!req.headers.cookie) {
+        return
       }
+      const tokenCookie = req.headers.cookie
+        .split(';')
+        .find(c => c.trim().startsWith('token='))
 
-      if (req) {
-        if (!req.headers.cookie) {
-          console.log('CLEAR')
-          commit('CLEAR_TOKEN')
-          commit('CLEAR_USERNAME')
-          commit('CLEAR_UID')
-
-          resetAuth()
-          return
-        }
-
-        let tokenCookies = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('token='))
-
-        let usernameCookies = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('username='))
-
-        let uidCookies = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('uid='))
-
-        let expirationDateCookies = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('expiration-date='))
-
-        let refreshTokenCookies = req.headers.cookie
-          .split(';')
-          .find(c => c.trim().startsWith('refresh-token='))
-
-        if (!tokenCookies) {
-          return
-        }
-
-        token = tokenCookies.split('=')[1]
-        username = usernameCookies.split('=')[1]
-        uid = uidCookies.split('=')[1]
-        refreshToken = refreshTokenCookies.split('=')[1]
-        expirationDate = expirationDateCookies.split('=')[1]
-
-        setAuthToken(token)
-        setAuthUid(uid)
-        setAuthUsername(username)
-        setAuthRefreshToken(refreshToken)
-        setAuthExpirationDate(expirationDate)
-
-        commit('SET_UID', uid)
-        commit('SET_USERNAME', username)
-
-        console.log('expirationDate', expirationDate)
-
-        if (new Date().getTime() >= expirationDate) {
-          console.log('TOKEN HAS EXPIRED')
-          return refreshTokenApi(refreshToken)
-            .then((result) => {
-              console.log('REFRESH_RESULT', result.id_token)
-              const setExpirationDate = new Date().getTime() + parseInt(result.expires_in) * 1000
-
-              commit('SET_TOKEN', result.id_token)
-
-              setAuthToken(result.id_token)
-              setAuthRefreshToken(result.refreshToken)
-              setAuthExpirationDate(setExpirationDate)
-            })
-            .catch((err) => {
-              console.log(err.response.data.error)
-              throw err
-            })
-        } else {
-          commit('SET_TOKEN', token)
-        }
-      } else if (process.client) {
-        token = Cookies.get('token')
-        expirationDate = Cookies.get('expiration-date')
-        refreshToken = Cookies.get('refresh-token')
-        username = Cookies.get('username')
-        uid = Cookies.get('uid')
-      }
-    },
-
-    validateUsername ({}, username) {
-      return this.$axios.$get(`${process.env.FB_URL}/usernames.json`)
-        .then((data) => {
-          const filterUsernames = _.filter(data, (key) => {
-            return key.username === username
-          })
-
-          if (filterUsernames.length) {
-            const myError = {
-              response: {
-                data: {
-                  error: {
-                    code: 'failed',
-                    message: 'This username already exists, please try again.'
-                  }
-                }
-              }
-            }
-
-            throw myError
-          }
-
-          return {
-            response: {
-              data: {
-                error: {
-                  code: 'success',
-                  message: 'This username is available'
-                }
-              }
-            }
-          }
-        })
-    },
-
-    saveUsernameToDatabase ({ state }, usernameDetails) {
-      const username = usernameDetails.username
-      const token = state.token
-      return this.$axios.$put(`${process.env.FB_URL}/usernames/${username}.json?auth=${token}`, usernameDetails)
-    },
-
-    saveUserDetailsToDatabase ({ state }, userDetails) {
-      const uid = userDetails.uid
-      const token = state.token
-      return this.$axios.$patch(`${process.env.FB_URL}/users/${uid}.json?auth=${token}`, userDetails)
-    },
-
-    transferAnonCartToSignedInCart ({ getters, dispatch, rootGetters }) {
-      const vm = this
-
-      function anonCartSessions (token, cartId) {
-        return vm.$axios.$get(`${process.env.FB_URL}/cartSessions/${cartId}/products.json?auth=${token}`)
-      }
-
-      function deleteAnonCartSessions (token, cartId) {
-        return vm.$axios.$delete(`${process.env.FB_URL}/cartSessions/${cartId}.json?auth=${token}`)
-      }
-
-      function addUidToCart (uid, cartId) {
-        return vm.$axios.$patch(`${process.env.FB_URL}/users/${uid}.json?auth=${token}`, { cart: cartId })
-      }
-
-      function doesCartSessionExistInUserProfile (uid, token) {
-        return vm.$axios.$get(`${process.env.FB_URL}/users/${uid}/cart.json?&auth=${token}`)
-      }
-
-      function addItemToCartSessions (token, cartId, items) {
-        return vm.$axios.$patch(`${process.env.FB_URL}/cartSessions/${cartId}/products.json?auth=${token}`, items)
-      }
-      // Add anon cart uid to userprofile
-      const isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
-      let uid
-      let token
-      let cartId
-
-      // When the user signs in Officially, let's see it they have a ANON token
-      console.log('User has signed in officially, lets see if they a ANON token')
-      if (isAnonAuthenticated) {
-        uid = getters['uid']
-        token = getters['token']
-        cartId = rootGetters['anonAuth/uid']
-        // User has ANON token, let's see if they have a cart session
-        console.log('User has signed in officially, and they do have a anon token')
-        return doesCartSessionExistInUserProfile(uid, token)
-          .then((sessionId) => {
-            console.log('sessionId PEOPLE', sessionId)
-            if (!sessionId) {
-              console.log('Officially signed in user does not have a sessionCart Id ib user profile')
-              console.log('So add ANON cart session ID to user profile')
-              return addUidToCart(uid, cartId)
-                .then(() => {
-                  // Log out ANON user
-                  console.log('LOGOUT OUT ANON USER')
-                  return dispatch('anonAuth/logoutUser', null, { root: true })
-                })
-            }
-
-            // User has cart session ID so add anon session products to it
-            console.log('User has cart session ID so get anon session details then add it to offical cartSessions')
-            token = rootGetters['anonAuth/token']
-            return anonCartSessions(token, cartId)
-              .then((items) => {
-                token = getters['token']
-                return addItemToCartSessions(token, sessionId, items)
-              })
-              .then(() => {
-                // Remove ANON cart session
-                token = rootGetters['anonAuth/token']
-                return deleteAnonCartSessions(token, cartId)
-              })
-          })
-      }
-      // User doesnt have a ANON token so they don't have cart data saved anonymously, so don't do anything
-      console.log('User doesnt have a ANON token so they dont have cart data saved anonymously, so dont do anything')
-    },
-
-    deleteUser ({}, token) {
-      const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/deleteAccount?key=${process.env.FB_API_KEY}`
-
-      if (!token) {
+      if (!tokenCookie) {
         return
       }
 
-      return this.$axios.$post(authUrl, {
-        idToken: token
-      })
-    },
+      const customerIdCookie = req.headers.cookie
+        .split(';')
+        .find(c => c.trim().startsWith('customerId='))
 
-    loginUser ({ commit, getters, dispatch, rootState, rootGetters }, authData) {
-      const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${process.env.FB_API_KEY}`
+      const usernameCookie = req.headers.cookie
+        .split(';')
+        .find(c => c.trim().startsWith('username='))
 
-      return this.$axios.$post(authUrl, {
-        email: authData.email,
-        password: authData.password,
-        returnSecureToken: true
-      })
-        .then((result) => {
-          const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
+      const merchantTypeCookie = req.headers.cookie
+        .split(';')
+        .find(c => c.trim().startsWith('merchantType='))
 
-          console.log('RESULT', result)
-
-          commit('SET_TOKEN', result.idToken)
-          commit('SET_USERNAME', result.displayName)
-          commit('SET_UID', result.localId)
-
-          setAuthToken(result.idToken)
-          setAuthUid(result.localId)
-          setAuthUsername(result.displayName)
-          setAuthRefreshToken(result.refreshToken)
-          setAuthExpirationDate(setExpirationDate)
-
-          Cookies.set('token', result.idToken)
-          Cookies.set('expiration-date', setExpirationDate)
-          Cookies.set('username', result.displayName)
-          Cookies.set('refresh-token', result.refreshToken)
-          Cookies.set('uid', result.localId)
-
-          return result
-        })
-        .then(() => {
-          return dispatch('transferAnonCartToSignedInCart')
-        })
-        .then(() => {
-          // Delete anon user
-          console.log('DELETE ANON USER')
-          const token = rootGetters['anonAuth/token']
-          if (!token) {
-            return
-          }
-          return dispatch('deleteUser', token)
-        })
-        .then(() => {
-          // then Log out ANON user
-          const token = rootGetters['anonAuth/token']
-          console.log('LOGOUT OUT ANON USER')
-          if (!token) {
-            return
-          }
-          return dispatch('anonAuth/logoutUser', null, { root: true })
-        })
-        .catch((err) => {
-          console.log(err)
-          throw err.response.data.error
-        })
-    },
-
-    registerUser ({ commit, dispatch, getters, rootGetters }, authData) {
-      const authUrl = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${process.env.FB_API_KEY}`
-      let response
-
-      console.log(authData)
-
-      return dispatch('validateUsername', authData.username)
-        .then(() => {
-          return this.$axios.$post(authUrl, {
-            email: authData.email,
-            password: authData.password,
-            displayName: authData.username,
-            returnSecureToken: true
-          })
-        })
-        .then((result) => {
-          response = result
-          const setExpirationDate = new Date().getTime() + parseInt(result.expiresIn) * 1000
-
-          commit('SET_TOKEN', result.idToken)
-          commit('SET_USERNAME', result.displayName)
-          commit('SET_UID', result.localId)
-
-          setAuthToken(result.idToken)
-          setAuthUid(result.localId)
-          setAuthUsername(result.displayName)
-          setAuthRefreshToken(result.idToken)
-          setAuthExpirationDate(setExpirationDate)
-
-          Cookies.set('token', result.idToken)
-          Cookies.set('expiration-date', setExpirationDate)
-          Cookies.set('username', result.displayName)
-          Cookies.set('uid', result.localId)
-
-          return { result }
-        })
-        .then(() => {
-          return dispatch('transferAnonCartToSignedInCart')
-        })
-        .then(() => {
-          // Delete anon user
-          const token = rootGetters['cart/anonToken']
-          return dispatch('deleteUser', token)
-        })
-        .then(() => {
-          // then Log out ANON user
-          console.log('LOGOUT OUT ANON USER')
-          return dispatch('anonAuth/logoutUser', null, { root: true })
-        })
-        .then((data) => {
-          const usernameDetails = {
-            username: authData.username,
-            uid: getters['uid']
-          }
-
-          return dispatch('saveUsernameToDatabase', usernameDetails)
-        })
-        .then(() => {
-          const userDetails = {
-            email: authData.email,
-            username: authData.username,
-            accountType: authData.accountType,
-            uid: getters['uid'],
-            cartIds: null
-          }
-
-          return dispatch('saveUserDetailsToDatabase', userDetails)
-        })
-        .then(() => {
-          return response
-        })
-        .catch((err) => {
-          console.log('ERROR', err)
-          throw err.response.data.error
-        })
-    },
-
-    logout ({ commit, rootState, rootGetters }) {
-      console.log('LOGGED OUT')
-      commit('CLEAR_TOKEN')
-      commit('CLEAR_USERNAME')
-      commit('CLEAR_UID')
-      commit('cart/CLEAR_CART_ITEMS', null, { root: true })
-
-      Cookies.remove('token')
-      Cookies.remove('uid')
-      Cookies.remove('username')
-      Cookies.remove('refresh-token')
-      Cookies.remove('expiration-date')
-
-      resetAuth()
+      token = tokenCookie.split('=')[1]
+      customerId = customerIdCookie.split('=')[1]
+      username = usernameCookie.split('=')[1]
+      merchantType = merchantTypeCookie.split('=')[1]
+    } else {
+      token = localStorage.getItem('token')
+      customerId = localStorage.getItem('customerId')
+      username = localStorage.getItem('username')
+      merchantType = localStorage.getItem('merchantType')
     }
+    if (!token) {
+      console.log('No token')
+      dispatch('logout')
+      return
+    }
+
+    commit('SET_TOKEN', token)
+    commit('SET_CUSTOMER_ID', customerId)
+    commit('user/SET_USERNAME', username, { root: true })
+    commit('user/SET_MERCHANT_TYPE', merchantType, { root: true })
   },
 
-  getters: {
-    isAuthenticated (state) {
-      return !!state.token
-    },
+  login ({ commit, dispatch }, data) {
+    return api.auth.login(data)
+      .then(response => {
+        commit('SET_TOKEN', response.data.data.token)
+        commit('SET_CUSTOMER_ID', response.data.data.customer_id)
 
-    token (state) {
-      return state.token
-    },
+        localStorage.setItem('token', response.data.data.token)
+        localStorage.setItem('customerId', response.data.data.customer_id)
 
-    username (state) {
-      return state.username
-    },
+        Cookie.set('token', response.data.data.token)
+        Cookie.set('customerId', response.data.data.customer_id)
 
-    uid (state) {
-      return state.uid
+        return response
+      })
+      .then((response) => {
+        return dispatch('user/user', {
+          customer_id: response.data.data.customer_id,
+          customer_token: response.data.data.token
+        }, { root: true })
+      })
+  },
+
+  logout ({ commit }) {
+    commit('CLEAR_TOKEN')
+    commit('CLEAR_CUSTOMER_ID')
+    commit('user/CLEAR_USERNAME', null, { root: true })
+    commit('user/CLEAR_MERCHANT_TYPE', null, { root: true })
+
+    Cookie.remove('token')
+    Cookie.remove('customerId')
+    Cookie.remove('username')
+    Cookie.remove('merchantType')
+    if (process.client) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('customerId')
+      localStorage.removeItem('username')
+      localStorage.removeItem('merchantType')
     }
   }
 }
 
-export default store
+const getters = {
+  getMoltinCredentials (state) {
+    return state.moltin
+  },
+
+  isAuthenticated (state) {
+    return !!state.token
+  },
+
+  getToken (state) {
+    return state.token
+  }
+}
+
+export default {
+  namespaced: true,
+  state,
+  getters,
+  mutations,
+  actions
+}

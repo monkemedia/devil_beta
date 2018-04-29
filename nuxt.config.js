@@ -62,6 +62,7 @@ module.exports = {
   ** Plugins to load before mounting the App
   */
   plugins: [
+    '~/plugins/axios',
     '~/plugins/mixins',
     '~/plugins/buefy',
     '~/plugins/lazy-image',

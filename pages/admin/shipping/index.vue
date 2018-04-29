@@ -18,7 +18,7 @@
     layout: 'admin',
 
     middleware: [
-      'check-auth',
+      'init-auth',
       'auth'
     ],
 

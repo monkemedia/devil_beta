@@ -35,8 +35,7 @@
     },
 
     middleware: [
-      'check-auth',
-      'checkout-auth'
+      'init-auth'
     ],
 
     created () {

@@ -24,7 +24,7 @@
     name: 'Shipping',
 
     middleware: [
-      'check-auth',
+      'init-auth',
       'auth'
     ],
 

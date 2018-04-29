@@ -11,7 +11,7 @@
 
   export default {
     middleware: [
-      'check-auth',
+      'init-auth',
       'auth'
     ],
 

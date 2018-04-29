@@ -21,6 +21,7 @@
     layout: 'admin',
 
     middleware: [
+      'init-auth',
       'auth',
       'add-item-error'
     ],

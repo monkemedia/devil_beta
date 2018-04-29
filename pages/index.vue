@@ -6,8 +6,7 @@
 <script>
   export default {
     middleware: [
-      'check-auth',
-      'fetch-cart-data'
+      'init-auth'
     ]
   }
 </script>

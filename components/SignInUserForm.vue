@@ -84,9 +84,10 @@
           .then((response) => {
             if (response) {
               this.loading = true
-              this.$store.dispatch('auth/loginUser', {
+              this.$store.dispatch('auth/login', {
                 email: this.email,
-                password: this.password
+                password: this.password,
+                type: 'token'
               })
                 .then(() => {
                   this.loading = false
@@ -97,7 +98,14 @@
                   }
                 })
                 .catch(err => {
-                  this.isSignInError = _.lowerCase(err.message)
+                  if (err.response) {
+                    if (err.response.data.errors[0].status === 404) {
+                      this.isSignInError = _.lowerCase('Looks like your email or password is incorrect')
+                    }
+                  } else {
+                    this.isSignInError = _.lowerCase(err.message)
+                  }
+
                   this.loading = false
                 })
             } else {

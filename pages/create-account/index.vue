@@ -13,7 +13,7 @@
     name: 'Register',
 
     middleware: [
-      'check-auth'
+      'init-auth'
     ],
 
     components: {

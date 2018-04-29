@@ -130,7 +130,7 @@
               email: this.email,
               password: this.password,
               username: this.username,
-              accountType: 'buyer'
+              accountType: 'seller'
             }
 
             this.loading = true

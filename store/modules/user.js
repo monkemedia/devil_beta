@@ -1,40 +1,59 @@
 import Cookie from 'js-cookie'
-import _ from 'lodash'
+import api from '~/api'
 
-const store = {
-  namespaced: true,
+const state = () => ({
+  username: null,
+  merchantType: null
+})
 
-  state: {
-    userDetails: null
+const mutations = {
+  SET_USERNAME (state, username) {
+    state.username = username
   },
 
-  mutations: {
-    SET_USER_DETAILS (state, userDetails) {
-      state.userDetails = userDetails
-    }
+  CLEAR_USERNAME (state) {
+    state.username = null
   },
 
-  actions: {
-    loadUser ({ commit, rootState }) {
-      const token = rootState.auth.token
-
-      return this.$axios.$get(`${process.env.FB_URL}/users.json?auth=${token}`)
-        .then(data => {
-          return _.forOwn(data, (key, value) => {
-            Cookie.set('user', key)
-            localStorage.setItem('user', key)
-            commit('SET_USER_DETAILS', key)
-          })
-        })
-        .catch(err => err)
-    }
+  SET_MERCHANT_TYPE (state, merchant) {
+    state.merchantType = merchant
   },
 
-  getters: {
-    userDetails (state) {
-      return state.userDetails
-    }
+  CLEAR_MERCHANT_TYPE (state) {
+    state.merchantType = null
   }
 }
 
-export default store
+const actions = {
+  user ({ commit }, data) {
+    return api.user(data)
+      .then(response => {
+        localStorage.setItem('username', response.data.data.username)
+        localStorage.setItem('merchantType', response.data.data.merchantType)
+
+        Cookie.set('username', response.data.data.username)
+        Cookie.set('merchantType', response.data.data.merchantType)
+
+        commit('SET_USERNAME', response.data.data.username)
+        commit('SET_MERCHANT_TYPE', response.data.data.merchantType)
+      })
+  }
+}
+
+const getters = {
+  username (state) {
+    return state.username
+  },
+
+  merchant (state) {
+    return state.merchantType
+  }
+}
+
+export default {
+  namespaced: true,
+  state,
+  getters,
+  mutations,
+  actions
+}
