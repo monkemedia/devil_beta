@@ -1,37 +1,39 @@
 import api from '~/api'
 
-const moltin = {
-  namespaced: true,
+const state = () => ({
+  data: null
+})
 
-  state: {
-    data: null
-  },
-
-  mutations: {
-    SET_MOLTIN (store, data) {
-      store.data = data
-    }
-  },
-
-  actions: {
-    credentials ({ commit }) {
-      const data = {
-        client_id: 'HFjf7MrxTu3YpDwhhOO4p9he3bEN6sqFQKkBVccQsG',
-        grant_type: 'implicit'
-      }
-
-      return api.moltin.credentials(data)
-        .then(response => {
-          commit('SET_MOLTIN', response.data)
-        })
-    }
-  },
-
-  getters: {
-    getCredentials (state) {
-      return state.data
-    }
+const mutations = {
+  SET_MOLTIN (store, data) {
+    store.data = data
   }
 }
 
-export default moltin
+const actions = {
+  credentials ({ commit }) {
+    const data = {
+      client_id: 'HFjf7MrxTu3YpDwhhOO4p9he3bEN6sqFQKkBVccQsG',
+      grant_type: 'implicit'
+    }
+
+    return api.moltin.credentials(data)
+      .then(response => {
+        commit('SET_MOLTIN', response.data)
+      })
+  }
+}
+
+const getters = {
+  getCredentials (state) {
+    return state.data
+  }
+}
+
+export default {
+  namespaced: true,
+  state,
+  getters,
+  mutations,
+  actions
+}

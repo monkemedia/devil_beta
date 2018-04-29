@@ -1,21 +1,22 @@
-const store = {
-  namespaced: true,
+const state = () => ({
+  isSearchBarOpen: false
+})
 
-  state: {
-    isSearchBarOpen: false
-  },
-
-  mutations: {
-    SET_SEARCH_BAR (state, payload) {
-      state.isSearchBarOpen = payload
-    }
-  },
-
-  getters: {
-    isSearchBarOpen: (state) => {
-      return state.isSearchBarOpen
-    }
+const mutations = {
+  SET_SEARCH_BAR (state, payload) {
+    state.isSearchBarOpen = payload
   }
 }
 
-export default store
+const getters = {
+  isSearchBarOpen: (state) => {
+    return state.isSearchBarOpen
+  }
+}
+
+export default {
+  namespaced: true,
+  state,
+  getters,
+  mutations
+}
