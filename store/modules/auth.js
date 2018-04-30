@@ -77,25 +77,47 @@ const actions = {
     commit('user/SET_MERCHANT_TYPE', merchantType, { root: true })
   },
 
-  login ({ commit, dispatch }, data) {
+  setAuthData ({ commit }, data) {
+    commit('SET_TOKEN', data.token)
+    commit('SET_CUSTOMER_ID', data.customer_id)
+
+    localStorage.setItem('token', data.token)
+    localStorage.setItem('customerId', data.customer_id)
+
+    Cookie.set('token', data.token)
+    Cookie.set('customerId', data.customer_id)
+  },
+
+  login ({ dispatch }, data) {
+    console.log('1', data)
     return api.auth.login(data)
       .then(response => {
-        commit('SET_TOKEN', response.data.data.token)
-        commit('SET_CUSTOMER_ID', response.data.data.customer_id)
-
-        localStorage.setItem('token', response.data.data.token)
-        localStorage.setItem('customerId', response.data.data.customer_id)
-
-        Cookie.set('token', response.data.data.token)
-        Cookie.set('customerId', response.data.data.customer_id)
-
+        console.log('2', response)
+        dispatch('setAuthData', {
+          token: response.data.data.token,
+          customer_id: response.data.data.customer_id
+        })
         return response
       })
       .then((response) => {
+        console.log('3', response)
         return dispatch('user/user', {
           customer_id: response.data.data.customer_id,
           customer_token: response.data.data.token
         }, { root: true })
+      })
+  },
+
+  register ({ dispatch }, data) {
+    console.log('reg', data)
+    return api.auth.register(data)
+      .then(response => {
+        console.log('response', response)
+        return dispatch('login', {
+          email: data.email,
+          password: data.password,
+          type: 'token'
+        })
       })
   },
 

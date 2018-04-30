@@ -29,13 +29,13 @@ const actions = {
     return api.user(data)
       .then(response => {
         localStorage.setItem('username', response.data.data.username)
-        localStorage.setItem('merchantType', response.data.data.merchantType)
+        localStorage.setItem('merchantType', response.data.data.merchant_type)
 
         Cookie.set('username', response.data.data.username)
-        Cookie.set('merchantType', response.data.data.merchantType)
+        Cookie.set('merchantType', response.data.data.merchant_type)
 
         commit('SET_USERNAME', response.data.data.username)
-        commit('SET_MERCHANT_TYPE', response.data.data.merchantType)
+        commit('SET_MERCHANT_TYPE', response.data.data.merchant_type)
       })
   }
 }

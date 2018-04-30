@@ -4,10 +4,10 @@
 
     b-field.account-types
       b-radio-button(
-        v-model="accountType"
+        v-model="merchantType"
         native-value="buyer") Buyer
       b-radio-button(
-        v-model="accountType"
+        v-model="merchantType"
         native-value="seller") Seller
 
     .field
@@ -22,6 +22,19 @@
           :class="{ 'is-danger': errors.has('username') }"
           v-validate="'required|alpha_dash|min:3'")
         p(v-show="errors.has('username')" class="help is-danger" v-html="errors.first('username')")
+
+    .field
+      label.label Full name #[sup *]
+      .control
+        input.input(
+          name="name"
+          id="name"
+          v-model="name"
+          type="text"
+          data-vv-delay="600"
+          :class="{ 'is-danger': errors.has('name') }"
+          v-validate="'required'")
+        p(v-show="errors.has('name')" class="help is-danger" v-html="errors.first('name')")
 
     .field
       label.label Email #[sup *]
@@ -85,6 +98,9 @@
       username: {
         required: 'Whoops! Username is required'
       },
+      name: {
+        required: 'Whoops! Full name is required'
+      },
       email: {
         required: 'Whoops! Email is required'
       },
@@ -106,8 +122,9 @@
 
     data () {
       return {
-        accountType: 'buyer',
+        merchantType: 'buyer',
         username: 'incubusrich',
+        name: 'Richy',
         email: 'incubusrich@hotmail.com',
         password: '1111qqqq',
         confirmedPassword: '1111qqqq',
@@ -124,17 +141,26 @@
         this.isRegisterError = false
         // Validate form first
         this.$validator.validateAll()
+          // .then(() => {
+          //   const payload = {
+          //     type: 'entry',
+          //     username: this.username
+          //   }
+          //   return this.$store.dispatch('auth/username', payload)
+          // })
           .then(() => {
             // Validate username first
             const payload = {
               email: this.email,
               password: this.password,
+              name: this.name,
               username: this.username,
-              accountType: 'seller'
+              merchant_type: this.merchantType,
+              type: 'customer'
             }
 
             this.loading = true
-            return this.$store.dispatch('auth/registerUser', payload)
+            return this.$store.dispatch('auth/register', payload)
           })
 
           .then(() => {
@@ -146,8 +172,15 @@
             }
           })
           .catch((err) => {
+            console.log(err)
+            if (err.response) {
+              if (err.response.status === 409) {
+                this.isRegisterError = err.response.data.errors[0].detail
+              }
+            } else {
+              this.isRegisterError = _.lowerCase(err.message)
+            }
             this.loading = false
-            this.isRegisterError = _.lowerCase(err.message)
             VueScrollTo.scrollTo('.is-danger')
           })
       }
