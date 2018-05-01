@@ -7,14 +7,14 @@
             label.label Title #[sup *]
             .control
               input.input(
-                name="title"
-                id="title"
-                v-model="formData.title"
+                name="name"
+                id="name"
+                v-model="formData.name"
                 type="text"
                 data-vv-delay="600"
-                :class="{ 'is-danger': errors.has('title') }"
+                :class="{ 'is-danger': errors.has('name') }"
                 v-validate="'required'")
-              p(v-show="errors.has('title')" class="help is-danger" v-html="errors.first('title')")
+              p(v-show="errors.has('name')" class="help is-danger" v-html="errors.first('name')")
 
           .field
             label.label Description
@@ -37,7 +37,7 @@
                 :class="{ 'is-danger': errors.has('category') }"
                 v-validate="'required'")
                   option(disabled value="") Please select a category
-                  option(v-for="cat in categories" :value="cat.value") {{ cat.label }}
+                  option(v-for="cat in categories" :value="cat.slug") {{ cat.name }}
               p(v-show="errors.has('category')" class="help is-danger" v-html="errors.first('category')")
           .columns
             .column
@@ -98,10 +98,10 @@
                 .control.is-expanded
                   .select.is-fullwidth.is-multiple
                     select(
-                    name="storefront"
-                    id="storefront"
-                    @change="clearErrors(formData.storefront)"
-                    v-model="formData.storefront")
+                    name="status"
+                    id="status"
+                    @change="clearErrors(formData.status)"
+                    v-model="formData.status")
                       option(v-for="store in storefront_options" :value="store.value") {{ store.label }}
 
           //- variants(@passVariant="updateFormDataVariants" :formData="formData")
@@ -126,6 +126,8 @@
 <script>
   import Vue from 'vue'
   import VeeValidate, { Validator } from 'vee-validate'
+  import { slug, sku } from '../../../utils/code-generators.js'
+  // import __ from 'lodash-addons'
   import VueScrollTo from 'vue-scrollto'
   import Variants from '@/components/Admin/AddProduct/Variants'
   import UploadImages from '@/components/Admin/AddProduct/UploadImages'
@@ -134,7 +136,7 @@
 
   const dict = {
     custom: {
-      title: {
+      name: {
         required: 'Whoops! Title is required'
       },
       category: {
@@ -158,6 +160,11 @@
       itemData: {
         type: Object,
         required: false
+      },
+
+      categories: {
+        type: Array,
+        required: true
       }
     },
 
@@ -171,25 +178,23 @@
         loading: false,
         formData: this.itemData
           ? { ...this.itemData } : {
-            title: '',
-            description: '',
-            category: '',
-            stock: 0,
-            price: 0,
-            on_sale: false,
-            sale_price: 0,
-            variants: [],
-            images: [],
-            storefront: 'hidden'
+            name: 'Monkey',
+            description: 'this is a description',
+            category: 'toys',
+            price: [
+              {
+                amount: 0,
+                currency: 'USD',
+                includes_tax: false
+              }
+            ],
+            commodity_type: 'physical',
+            status: 'draft'
           },
         cached_store_front: '',
-        categories: [
-          { label: 'My Test', value: 'test' },
-          { label: 'Test 2', value: 'test_2' }
-        ],
         storefront_options: [
-          { label: 'Hidden - Not visible on storefront', value: 'hidden' },
-          { label: 'Visible - Currently visible on storefront', value: 'visible' }
+          { label: 'Hidden - Not visible on storefront', value: 'draft' },
+          { label: 'Visible - Currently visible on storefront', value: 'live' }
         ]
       }
     },
@@ -197,40 +202,62 @@
     computed: {
       isFormValid () {
         return Object.keys(this.fields).every(key => this.fields[key] && this.fields[key].validated)
+      },
+
+      customerId () {
+        return this.$store.getters['auth/getCustomerId']
       }
     },
 
     methods: {
       onSubmitForm () {
-        const paramId = this.$route.params.id || null
+        // const paramId = this.$route.params.id || null
         const vm = this
         const payload = {
           ...this.formData,
-          product_id: paramId
+          manage_stock: true,
+          slug: slug(),
+          sku: sku()
         }
-
-        console.log(paramId)
 
         function createItem () {
           vm.loading = true
-          vm.$store.dispatch('sellersItems/createItem', payload)
-            .then((response) => {
-              vm.cached_store_front = vm.cached_store_front
+          vm.$store.dispatch('products/createProduct', payload)
+            .then(res => {
+              // Filter through brands to find BRAND ID
+              const customerId = vm.$store.getters['auth/getCustomerId']
 
-              if (payload.storefront === 'visible' && payload.storefront !== vm.cached_store_front) {
-                vm.cached_store_front = payload.storefront
-                vm.alertToast({ message: 'Item is now visible on storefront', type: 'is-success' })
-              } else if (payload.storefront === 'hidden' && payload.storefront !== vm.cached_store_front) {
-                vm.cached_store_front = payload.storefront
-                vm.alertToast({ message: 'Item is now hidden from storefront', type: 'is-warning' })
-              }
+              return Promise.all([
+                vm.$store.dispatch('products/brandId', { customerId }),
+                { productId: res.data.data.id }
+              ])
+            })
+            .then(res => {
+              console.log('MONKEY', res)
+              return vm.$store.dispatch('products/brandRelationships', {
+                brandId: res[0].data.data[0].id,
+                productId: res[1].productId
+              })
+            })
+            .then(res => {
+              console.log('brand res', res)
+              return res
+              // vm.cached_store_front = vm.cached_store_front
 
-              if (paramId === null) {
-                vm.$router.push({
-                  path: `/admin/add-product/${response.product_id}`
-                })
-              }
-              vm.loading = false
+              // if (payload.storefront === 'visible' && payload.storefront !== vm.cached_store_front) {
+              //   vm.cached_store_front = payload.storefront
+              //   vm.alertToast({ message: 'Item is now visible on storefront', type: 'is-success' })
+              // } else if (payload.storefront === 'hidden' && payload.storefront !== vm.cached_store_front) {
+              //   vm.cached_store_front = payload.storefront
+              //   vm.alertToast({ message: 'Item is now hidden from storefront', type: 'is-warning' })
+              // }
+
+              // if (paramId === null) {
+              //   vm.$router.push({
+              //     path: `/admin/add-product/${response.product_id}`
+              //   })
+              // }
+              // vm.loading = false
             })
             .catch((err) => {
               vm.alertToast({ message: err.message, type: 'is-danger' })

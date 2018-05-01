@@ -132,6 +132,8 @@ module.exports = {
 
   env: {
     BASE_URL: process.env.BASE_URL,
+    MOLTIN_CLIENT_ID: process.env.MOLTIN_CLIENT_ID,
+    MOLTIN_CLIENT_SECRET: process.env.MOLTIN_CLIENT_SECRET,
     FB_URL: process.env.FB_URL,
     FB_API_KEY: process.env.FB_API_KEY,
     UPLOADCARE_PUBLIC_KEY: process.env.UPLOADCARE_PUBLIC_KEY,

@@ -89,10 +89,8 @@ const actions = {
   },
 
   login ({ dispatch }, data) {
-    console.log('1', data)
     return api.auth.login(data)
       .then(response => {
-        console.log('2', response)
         dispatch('setAuthData', {
           token: response.data.data.token,
           customer_id: response.data.data.customer_id
@@ -109,10 +107,8 @@ const actions = {
   },
 
   register ({ dispatch }, data) {
-    console.log('reg', data)
     return api.auth.register(data)
       .then(response => {
-        console.log('response', response)
         return dispatch('login', {
           email: data.email,
           password: data.password,
@@ -151,6 +147,10 @@ const getters = {
 
   getToken (state) {
     return state.token
+  },
+
+  getCustomerId (state) {
+    return state.customerId
   }
 }
 

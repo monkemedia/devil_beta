@@ -1,10 +1,11 @@
+import api from '~/api'
 import _ from 'lodash'
-import { key } from 'firebase-key'
 import uploadcare from 'uploadcare-widget'
 
 const state = () => ({
   loadedSellersItem: null,
-  loadedSellersItems: null
+  loadedSellersItems: null,
+  categories: null
 })
 
 const mutations = {
@@ -14,6 +15,10 @@ const mutations = {
 
   SET_SELLERS_ITEMS (state, item) {
     state.loadedSellersItems = item
+  },
+
+  SET_CATEGORIES (state, categories) {
+    state.categories = categories
   }
 }
 
@@ -108,42 +113,38 @@ const actions = {
       })
   },
 
-  createItem ({ commit, dispatch, rootGetters }, itemDetails) {
-    const token = rootGetters['auth/token']
-    const username = rootGetters['auth/username']
-    const uid = rootGetters['auth/uid']
-    const category = itemDetails.category
-    let uniqueId
-    let productId
+  categories ({ commit }) {
+    return api.products.categories()
+      .then(response => {
+        commit('SET_CATEGORIES', response.data.data)
+      })
+  },
 
-    if (itemDetails.product_id !== null) {
-      uniqueId = itemDetails.product_id
-    } else {
-      uniqueId = key()
-    }
+  brandId ({}, data) {
+    return api.products.brandId(data)
+  },
 
+  brands ({}, data) {
+    return api.products.brands(data)
+  },
+
+  brandRelationships ({}, data) {
+    return api.products.brandRelationship(data)
+  },
+
+  createProduct ({ commit, dispatch, rootGetters }, itemDetails) {
     const itemData = {
       ...itemDetails,
-      username,
-      uid,
-      product_id: uniqueId
+      type: 'product'
     }
 
-    return this.$axios.$put(`${process.env.FB_URL}/userProducts/${uid}/${uniqueId}.json?auth=${token}`, itemData)
-      .then(() => {
-        if (itemDetails.storefront === 'visible') {
-          return this.$axios.$patch(`${process.env.FB_URL}/categories/${category}/${uniqueId}.json?auth=${token}`, { productId: uniqueId })
-            .then(() => {
-              return this.$axios.$put(`${process.env.FB_URL}/products/${uniqueId}.json?auth=${token}`, itemData)
-            })
-        } else {
-          productId = uniqueId
-          return dispatch('deleteItem', { productId, category, token })
-        }
-      })
-      .then(() => {
+    console.log(itemDetails)
+
+    return api.products.createProduct(itemData)
+      .then(res => {
         commit('SET_SELLERS_ITEM', itemData)
-        return itemData
+        console.log(res)
+        return res
       })
       .catch((err) => {
         throw err
@@ -158,6 +159,10 @@ const getters = {
 
   loadedSellersItems (state) {
     return state.loadedSellersItems
+  },
+
+  loadedCategories (state) {
+    return state.categories
   }
 }
 

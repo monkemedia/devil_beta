@@ -164,6 +164,22 @@
           })
 
           .then(() => {
+            // Need to create a BRAND, for seller to add their products too
+            if (this.merchantType === 'seller') {
+              const customerId = this.$store.getters['auth/getCustomerId']
+
+              return this.$store.dispatch('products/brands', {
+                type: 'brand',
+                name: customerId,
+                slug: customerId,
+                status: 'live'
+              })
+            }
+
+            return true
+          })
+
+          .then(() => {
             this.loading = false
             if (this.$route.query.visitor === 'unregistered') {
               this.$router.push('/shipping')

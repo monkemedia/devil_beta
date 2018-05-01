@@ -52,5 +52,60 @@ export default {
         'x-moltin-customer-token': data.customer_token
       }
     })
+  },
+
+  products: {
+    categories: () => {
+      return axios({
+        method: 'get',
+        url: `${version}/categories`
+      })
+    },
+
+    createProduct: (data) => {
+      return axios({
+        method: 'post',
+        url: `${version}/products`,
+        data: { data },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    },
+
+    brandId: (data) => {
+      return axios({
+        method: 'get',
+        url: `${version}/brands?filter=eq(slug,${data.customerId})`
+      })
+    },
+
+    brands: (data) => {
+      return axios({
+        method: 'post',
+        url: `${version}/brands`,
+        data: { data },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    },
+
+    brandRelationship: (data) => {
+      return axios({
+        method: 'post',
+        url: `${version}/products/${data.productId}/relationships/brands`,
+        data: {
+          data: [{
+            type: 'brand',
+            id: data.brandId
+          }]
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    }
+
   }
 }

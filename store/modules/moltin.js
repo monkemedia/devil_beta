@@ -12,14 +12,21 @@ const mutations = {
 
 const actions = {
   credentials ({ commit }) {
+    console.log('client_id', process.env.MOLTIN_CLIENT_ID)
+    console.log('secret', process.env.MOLTIN_CLIENT_SECRET)
     const data = {
-      client_id: 'HFjf7MrxTu3YpDwhhOO4p9he3bEN6sqFQKkBVccQsG',
-      grant_type: 'implicit'
+      client_id: process.env.MOLTIN_CLIENT_ID,
+      client_secret: process.env.MOLTIN_CLIENT_SECRET,
+      grant_type: 'client_credentials'
     }
 
     return api.moltin.credentials(data)
       .then(response => {
+        console.log('seller credentials', response)
         commit('SET_MOLTIN', response.data)
+      })
+      .catch(err => {
+        console.log('ERROR', err)
       })
   }
 }
