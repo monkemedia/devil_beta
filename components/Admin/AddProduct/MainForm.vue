@@ -37,7 +37,7 @@
                 :class="{ 'is-danger': errors.has('category') }"
                 v-validate="'required'")
                   option(disabled value="") Please select a category
-                  option(v-for="cat in categories" :value="cat.slug") {{ cat.name }}
+                  option(v-for="cat in categories" :value="cat.id") {{ cat.name }}
               p(v-show="errors.has('category')" class="help is-danger" v-html="errors.first('category')")
           .columns
             .column
@@ -176,22 +176,21 @@
     data () {
       return {
         loading: false,
-        formData: this.itemData
-          ? { ...this.itemData } : {
-            name: '',
-            description: '',
-            category: '',
-            on_sale: false,
-            sale_price: 0,
-            price: [{
-              amount: 0,
-              currency: 'GBP',
-              includes_tax: false
-            }],
-            commodity_type: 'physical',
-            status: 'draft',
-            stock: 0
-          },
+        formData: {
+          name: this.itemData ? this.itemData.name : '',
+          description: this.itemData ? this.itemData.description : '',
+          category: this.itemData ? this.itemData.relationships.categories.data[0].id : '',
+          on_sale: this.itemData ? this.itemData.on_sale : false,
+          sale_price: this.itemData ? this.itemData.sale_price : 0,
+          price: [{
+            amount: this.itemData ? this.itemData.price[0].amount : 0,
+            currency: 'GBP',
+            includes_tax: false
+          }],
+          commodity_type: 'physical',
+          status: this.itemData ? this.itemData.status : 'draft',
+          stock: this.itemData ? this.itemData.meta.stock.level : 0
+        },
         cached_store_front: '',
         storefront_options: [
           { label: 'Draft - Not live on storefront', value: 'draft' },
@@ -220,7 +219,8 @@
           manage_stock: true,
           id: paramId,
           slug: slug(),
-          sku: sku()
+          sku: sku(),
+          type: 'product'
         }
 
         function createItem () {
@@ -239,6 +239,15 @@
               return Promise.all([
                 vm.$store.dispatch('products/brandRelationships', {
                   brandId: res[0].data.data[0].id,
+                  productId: res[1].productId
+                }),
+                { productId: res[1].productId }
+              ])
+            })
+            .then(res => {
+              return Promise.all([
+                vm.$store.dispatch('products/categoryRelationships', {
+                  categoryId: vm.formData.category,
                   productId: res[1].productId
                 }),
                 { productId: res[1].productId }

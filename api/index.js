@@ -61,16 +61,15 @@ export default {
         url: `${version}/categories`
       })
         .then(res => {
-          console.log('lady-luck', res)
           return res
         })
         .catch(err => {
-          console.log('lady-shit', err)
           return err
         })
     },
 
     categoryRelationship: (data) => {
+      console.log('categoryRelationship', data)
       return axios({
         method: 'post',
         url: `${version}/products/${data.productId}/relationships/categories`,

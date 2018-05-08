@@ -120,6 +120,10 @@ const actions = {
       })
   },
 
+  categoryRelationships ({}, data) {
+    return api.products.categoryRelationship(data)
+  },
+
   brandId ({}, data) {
     return api.products.brandId(data)
   },
@@ -134,9 +138,10 @@ const actions = {
 
   updateProduct ({ commit }, itemDetails) {
     const itemData = {
-      ...itemDetails,
-      type: 'product'
+      ...itemDetails
     }
+
+    console.log('update product', itemData)
 
     return api.products.updateProduct(itemData)
       .then(res => {
