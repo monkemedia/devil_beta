@@ -23,9 +23,8 @@ export default () => {
       checkout
     },
     actions: {
-      async nuxtServerInit ({ rootGetters, dispatch }, context) {
-        console.log('moltin')
-        return dispatch('moltin/credentials')
+      async nuxtServerInit ({ dispatch }, context) {
+        return dispatch('moltin/credentials', context)
       }
     }
   })

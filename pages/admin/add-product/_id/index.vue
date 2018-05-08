@@ -5,13 +5,13 @@
         header
           breadcrumb(:crumb="breadcrumb")
           h1.add-product-heading Add Product
-            span.tag.is-uppercase(:class="status(itemData.storefront)" v-if="itemData")
-              | {{ itemData.storefront }}
-    main-form(:itemData="itemData")
+            span.tag.is-uppercase(:class="status(itemData.status)" v-if="itemData")
+              | {{ itemData.status }}
+    main-form(:itemData="itemData" :categories="categories")
 </template>
 
 <script>
-  import axios from 'axios'
+  import api from '~/api'
   import Breadcrumb from '@/components/Breadcrumbs/AdminBreadcrumb'
   import MainForm from '@/components/Admin/AddProduct/MainForm'
 
@@ -39,35 +39,63 @@
 
     async fetch ({ store, params, error }) {
       const paramId = params.id
-      const token = store.getters['auth/token']
-      const uid = store.getters['auth/uid']
 
-      return axios.get(`${process.env.FB_URL}/userProducts/${uid}/${paramId}.json?auth=${token}`)
-        .then(result => {
-          console.log('TREVOR', result)
-          if (result.data !== null) {
-            return store.commit('sellersItems/SET_SELLERS_ITEM', result.data)
-          }
-          store.commit('sellersItems/SET_SELLERS_ITEM', null)
-          error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
+      return store.dispatch('products/categories')
+        .then(() => {
+          return api.products.product(paramId)
+            .then(result => {
+              if (result.data.data !== null) {
+                return store.commit('products/SET_SELLERS_ITEM', result.data.data)
+              }
+
+              store.commit('products/SET_SELLERS_ITEM', null)
+              error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
+            })
+            .catch(err => {
+              if (err.response) {
+                return error({ statusCode: err.response.status, message: err.response.data.error })
+              }
+
+              error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
+            })
         })
-        .catch(err => {
-          if (err.response) {
-            return error({ statusCode: err.response.status, message: err.response.data.error })
-          }
-          error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-        })
+
+        // return axios.get(`${process.env.FB_URL}/userProducts/${uid}/${paramId}.json?auth=${token}`)
+        //   .then(result => {
+        //     console.log('TREVOR', result)
+        //     if (result.data !== null) {
+        //       return store.commit('sellersItems/SET_SELLERS_ITEM', result.data)
+        //     }
+        //     store.commit('sellersItems/SET_SELLERS_ITEM', null)
+        //     error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
+        //   })
+        //   .catch(err => {
+        //     if (err.response) {
+        //       return error({ statusCode: err.response.status, message: err.response.data.error })
+        //     }
+        //     error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
+        //   })
+    },
+
+    mounted () {
+      if (process.client) {
+        return this.$store.dispatch('products/categories')
+      }
     },
 
     computed: {
       itemData () {
-        return this.$store.getters['sellersItems/loadedSellersItem']
+        return this.$store.getters['products/loadedSellersItem']
+      },
+
+      categories () {
+        return this.$store.getters['products/loadedCategories']
       }
     },
 
     methods: {
       status (value) {
-        return value === 'hidden' ? 'is-warning' : 'is-success'
+        return value === 'draft' ? 'is-warning' : 'is-success'
       },
 
       passStorefront (value) {

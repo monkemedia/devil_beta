@@ -1,3 +1,4 @@
+// import Cookie from 'js-cookie'
 import axios from 'axios'
 import qs from 'qs'
 import { version } from '~/config.js'
@@ -29,7 +30,6 @@ export default {
     },
 
     register: (data) => {
-      console.log('data', data)
       return axios({
         method: 'post',
         url: `${version}/customers`,
@@ -60,6 +60,30 @@ export default {
         method: 'get',
         url: `${version}/categories`
       })
+        .then(res => {
+          console.log('lady-luck', res)
+          return res
+        })
+        .catch(err => {
+          console.log('lady-shit', err)
+          return err
+        })
+    },
+
+    categoryRelationship: (data) => {
+      return axios({
+        method: 'post',
+        url: `${version}/products/${data.productId}/relationships/categories`,
+        data: {
+          data: [{
+            type: 'category',
+            id: data.categoryId
+          }]
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
     },
 
     createProduct: (data) => {
@@ -73,10 +97,26 @@ export default {
       })
     },
 
+    updateProduct: (data) => {
+      return axios({
+        method: 'put',
+        url: `${version}/products/${data.productId}`,
+        data: {
+          data: data.payload
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    },
+
     brandId: (data) => {
       return axios({
         method: 'get',
-        url: `${version}/brands?filter=eq(slug,${data.customerId})`
+        url: `${version}/brands?filter=eq(slug,${data.customerId})`,
+        headers: {
+          'authorization': `Bearer ${data.moltinToken}`
+        }
       })
     },
 
@@ -105,7 +145,16 @@ export default {
           'Content-Type': 'application/json'
         }
       })
-    }
+    },
 
+    product: (productId) => {
+      return axios({
+        method: 'get',
+        url: `${version}/products/${productId}`,
+        headers: {
+          'X-Moltin-Language': 'en'
+        }
+      })
+    }
   }
 }

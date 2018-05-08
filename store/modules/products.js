@@ -108,7 +108,7 @@ const actions = {
         commit('SET_SELLERS_ITEMS', removeItem)
         return true
       })
-      .catch((err) => {
+      .catch(err => {
         throw err
       })
   },
@@ -132,18 +132,31 @@ const actions = {
     return api.products.brandRelationship(data)
   },
 
+  updateProduct ({ commit }, itemDetails) {
+    const itemData = {
+      ...itemDetails,
+      type: 'product'
+    }
+
+    return api.products.updateProduct(itemData)
+      .then(res => {
+        commit('SET_SELLERS_ITEM', itemData)
+        return res
+      })
+      .catch((err) => {
+        throw err
+      })
+  },
+
   createProduct ({ commit, dispatch, rootGetters }, itemDetails) {
     const itemData = {
       ...itemDetails,
       type: 'product'
     }
 
-    console.log(itemDetails)
-
     return api.products.createProduct(itemData)
       .then(res => {
         commit('SET_SELLERS_ITEM', itemData)
-        console.log(res)
         return res
       })
       .catch((err) => {

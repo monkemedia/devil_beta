@@ -4,15 +4,39 @@ import axios from 'axios'
 export default ({ store }) => {
   axios.defaults.baseURL = baseURL
 
-  axios.interceptors.request.use(request => {
-    request.baseURL = baseURL
+  axios.interceptors.request.use(req => {
+    const token = store.getters['moltin/accessToken']
+    req.baseURL = baseURL
 
-    // Get token from auth.js store
-    const token = store.getters['moltin/getCredentials']
-    // Update token axios header
+    console.log('NOT NOW', req.headers)
+
     if (token) {
-      request.headers.common['authorization'] = `Bearer ${token.access_token}`
+      req.headers['authorization'] = `Bearer ${token}`
     }
-    return request
+
+    return req
+  })
+
+  axios.interceptors.response.use(undefined, (err) => {
+    console.log('monkey error 4', err.response)
+    console.log('monkey error 6', err.response.status)
+    const originalRequest = err.config
+
+    if (err.response.status === 401) {
+      console.log('refresh token')
+      console.log('headers', err)
+      err.config.headers['authorization'] = null
+      return store.dispatch('moltin/credentials')
+        .then((token) => {
+          console.log('new token', token)
+
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+          originalRequest.headers['Authorization'] = `Bearer ${token}`
+          console.log('shit head 2', axios.defaults)
+          return axios(originalRequest)
+        })
+    }
+
+    return Promise.reject(err)
   })
 }

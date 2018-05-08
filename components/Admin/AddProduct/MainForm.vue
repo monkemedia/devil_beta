@@ -67,7 +67,7 @@
                     input.input(
                       name="price"
                       id="price"
-                      v-model.number="formData.price"
+                      v-model.number="formData.price[0].amount"
                       data-vv-delay="600"
                       :class="{ 'is-danger': errors.has('price') }"
                       v-validate="'required'"
@@ -178,23 +178,24 @@
         loading: false,
         formData: this.itemData
           ? { ...this.itemData } : {
-            name: 'Monkey',
-            description: 'this is a description',
-            category: 'toys',
-            price: [
-              {
-                amount: 0,
-                currency: 'USD',
-                includes_tax: false
-              }
-            ],
+            name: '',
+            description: '',
+            category: '',
+            on_sale: false,
+            sale_price: 0,
+            price: [{
+              amount: 0,
+              currency: 'GBP',
+              includes_tax: false
+            }],
             commodity_type: 'physical',
-            status: 'draft'
+            status: 'draft',
+            stock: 0
           },
         cached_store_front: '',
         storefront_options: [
-          { label: 'Hidden - Not visible on storefront', value: 'draft' },
-          { label: 'Visible - Currently visible on storefront', value: 'live' }
+          { label: 'Draft - Not live on storefront', value: 'draft' },
+          { label: 'Live - Currently live on storefront', value: 'live' }
         ]
       }
     },
@@ -211,11 +212,13 @@
 
     methods: {
       onSubmitForm () {
-        // const paramId = this.$route.params.id || null
+        console.log('this.$route.params', this.$route.params)
+        const paramId = this.$route.params.id || null
         const vm = this
         const payload = {
           ...this.formData,
           manage_stock: true,
+          id: paramId,
           slug: slug(),
           sku: sku()
         }
@@ -233,31 +236,47 @@
               ])
             })
             .then(res => {
-              console.log('MONKEY', res)
-              return vm.$store.dispatch('products/brandRelationships', {
-                brandId: res[0].data.data[0].id,
-                productId: res[1].productId
-              })
+              return Promise.all([
+                vm.$store.dispatch('products/brandRelationships', {
+                  brandId: res[0].data.data[0].id,
+                  productId: res[1].productId
+                }),
+                { productId: res[1].productId }
+              ])
             })
             .then(res => {
-              console.log('brand res', res)
-              return res
-              // vm.cached_store_front = vm.cached_store_front
+              vm.cached_store_front = vm.cached_store_front
 
-              // if (payload.storefront === 'visible' && payload.storefront !== vm.cached_store_front) {
-              //   vm.cached_store_front = payload.storefront
-              //   vm.alertToast({ message: 'Item is now visible on storefront', type: 'is-success' })
-              // } else if (payload.storefront === 'hidden' && payload.storefront !== vm.cached_store_front) {
-              //   vm.cached_store_front = payload.storefront
-              //   vm.alertToast({ message: 'Item is now hidden from storefront', type: 'is-warning' })
-              // }
+              if (payload.storefront === 'live' && payload.storefront !== vm.cached_store_front) {
+                vm.cached_store_front = payload.storefront
+                vm.alertToast({ message: 'Item is now visible on storefront', type: 'is-success' })
+              } else if (payload.storefront === 'draft' && payload.storefront !== vm.cached_store_front) {
+                vm.cached_store_front = payload.storefront
+                vm.alertToast({ message: 'Item is now hidden from storefront', type: 'is-warning' })
+              }
 
-              // if (paramId === null) {
-              //   vm.$router.push({
-              //     path: `/admin/add-product/${response.product_id}`
-              //   })
-              // }
-              // vm.loading = false
+              if (paramId === null) {
+                vm.$router.push({
+                  path: `/admin/add-product/${res[1].productId}`
+                })
+              }
+              vm.loading = false
+            })
+            .catch(err => {
+              vm.alertToast({ message: err.message, type: 'is-danger' })
+              vm.loading = false
+            })
+        }
+
+        function updateItem () {
+          console.log('paramId', paramId)
+          vm.loading = true
+          vm.$store.dispatch('products/updateProduct', {
+            payload,
+            productId: paramId
+          })
+            .then(() => {
+              vm.loading = false
             })
             .catch((err) => {
               vm.alertToast({ message: err.message, type: 'is-danger' })
@@ -265,19 +284,18 @@
             })
         }
 
-        // If visibility is set to VISIBLE, then validate form
-        if (this.formData.storefront === 'visible') {
-          this.$validator.validateAll()
-            .then((result) => {
-              if (result) {
-                createItem()
+        this.$validator.validateAll()
+          .then((result) => {
+            if (result) {
+              if (paramId) {
+                updateItem()
               } else {
-                VueScrollTo.scrollTo('select.is-danger, .input.is-danger')
+                createItem()
               }
-            })
-        } else {
-          createItem()
-        }
+            } else {
+              VueScrollTo.scrollTo('select.is-danger, .input.is-danger')
+            }
+          })
       },
 
       updateFormDataVariants (data) {

@@ -88,7 +88,7 @@ const actions = {
     Cookie.set('customerId', data.customer_id)
   },
 
-  login ({ dispatch }, data) {
+  login ({ rootGetters, dispatch }, data) {
     return api.auth.login(data)
       .then(response => {
         dispatch('setAuthData', {
@@ -117,7 +117,7 @@ const actions = {
       })
   },
 
-  logout ({ commit }) {
+  logout ({ dispatch, commit }) {
     commit('CLEAR_TOKEN')
     commit('CLEAR_CUSTOMER_ID')
     commit('user/CLEAR_USERNAME', null, { root: true })
@@ -127,6 +127,10 @@ const actions = {
     Cookie.remove('customerId')
     Cookie.remove('username')
     Cookie.remove('merchantType')
+
+    // Clear all moltin data
+    dispatch('moltin/clearMoltinAccessToken', null, { root: true })
+
     if (process.client) {
       localStorage.removeItem('token')
       localStorage.removeItem('customerId')
