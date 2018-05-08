@@ -59,22 +59,6 @@
               error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
             })
         })
-
-        // return axios.get(`${process.env.FB_URL}/userProducts/${uid}/${paramId}.json?auth=${token}`)
-        //   .then(result => {
-        //     console.log('TREVOR', result)
-        //     if (result.data !== null) {
-        //       return store.commit('sellersItems/SET_SELLERS_ITEM', result.data)
-        //     }
-        //     store.commit('sellersItems/SET_SELLERS_ITEM', null)
-        //     error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-        //   })
-        //   .catch(err => {
-        //     if (err.response) {
-        //       return error({ statusCode: err.response.status, message: err.response.data.error })
-        //     }
-        //     error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-        //   })
     },
 
     mounted () {

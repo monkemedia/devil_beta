@@ -256,11 +256,11 @@
             .then(res => {
               vm.cached_store_front = vm.cached_store_front
 
-              if (payload.storefront === 'live' && payload.storefront !== vm.cached_store_front) {
-                vm.cached_store_front = payload.storefront
+              if (payload.status === 'live' && payload.status !== vm.cached_store_front) {
+                vm.cached_store_front = payload.status
                 vm.alertToast({ message: 'Item is now visible on storefront', type: 'is-success' })
-              } else if (payload.storefront === 'draft' && payload.storefront !== vm.cached_store_front) {
-                vm.cached_store_front = payload.storefront
+              } else if (payload.status === 'draft' && payload.status !== vm.cached_store_front) {
+                vm.cached_store_front = payload.status
                 vm.alertToast({ message: 'Item is now hidden from storefront', type: 'is-warning' })
               }
 
@@ -286,6 +286,17 @@
           })
             .then(() => {
               vm.loading = false
+              vm.cached_store_front = vm.cached_store_front
+
+              console.log('PAYLOAD', payload)
+
+              if (payload.status === 'live' && payload.status !== vm.cached_store_front) {
+                vm.cached_store_front = payload.status
+                vm.alertToast({ message: 'Item is now visible on storefront', type: 'is-success' })
+              } else if (payload.status === 'draft' && payload.status !== vm.cached_store_front) {
+                vm.cached_store_front = payload.status
+                vm.alertToast({ message: 'Item is now hidden from storefront', type: 'is-warning' })
+              }
             })
             .catch((err) => {
               vm.alertToast({ message: err.message, type: 'is-danger' })
