@@ -62,7 +62,7 @@
 
     methods: {
       status (value) {
-        return value === 'hidden' ? 'is-warning' : 'is-success'
+        return value === 'draft' ? 'is-warning' : 'is-success'
       },
 
       toggle () {

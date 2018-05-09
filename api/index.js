@@ -96,6 +96,17 @@ export default {
       })
     },
 
+    merchantProducts: (brandId) => {
+      console.log('monkey', brandId)
+      return axios({
+        method: 'get',
+        url: `${version}/products?filter=eq(brand.id,${brandId})`,
+        headers: {
+          'X-Moltin-Language': 'en'
+        }
+      })
+    },
+
     updateProduct: (data) => {
       return axios({
         method: 'put',

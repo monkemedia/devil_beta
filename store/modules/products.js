@@ -1,20 +1,20 @@
 import api from '~/api'
-import _ from 'lodash'
+// import _ from 'lodash'
 import uploadcare from 'uploadcare-widget'
 
 const state = () => ({
-  loadedSellersItem: null,
-  loadedSellersItems: null,
+  loadedMerchantProduct: null,
+  loadedMerchantProducts: null,
   categories: null
 })
 
 const mutations = {
-  SET_SELLERS_ITEM (state, item) {
-    state.loadedSellersItem = item
+  SET_MERCHANT_PRODUCT (state, item) {
+    state.loadedMerchantProduct = item
   },
 
-  SET_SELLERS_ITEMS (state, item) {
-    state.loadedSellersItems = item
+  SET_MERCHANT_PRODUCTS (state, item) {
+    state.loadedMerchantProducts = item
   },
 
   SET_CATEGORIES (state, categories) {
@@ -88,30 +88,30 @@ const actions = {
     })
   },
 
-  deleteItem ({ commit, getters }, data) {
-    let items = getters['loadedSellersItems']
+  // deleteItem ({ commit, getters }, data) {
+  //   let items = getters['loadedMerchantProducts']
 
-    return this.$axios.$delete(`${process.env.FB_URL}/categories/${data.category}/${data.productId}.json?auth=${data.token}`)
-      .then(() => {
-        return this.$axios.$delete(`${process.env.FB_URL}/products/${data.productId}.json?auth=${data.token}`)
-      })
-      .then(() => {
-        const removeItem = _.pickBy(items, (key) => {
-          console.log(key)
-          return data.productId !== key.product_id
-        })
+  //   return this.$axios.$delete(`${process.env.FB_URL}/categories/${data.category}/${data.productId}.json?auth=${data.token}`)
+  //     .then(() => {
+  //       return this.$axios.$delete(`${process.env.FB_URL}/products/${data.productId}.json?auth=${data.token}`)
+  //     })
+  //     .then(() => {
+  //       const removeItem = _.pickBy(items, (key) => {
+  //         console.log(key)
+  //         return data.productId !== key.product_id
+  //       })
 
-        if (_.isEmpty(removeItem)) {
-          return commit('SET_SELLERS_ITEMS', null)
-        }
+  //       if (_.isEmpty(removeItem)) {
+  //         return commit('SET_MERCHANT_PRODUCTS', null)
+  //       }
 
-        commit('SET_SELLERS_ITEMS', removeItem)
-        return true
-      })
-      .catch(err => {
-        throw err
-      })
-  },
+  //       commit('SET_SELLERS_ITEMS', removeItem)
+  //       return true
+  //     })
+  //     .catch(err => {
+  //       throw err
+  //     })
+  // },
 
   categories ({ commit }) {
     return api.products.categories()
@@ -141,19 +141,17 @@ const actions = {
       ...itemDetails
     }
 
-    console.log('update product', itemData)
-
     return api.products.updateProduct(itemData)
       .then(res => {
-        commit('SET_SELLERS_ITEM', itemData)
+        commit('SET_MERCHANT_PRODUCT', res)
         return res
       })
-      .catch((err) => {
+      .catch(err => {
         throw err
       })
   },
 
-  createProduct ({ commit, dispatch, rootGetters }, itemDetails) {
+  createProduct ({ commit }, itemDetails) {
     const itemData = {
       ...itemDetails,
       type: 'product'
@@ -161,22 +159,33 @@ const actions = {
 
     return api.products.createProduct(itemData)
       .then(res => {
-        commit('SET_SELLERS_ITEM', itemData)
+        commit('SET_MERCHANT_PRODUCT', res)
         return res
       })
-      .catch((err) => {
+      .catch(err => {
+        throw err
+      })
+  },
+
+  merchantProducts ({ commit }, brandId) {
+    return api.products.merchantProducts(brandId)
+      .then(res => {
+        commit('SET_MERCHANT_PRODUCTS', res.data.data)
+        return res
+      })
+      .catch(err => {
         throw err
       })
   }
 }
 
 const getters = {
-  loadedSellersItem (state) {
-    return state.loadedSellersItem
+  loadedMerchantProduct (state) {
+    return state.loadedMerchantProduct
   },
 
-  loadedSellersItems (state) {
-    return state.loadedSellersItems
+  loadedMerchantProducts (state) {
+    return state.loadedMerchantProducts
   },
 
   loadedCategories (state) {

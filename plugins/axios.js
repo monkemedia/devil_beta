@@ -33,10 +33,10 @@ export default ({ store }) => {
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
           originalRequest.headers['Authorization'] = `Bearer ${token}`
           console.log('shit head 2', axios.defaults)
-          return axios(originalRequest)
+          // return axios(originalRequest)
         })
     }
 
-    return Promise.reject(err)
+    // return Promise.reject(err)
   })
 }

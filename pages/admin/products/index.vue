@@ -5,7 +5,7 @@
       nuxt-link.button.is-primary.is-flip(to="/admin/add-product")
         span(data-text="Add product")
           | Add product
-    div(v-if="!loadedItems")
+    div(v-if="!products")
       h2 Add your products
       p Get closer to your first sale by adding products.
       nuxt-link.button.is-secondary(to="/admin/add-product") Add product
@@ -19,11 +19,11 @@
           th Status
           th
       tbody
-        tr(is="product-table-cell" :item="item" v-for="(item, index) in loadedItems" @deleteItem="deleteItem")
+        tr(is="product-table-cell" :item="item" v-for="(item, index) in products" @deleteItem="deleteItem")
 </template>
 
 <script>
-  import axios from 'axios'
+  // import axios from 'axios'
   import ProductTableCell from '@/components/Admin/Products/ProductTableCell'
 
   export default {
@@ -40,59 +40,43 @@
       ProductTableCell
     },
 
-    data () {
-      return {
-        items: null
-      }
-    },
-
-    async fetch ({ store, params, error }) {
-      const token = store.getters['auth/token']
-      const uid = store.getters['auth/uid']
-
-      return axios.get(`${process.env.FB_URL}/userProducts/${uid}.json?auth=${token}`)
-        .then((result) => {
-          if (result.data !== null) {
-            return store.commit('sellersItems/SET_SELLERS_ITEMS', result.data)
-          }
-          store.commit('sellersItems/SET_SELLERS_ITEMS', null)
-        })
-        .catch((err) => {
-          if (err.response) {
-            return error({ statusCode: err.response.status, message: err.response.data.error })
-          }
-          error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
+    async fetch ({ store }) {
+      const customerId = store.getters['auth/getCustomerId']
+      return store.dispatch('products/brandId', { customerId })
+        .then(res => {
+          console.log('brand id', res.data.data[0].id)
+          return store.dispatch('products/merchantProducts', res.data.data[0].id)
         })
     },
 
     computed: {
-      loadedItems () {
-        return this.$store.getters['sellersItems/loadedSellersItems']
-      }
-    },
-
-    methods: {
-      deleteItem (payload) {
-        const token = this.$store.getters['auth/token']
-        const uniqueId = this.$store.getters['auth/uid']
-        const loadingComponent = this.$loading.open()
-        const productId = payload.product_id
-        const category = payload.category
-
-        return axios.delete(`${process.env.FB_URL}/userProducts/${uniqueId}/${productId}.json?auth=${token}`)
-          .then(() => {
-            return this.$store.dispatch('sellersItems/deleteItem', { productId, category, token })
-          })
-          .then(() => {
-            loadingComponent.close()
-            this.alertToast({ message: 'Item has been deleted', type: 'is-success' })
-          })
-          .catch(() => {
-            this.alertToast({ message: 'Your item cannot be deleted', type: 'is-warning' })
-            loadingComponent.close()
-          })
+      products () {
+        return this.$store.getters['products/loadedMerchantProducts']
       }
     }
+
+    // methods: {
+    //   deleteItem (payload) {
+    //     const token = this.$store.getters['auth/token']
+    //     const uniqueId = this.$store.getters['auth/uid']
+    //     const loadingComponent = this.$loading.open()
+    //     const productId = payload.product_id
+    //     const category = payload.category
+
+    //     return axios.delete(`${process.env.FB_URL}/userProducts/${uniqueId}/${productId}.json?auth=${token}`)
+    //       .then(() => {
+    //         return this.$store.dispatch('sellersItems/deleteItem', { productId, category, token })
+    //       })
+    //       .then(() => {
+    //         loadingComponent.close()
+    //         this.alertToast({ message: 'Item has been deleted', type: 'is-success' })
+    //       })
+    //       .catch(() => {
+    //         this.alertToast({ message: 'Your item cannot be deleted', type: 'is-warning' })
+    //         loadingComponent.close()
+    //       })
+    //   }
+    // }
   }
 </script>
 
