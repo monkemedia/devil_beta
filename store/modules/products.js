@@ -159,7 +159,7 @@ const actions = {
 
     return api.products.createProduct(itemData)
       .then(res => {
-        commit('SET_MERCHANT_PRODUCT', res)
+        commit('SET_MERCHANT_PRODUCT', res.data.data)
         return res
       })
       .catch(err => {
