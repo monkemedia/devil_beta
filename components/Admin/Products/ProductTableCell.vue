@@ -11,7 +11,7 @@
           i.fa.fa-file-image-o(aria-hidden="true")
     td
       .product-details
-        strong {{ item.title || 'No Title' }}
+        strong {{ item.name || 'No Title' }}
     td.is-hidden-mobile {{ item.meta.stock.level }}
     td.is-hidden-mobile
       span(v-if="item.on_sale") {{ item.sale_price | currency(item.price[0].currency) }}
@@ -74,6 +74,7 @@
       },
 
       deleteModal () {
+        console.log(this.item)
         this.$dialog.confirm({
           title: 'Test',
           message: 'Are you sure you want to delete',
@@ -81,9 +82,8 @@
           confirmText: 'Agree',
           type: 'is-success',
           onConfirm: () => {
-            this.$emit('deleteItem', {
-              product_id: this.item.product_id,
-              category: this.item.category,
+            this.$emit('deleteProduct', {
+              product_id: this.item.id,
               images: this.item.images || null
             })
           }

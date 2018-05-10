@@ -5,7 +5,7 @@
       nuxt-link.button.is-primary.is-flip(to="/admin/add-product")
         span(data-text="Add product")
           | Add product
-    div(v-if="!products")
+    div(v-if="products.length === 0")
       h2 Add your products
       p Get closer to your first sale by adding products.
       nuxt-link.button.is-secondary(to="/admin/add-product") Add product
@@ -19,7 +19,7 @@
           th Status
           th
       tbody
-        tr(is="product-table-cell" :item="item" v-for="(item, index) in products" @deleteItem="deleteItem")
+        tr(is="product-table-cell" :item="item" v-for="(item, index) in products" @deleteProduct="deleteProduct")
 </template>
 
 <script>
@@ -53,30 +53,24 @@
       products () {
         return this.$store.getters['products/loadedMerchantProducts']
       }
+    },
+
+    methods: {
+      deleteProduct (payload) {
+        const loadingComponent = this.$loading.open()
+        const productId = payload.product_id
+
+        return this.$store.dispatch('products/deleteProduct', productId)
+          .then(() => {
+            loadingComponent.close()
+            this.alertToast({ message: 'Item has been deleted', type: 'is-success' })
+          })
+          .catch(() => {
+            this.alertToast({ message: 'Your item cannot be deleted', type: 'is-warning' })
+            loadingComponent.close()
+          })
+      }
     }
-
-    // methods: {
-    //   deleteItem (payload) {
-    //     const token = this.$store.getters['auth/token']
-    //     const uniqueId = this.$store.getters['auth/uid']
-    //     const loadingComponent = this.$loading.open()
-    //     const productId = payload.product_id
-    //     const category = payload.category
-
-    //     return axios.delete(`${process.env.FB_URL}/userProducts/${uniqueId}/${productId}.json?auth=${token}`)
-    //       .then(() => {
-    //         return this.$store.dispatch('sellersItems/deleteItem', { productId, category, token })
-    //       })
-    //       .then(() => {
-    //         loadingComponent.close()
-    //         this.alertToast({ message: 'Item has been deleted', type: 'is-success' })
-    //       })
-    //       .catch(() => {
-    //         this.alertToast({ message: 'Your item cannot be deleted', type: 'is-warning' })
-    //         loadingComponent.close()
-    //       })
-    //   }
-    // }
   }
 </script>
 

@@ -1,5 +1,5 @@
 import api from '~/api'
-// import _ from 'lodash'
+import _ from 'lodash'
 import uploadcare from 'uploadcare-widget'
 
 const state = () => ({
@@ -161,6 +161,26 @@ const actions = {
       .then(res => {
         commit('SET_MERCHANT_PRODUCT', res)
         return res
+      })
+      .catch(err => {
+        throw err
+      })
+  },
+
+  deleteProduct ({ getters, commit }, productId) {
+    const products = getters['loadedMerchantProducts']
+
+    return api.products.deleteProduct(productId)
+      .then(() => {
+        const removeItem = _.pickBy(products, (key) => {
+          return productId !== key.id
+        })
+
+        if (_.isEmpty(removeItem)) {
+          commit('SET_MERCHANT_PRODUCTS', [])
+        } else {
+          commit('SET_MERCHANT_PRODUCTS', removeItem)
+        }
       })
       .catch(err => {
         throw err

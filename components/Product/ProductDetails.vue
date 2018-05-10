@@ -4,9 +4,9 @@
       h1 {{ product.title }}
       span.username By {{ product.username }}
       .price-container
-        span.price(v-if="product.on_sale") {{ product.sale_price | currency }}
-          span.was-price was {{ product.price | currency }}
-        span.price(v-else) {{ product.price || 0 | currency }}
+        span.price(v-if="product.on_sale") {{ product.sale_price | currency(item.price[0].currency) }}
+          span.was-price was {{ product.price | currency(item.price[0].currency) }}
+        span.price(v-else) {{ product.price || 0 | currency(item.price[0].currency) }}
       hr
     .card-content
       .content

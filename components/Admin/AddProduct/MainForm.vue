@@ -23,8 +23,9 @@
                 name="description"
                 id="description"
                 v-model="formData.description"
-                type="text")
-
+                type="text"
+                v-validate="'required'")
+              p(v-show="errors.has('description')" class="help is-danger" v-html="errors.first('description')")
           .field
             label.label Category #[sup *]
             .control.is-expanded
@@ -138,6 +139,9 @@
     custom: {
       name: {
         required: 'Whoops! Title is required'
+      },
+      description: {
+        required: 'Whoops! Description is required'
       },
       category: {
         required: 'Whoops! Category is required'

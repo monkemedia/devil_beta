@@ -97,7 +97,6 @@ export default {
     },
 
     merchantProducts: (brandId) => {
-      console.log('monkey', brandId)
       return axios({
         method: 'get',
         url: `${version}/products?filter=eq(brand.id,${brandId})`,
@@ -117,6 +116,13 @@ export default {
         headers: {
           'Content-Type': 'application/json'
         }
+      })
+    },
+
+    deleteProduct: (productId) => {
+      return axios({
+        method: 'delete',
+        url: `${version}/products/${productId}`
       })
     },
 
