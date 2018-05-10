@@ -1,27 +1,27 @@
 <template lang="pug">
   .card
     .card-header-title
-      h1 {{ product.title }}
-      span.username By {{ product.username }}
+      h1 {{ product.name }}
+      span.username By {{ product.merchant_name }}
       .price-container
-        span.price(v-if="product.on_sale") {{ product.sale_price | currency(item.price[0].currency) }}
-          span.was-price was {{ product.price | currency(item.price[0].currency) }}
-        span.price(v-else) {{ product.price || 0 | currency(item.price[0].currency) }}
+        span.price(v-if="product.on_sale") {{ product.sale_price | currency(product.price[0].currency) }}
+          span.was-price was {{ product.price[0].amount | currency(product.price[0].currency) }}
+        span.price(v-else) {{ product.price[0].amount || 0 | currency(product.price[0].currency) }}
       hr
     .card-content
       .content
         p {{ product.description }}
-        .select.quantity.is-multiple(v-if="product.stock > 0")
+        .select.quantity.is-multiple(v-if="product.meta.stock.level > 0")
           select(v-model="quantity")
             option(value="default" disabled) Select quantity
-            option(v-for="n in 5" :value="n" :disabled="n > product.stock") {{ n }}
+            option(v-for="n in 5" :value="n" :disabled="n > product.meta.stock.level") {{ n }}
 
-        span.sold-out(v-if="product.stock === 0") Sold out
+        span.sold-out(v-if="product.meta.stock.level === 0") Sold out
 
         button.button.is-secondary.is-fullwidth.is-flip.add-to-cart(
           :class="{ 'item-added' : itemAdded, 'is-loading' : loading }"
           @click="addToCart"
-          :disabled="product.stock === 0 || quantity === 'default'")
+          :disabled="product.meta.stock.level === 0 || quantity === 'default'")
           span.add-to-cart-text(data-text="Add to cart") Add to cart
           span.added-to-cart-text Added
 

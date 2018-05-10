@@ -210,12 +210,15 @@
 
       customerId () {
         return this.$store.getters['auth/getCustomerId']
+      },
+
+      merchantName () {
+        return this.$store.getters['user/username']
       }
     },
 
     methods: {
       onSubmitForm () {
-        console.log('this.$route.params', this.$route.params)
         const paramId = this.$route.params.id || null
         const vm = this
         const payload = {
@@ -224,7 +227,8 @@
           id: paramId,
           slug: slug(),
           sku: sku(),
-          type: 'product'
+          type: 'product',
+          merchant_name: this.merchantName
         }
 
         function createItem () {

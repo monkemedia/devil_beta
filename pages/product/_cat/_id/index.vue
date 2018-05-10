@@ -2,12 +2,12 @@
   .container
     .columns
       .column
-        breadcrumb(:crumb="breadcrumb" v-if="loadedItem")
+        //- breadcrumb(:crumb="breadcrumb" v-if="loadedProduct")
     .columns
       .column.is-half
-        image-carousel(:images="loadedItem.images" v-if="loadedItem")
+        image-carousel(:images="loadedProduct.images" v-if="loadedProduct")
       .column.is-offset-1.is-5
-        product-details(:product="loadedItem" v-if="loadedItem")
+        product-details(:product="loadedProduct" v-if="loadedProduct")
 </template>
 
 <script>
@@ -25,25 +25,24 @@
       ProductDetails
     },
 
-    asyncData (context) {
-      const paramId = context.params.id
+    async fetch ({ store, params, error }) {
+      const productId = params.id
 
-      return context.app.$axios.$get(`${process.env.FB_URL}/products/${paramId}.json`)
-        .then((result) => {
-          return {
-            loadedItem: result,
-            breadcrumb: {
-              title: 'Back',
-              path: `/product/${result.category}`
-            }
-          }
-        })
-        .catch((err) => {
+      console.log('productId', productId)
+
+      return store.dispatch('products/product', productId)
+        .catch(err => {
           if (err.response) {
-            return context.error({ statusCode: err.response.status, message: err.response.data.error })
+            return error({ statusCode: err.response.status, message: err.response.data.error })
           }
-          context.error({ statusCode: 404, message: 'This page cannot be found' })
+          error({ statusCode: 404, message: 'This page cannot be found' })
         })
+    },
+
+    computed: {
+      loadedProduct () {
+        return this.$store.getters['products/loadedProduct']
+      }
     }
   }
 </script>

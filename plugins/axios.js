@@ -8,8 +8,6 @@ export default ({ store }) => {
     const token = store.getters['moltin/accessToken']
     req.baseURL = baseURL
 
-    console.log('NOT NOW', req.headers)
-
     if (token) {
       req.headers['authorization'] = `Bearer ${token}`
     }

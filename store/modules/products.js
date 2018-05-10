@@ -3,18 +3,23 @@ import _ from 'lodash'
 import uploadcare from 'uploadcare-widget'
 
 const state = () => ({
+  loadedProduct: null,
   loadedMerchantProduct: null,
   loadedMerchantProducts: null,
   categories: null
 })
 
 const mutations = {
-  SET_MERCHANT_PRODUCT (state, item) {
-    state.loadedMerchantProduct = item
+  SET_PRODUCT (state, product) {
+    state.loadedProduct = product
   },
 
-  SET_MERCHANT_PRODUCTS (state, item) {
-    state.loadedMerchantProducts = item
+  SET_MERCHANT_PRODUCT (state, product) {
+    state.loadedMerchantProduct = product
+  },
+
+  SET_MERCHANT_PRODUCTS (state, product) {
+    state.loadedMerchantProducts = product
   },
 
   SET_CATEGORIES (state, categories) {
@@ -87,31 +92,6 @@ const actions = {
         .catch(err => reject(err))
     })
   },
-
-  // deleteItem ({ commit, getters }, data) {
-  //   let items = getters['loadedMerchantProducts']
-
-  //   return this.$axios.$delete(`${process.env.FB_URL}/categories/${data.category}/${data.productId}.json?auth=${data.token}`)
-  //     .then(() => {
-  //       return this.$axios.$delete(`${process.env.FB_URL}/products/${data.productId}.json?auth=${data.token}`)
-  //     })
-  //     .then(() => {
-  //       const removeItem = _.pickBy(items, (key) => {
-  //         console.log(key)
-  //         return data.productId !== key.product_id
-  //       })
-
-  //       if (_.isEmpty(removeItem)) {
-  //         return commit('SET_MERCHANT_PRODUCTS', null)
-  //       }
-
-  //       commit('SET_SELLERS_ITEMS', removeItem)
-  //       return true
-  //     })
-  //     .catch(err => {
-  //       throw err
-  //     })
-  // },
 
   categories ({ commit }) {
     return api.products.categories()
@@ -187,11 +167,20 @@ const actions = {
       })
   },
 
+  product ({ commit }, productId) {
+    return api.products.product(productId)
+      .then(res => {
+        commit('SET_PRODUCT', res.data.data)
+      })
+      .catch(err => {
+        throw err
+      })
+  },
+
   merchantProducts ({ commit }, brandId) {
     return api.products.merchantProducts(brandId)
       .then(res => {
         commit('SET_MERCHANT_PRODUCTS', res.data.data)
-        return res
       })
       .catch(err => {
         throw err
@@ -206,6 +195,10 @@ const getters = {
 
   loadedMerchantProducts (state) {
     return state.loadedMerchantProducts
+  },
+
+  loadedProduct (state) {
+    return state.loadedProduct
   },
 
   loadedCategories (state) {
