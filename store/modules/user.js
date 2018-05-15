@@ -19,6 +19,10 @@ const mutations = {
     state.merchantType = merchant
   },
 
+  SET_CART_REFERENCE (state, reference) {
+    state.reference = reference
+  },
+
   CLEAR_MERCHANT_TYPE (state) {
     state.merchantType = null
   }
@@ -26,7 +30,7 @@ const mutations = {
 
 const actions = {
   user ({ commit }, data) {
-    return api.user(data)
+    return api.user.user(data)
       .then(response => {
         localStorage.setItem('username', response.data.data.username)
         localStorage.setItem('merchantType', response.data.data.merchant_type)
@@ -36,6 +40,17 @@ const actions = {
 
         commit('SET_USERNAME', response.data.data.username)
         commit('SET_MERCHANT_TYPE', response.data.data.merchant_type)
+      })
+  },
+
+  cartReference ({ commit }, data) {
+    return api.user.cartReference(data)
+      .then(response => {
+        localStorage.setItem('cartReference', response.data.data.cart_reference)
+
+        Cookie.set('cartReference', response.data.data.cart_reference)
+
+        commit('SET_CART_REFERENCE', response.data.data.cart_reference)
       })
   }
 }
@@ -47,6 +62,10 @@ const getters = {
 
   merchant (state) {
     return state.merchantType
+  },
+
+  reference (state) {
+    return state.reference
   }
 }
 

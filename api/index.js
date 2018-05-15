@@ -43,15 +43,35 @@ export default {
     }
   },
 
-  user: (data) => {
-    return axios({
-      method: 'get',
-      url: `${version}/customers/${data.customer_id}`,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'x-moltin-customer-token': data.customer_token
-      }
-    })
+  user: {
+    user: (data) => {
+      return axios({
+        method: 'get',
+        url: `${version}/customers/${data.customer_id}`,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          'x-moltin-customer-token': data.customer_token
+        }
+      })
+    },
+
+    cartReference: (data) => {
+      console.log('DATA', data)
+      return axios({
+        method: 'put',
+        url: `${version}/customers/${data.customer_id}`,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-moltin-customer-token': data.customer_token
+        },
+        data: {
+          data: {
+            'type': 'customer',
+            'cart_reference': data.cart_reference
+          }
+        }
+      })
+    }
   },
 
   products: {
@@ -69,7 +89,6 @@ export default {
     },
 
     categoryRelationship: (data) => {
-      console.log('categoryRelationship', data)
       return axios({
         method: 'post',
         url: `${version}/products/${data.productId}/relationships/categories`,
@@ -170,6 +189,37 @@ export default {
         headers: {
           'X-Moltin-Language': 'en'
         }
+      })
+    }
+  },
+
+  inventory: {
+    stock: (productId) => {
+      return axios({
+        method: 'get',
+        url: `${version}/inventories/${productId}`
+      })
+    }
+  },
+
+  cart: {
+    addToCart: (data) => {
+      return axios({
+        method: 'post',
+        url: `${version}/carts/123/items`,
+        data: {
+          data: data.data
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    },
+
+    getCart: (reference) => {
+      return axios({
+        method: 'get',
+        url: `${version}/carts/${reference}/items`
       })
     }
   }

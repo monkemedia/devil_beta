@@ -69,26 +69,35 @@
         this.activeTabIndex = index
       },
 
-      addToCart () {
+      addToCart ({ dispatch }) {
+        console.log('product', this.product)
         const cartItems = this.$store.getters['cart/loadedCartItems']
-        const record = cartItems.find(element => element.item.product_id === this.product.product_id)
-        const payload = {
-          category: this.product.category,
-          product_id: this.product.product_id
-        }
+        const record = cartItems.find(element => element.id === this.product.id)
+        const productId = this.product.id
 
         this.loading = true
 
-        this.$store.dispatch('cart/liveStock', payload)
-          .then((liveStock) => {
+        this.$store.dispatch('inventory/stock', productId)
+          .then((res) => {
+            console.log('STOCK LEVEL', res.data.data.available)
             // Check to see if user is adding more items than the stock allows
-            if (record && (record.quantity + this.quantity) > liveStock) {
+            if (record && (record.quantity + this.quantity) > res.data.data.available) {
               throw new Error('no-stock')
             }
-
+          })
+          .then(() => {
             return this.$store.dispatch('cart/addToCart', {
-              product_id: this.product.product_id,
-              quantity: this.quantity
+              data: {
+                type: 'custom_item',
+                name: this.product.name,
+                sku: this.product.sku,
+                price: {
+                  amount: this.product.price[0].amount
+                },
+                sale_price: this.product.sale_price,
+                product_id: this.product.id,
+                quantity: this.quantity
+              }
             })
           })
           .then((result) => {

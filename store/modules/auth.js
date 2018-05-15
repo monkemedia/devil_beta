@@ -55,7 +55,7 @@ const actions = {
         .split(';')
         .find(c => c.trim().startsWith('merchantType='))
 
-      token = tokenCookie.split('=')[1]
+      token = tokenCookie.substring(tokenCookie.indexOf('=') + 1) // Using this method as tokens contain more than 1 equals (=) sign
       customerId = customerIdCookie.split('=')[1]
       username = usernameCookie.split('=')[1]
       merchantType = merchantTypeCookie.split('=')[1]
@@ -90,25 +90,26 @@ const actions = {
 
   login ({ rootGetters, dispatch }, data) {
     return api.auth.login(data)
-      .then(response => {
+      .then(res => {
+        console.log('LOGIN RES', res.data.data)
         dispatch('setAuthData', {
-          token: response.data.data.token,
-          customer_id: response.data.data.customer_id
+          token: res.data.data.token,
+          customer_id: res.data.data.customer_id
         })
-        return response
+        return res
       })
-      .then((response) => {
-        console.log('3', response)
+      .then(res => {
+        console.log('3', res)
         return dispatch('user/user', {
-          customer_id: response.data.data.customer_id,
-          customer_token: response.data.data.token
+          customer_id: res.data.data.customer_id,
+          customer_token: res.data.data.token
         }, { root: true })
       })
   },
 
   register ({ dispatch }, data) {
     return api.auth.register(data)
-      .then(response => {
+      .then(() => {
         return dispatch('login', {
           email: data.email,
           password: data.password,
@@ -117,11 +118,15 @@ const actions = {
       })
   },
 
-  logout ({ dispatch, commit }) {
+  logout ({ dispatch, commit }, req) {
     commit('CLEAR_TOKEN')
     commit('CLEAR_CUSTOMER_ID')
     commit('user/CLEAR_USERNAME', null, { root: true })
     commit('user/CLEAR_MERCHANT_TYPE', null, { root: true })
+
+    // if (req) {
+    //   console.log('LOGGING OUT', req)
+    // }
 
     Cookie.remove('token')
     Cookie.remove('customerId')
@@ -129,7 +134,6 @@ const actions = {
     Cookie.remove('merchantType')
 
     // Clear all moltin data
-    dispatch('moltin/clearMoltinAccessToken', null, { root: true })
 
     if (process.client) {
       localStorage.removeItem('token')
@@ -141,10 +145,6 @@ const actions = {
 }
 
 const getters = {
-  getMoltinCredentials (state) {
-    return state.moltin
-  },
-
   isAuthenticated (state) {
     return !!state.token
   },

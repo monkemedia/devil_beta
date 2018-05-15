@@ -17,9 +17,6 @@
   export default {
     name: 'SignIn',
 
-    middleware: [
-    ],
-
     components: {
       SignInUserForm
     }

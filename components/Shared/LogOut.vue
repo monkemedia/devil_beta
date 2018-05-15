@@ -16,7 +16,7 @@
     methods: {
       logOut () {
         this.$store.dispatch('auth/logout')
-        this.$router.push('/sign-in')
+        document.location.href = '/logout'
       }
     },
 
