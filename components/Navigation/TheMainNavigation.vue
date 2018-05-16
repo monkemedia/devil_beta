@@ -8,7 +8,7 @@
       .navbar-item#user-login-desktop
         my-account
       .navbar-item#mini-cart-desktop
-        //- mini-cart
+        mini-cart
 </template>
 
 <script>

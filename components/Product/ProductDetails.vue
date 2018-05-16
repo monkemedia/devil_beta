@@ -69,8 +69,9 @@
         this.activeTabIndex = index
       },
 
-      addToCart ({ dispatch }) {
+      addToCart () {
         console.log('product', this.product)
+        console.log('this.$store.getters', this.$store.getters['cart/loadedCartItems'])
         const cartItems = this.$store.getters['cart/loadedCartItems']
         const record = cartItems.find(element => element.id === this.product.id)
         const productId = this.product.id
@@ -99,10 +100,6 @@
                 quantity: this.quantity
               }
             })
-          })
-          .then((result) => {
-            console.log('Product added', result)
-            return this.$store.dispatch('cart/fetchCartData')
           })
           .then(() => {
             this.loading = false

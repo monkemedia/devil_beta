@@ -19,44 +19,132 @@ const mutations = {
 }
 
 const actions = {
+  fetchCartReferences ({ rootGetters }) {
+    const customerId = rootGetters['auth/getCustomerId']
+    const customerToken = rootGetters['auth/getToken']
+
+    console.log('customerId', customerId)
+
+    return api.user.getCartReferences({
+      customer_id: customerId,
+      customer_token: customerToken
+    })
+  },
+
   addToCart ({ dispatch, commit, rootGetters }, payload) {
     // Does user have cart reference all ready
-    const currentReference = rootGetters['user/cartReference']
+    const product = rootGetters['products/loadedProduct']
+    const customerId = rootGetters['auth/getCustomerId']
+    const customerToken = rootGetters['auth/getToken']
+    const merchantName = product.merchant_name
+    const reference = `${merchantName}_${uuidv4()}`
 
-    console.log('currentReference', currentReference)
+    console.log('merchantName', merchantName)
 
-    if (!currentReference) {
-      // lets create a new reference for them
-      const product = rootGetters['products/loadedProduct']
-      const customerId = rootGetters['auth/getCustomerId']
-      const customerToken = rootGetters['auth/getToken']
-      const merchantName = product.merchant_name
-      const reference = `${merchantName}_${uuidv4()}`
+    return dispatch('fetchCartReferences')
+      .then(currentReferences => {
+        // If no references stored on Moltin
+        if (!currentReferences) {
+          // lets create a new reference for them
+          return dispatch('user/updateCartReferences', {
+            customer_id: customerId,
+            cart_reference: reference,
+            customer_token: customerToken
+          }, { root: true })
+            .then(() => {
+              // Add new product to cart
+              return api.cart.addToCart({
+                payload,
+                cart_reference: reference
+              })
+            })
+            .then(res => {
+              console.log('new response', res.data.data)
+              // Add products to Store
+              commit('SET_CART_ITEMS', res.data.data)
+            })
+        } else {
+          console.log('HERE')
+          // There is cart references stored on Moltin
+          // Lets filter through them
+          const cartReferenceArray = currentReferences.split(',')
 
-      console.log('uuidv3(merchantName, uuidv4())', reference)
+          const filteredReference = cartReferenceArray.filter(ref => {
+            // Lets see if cart reference already exists on Moltin
+            return ref.includes(merchantName)
+          })
 
-      return dispatch('user/cartReference', {
-        customer_id: customerId,
-        cart_reference: reference,
-        customer_token: customerToken
-      }, { root: true })
-        .then(res => {
-          console.log('lets see response', res.data.data)
-        })
-    }
-    // return dispatch('fetchCartData')
-    //   .then(res => {
-    //     console.log('our response', res)
-    //     return api.cart.addToCart(payload)
-    //   })
-    //   .then(res => {
-    //     console.log('cart', res.data.data)
-    //     commit('SET_CART_ITEMS', res.data.data)
-    //     return res.data
-    //   })
-    //   .catch(err => {
-    //     return err
-    //   })
+          console.log(filteredReference.length)
+
+          if (filteredReference.length > 0) {
+            console.log('here', filteredReference[0])
+            return dispatch('fetchCartData', filteredReference[0])
+              .then(res => {
+                // cart reference already exists, lets see if product exists
+                const productExists = res.data.data.filter(res => {
+                  return res.sku === payload.sku
+                })
+
+                if (productExists) {
+                  // Product exists, so lets update quantity only
+                }
+                console.log('lets see response', res.data.data)
+              })
+          }
+        }
+      })
+
+      // if (!currentReference) {
+      //   // lets create a new reference for them
+      //   return dispatch('user/updateCartReferences', {
+      //     customer_id: customerId,
+      //     cart_reference: reference,
+      //     customer_token: customerToken
+      //   }, { root: true })
+      // } else {
+      //   // there is a cart reference
+      //   // if they already have a cartreference from the merchant
+      //   console.log('currentReference', currentReference)
+      //   _.map(currentReference.split(','), (ref) => {
+      //     if (ref.includes(merchantName)) {
+      //       console.log('ref', ref)
+      //       // lets see if item already exists first
+      //       return dispatch('fetchCartData', ref)
+      //         .then(res => {
+      //           console.log('lets see response', res.data.data)
+      //         })
+      //     }
+
+      //     // Create a new instance of cart
+      //     // return api.cart.addToCart({
+      //     //   payload,
+      //     //   cart_reference: reference
+      //     // })
+      //     //   .then(res => {
+      //     //     console.log('cart res', res)
+      //     //     const updateString = `${currentReference},${reference}`
+      //     //     // ITEMS have been added to cart, now add cart reference to User data
+      //     //     return dispatch('user/cartReference', {
+      //     //       customer_id: customerId,
+      //     //       cart_reference: updateString,
+      //     //       customer_token: customerToken
+      //     //     }, { root: true })
+      //     //   })
+      //   })
+      // }
+      // return dispatch('fetchCartData')
+      //   .then(res => {
+      //     console.log('our response', res)
+      //     return api.cart.addToCart(payload)
+      //   })
+      //   .then(res => {
+      //     console.log('cart', res.data.data)
+      //     commit('SET_CART_ITEMS', res.data.data)
+      //     return res.data
+      //   })
+      //   .catch(err => {
+      //     return err
+      //   })
   },
 
   deleteFromCart ({ state, commit, getters, rootGetters }, data) {
@@ -82,13 +170,26 @@ const actions = {
     return this.$axios.$patch(`${process.env.FB_URL}/cartSessions/${data.cart_id}/products/${data.product_id}.json?auth=${token}`, { quantity: data.quantity })
   },
 
-  fetchCartData ({ commit }, req) {
-    console.log('FETCH CART')
-    return api.cart.getCart(123)
+  fetchCartData ({ commit, dispatch }, cartReference) {
+    console.log('FETCH CART MONKEY', cartReference)
+    if (!cartReference) {
+      return dispatch('fetchCartReferences')
+        .then(res => {
+          console.log('fetchCartData', res)
+          return api.cart.fetchCartData(res)
+        })
+        .then(res => {
+          console.log('cart response here', res)
+          commit('SET_CART_ITEMS', res.data.data)
+          return res
+        })
+    }
+
+    return api.cart.fetchCartData(cartReference)
       .then(res => {
-        console.log('cart response', res.data.data)
+        console.log('cart response', res)
         commit('SET_CART_ITEMS', res.data.data)
-        return res.data.data
+        return res
       })
       // const vm = this
       // let token

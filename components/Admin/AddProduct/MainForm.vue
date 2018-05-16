@@ -235,8 +235,10 @@
           vm.loading = true
           vm.$store.dispatch('products/createProduct', payload)
             .then(res => {
+              console.log('res', res.data.data.id)
               // Filter through brands to find BRAND ID
               const customerId = vm.$store.getters['auth/getCustomerId']
+              console.log('customerId', customerId)
 
               return Promise.all([
                 vm.$store.dispatch('products/brandId', { customerId }),
@@ -244,6 +246,7 @@
               ])
             })
             .then(res => {
+              console.log('res 2', res)
               return Promise.all([
                 vm.$store.dispatch('products/brandRelationships', {
                   brandId: res[0].data.data[0].id,
@@ -280,6 +283,7 @@
               vm.loading = false
             })
             .catch(err => {
+              console.log('ERROR', err)
               vm.alertToast({ message: err.message, type: 'is-danger' })
               vm.loading = false
             })

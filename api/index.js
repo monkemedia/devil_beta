@@ -55,7 +55,7 @@ export default {
       })
     },
 
-    cartReference: (data) => {
+    updateCartReferences: (data) => {
       console.log('DATA', data)
       return axios({
         method: 'put',
@@ -71,6 +71,20 @@ export default {
           }
         }
       })
+    },
+
+    getCartReferences: (data) => {
+      return axios({
+        method: 'get',
+        url: `${version}/customers/${data.customer_id}`,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          'x-moltin-customer-token': data.customer_token
+        }
+      })
+        .then(res => {
+          return res.data.data.cart_reference
+        })
     }
   },
 
@@ -206,17 +220,27 @@ export default {
     addToCart: (data) => {
       return axios({
         method: 'post',
-        url: `${version}/carts/123/items`,
-        data: {
-          data: data.data
-        },
+        url: `${version}/carts/${data.cart_reference}/items`,
+        data: data.payload,
         headers: {
           'Content-Type': 'application/json'
         }
       })
     },
 
-    getCart: (reference) => {
+    updateCart: (data) => {
+      return axios({
+        method: 'put',
+        url: `${version}/carts/${data.cart_reference}/${data.item_id}`,
+        data: data.payload,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    },
+
+    fetchCartData: (reference) => {
+      console.log('come on', reference)
       return axios({
         method: 'get',
         url: `${version}/carts/${reference}/items`

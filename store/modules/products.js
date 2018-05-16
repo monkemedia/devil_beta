@@ -106,6 +106,10 @@ const actions = {
 
   brandId ({}, data) {
     return api.products.brandId(data)
+      .then(res => {
+        console.log('brandId', res)
+        return res
+      })
   },
 
   brands ({}, data) {
