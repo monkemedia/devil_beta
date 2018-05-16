@@ -82,13 +82,18 @@ const actions = {
               .then(res => {
                 // cart reference already exists, lets see if product exists
                 const productExists = res.data.data.filter(res => {
-                  return res.sku === payload.sku
+                  return res.sku === payload.data.sku
                 })
 
                 if (productExists) {
                   // Product exists, so lets update quantity only
+                  const quantity = productExists[0].quantity += payload.data.quantity
+                  return dispatch('updateCartItemQuantity', {
+                    item_id: productExists[0].id,
+                    cart_reference: filteredReference[0],
+                    quantity
+                  })
                 }
-                console.log('lets see response', res.data.data)
               })
           }
         }
@@ -165,9 +170,8 @@ const actions = {
     //   })
   },
 
-  updateCartItemQuantity ({ rootGetters }, data) {
-    const token = rootGetters['auth/token'] || rootGetters['anonAuth/token']
-    return this.$axios.$patch(`${process.env.FB_URL}/cartSessions/${data.cart_id}/products/${data.product_id}.json?auth=${token}`, { quantity: data.quantity })
+  updateCartItemQuantity ({}, data) {
+    return api.cart.updateCartItemQuantity(data)
   },
 
   fetchCartData ({ commit, dispatch }, cartReference) {

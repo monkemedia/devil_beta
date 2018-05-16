@@ -228,11 +228,16 @@ export default {
       })
     },
 
-    updateCart: (data) => {
+    updateCartItemQuantity: (data) => {
       return axios({
         method: 'put',
-        url: `${version}/carts/${data.cart_reference}/${data.item_id}`,
-        data: data.payload,
+        url: `${version}/carts/${data.cart_reference}/items/${data.item_id}`,
+        data: {
+          data: {
+            quantity: data.quantity,
+            type: 'cart_item'
+          }
+        },
         headers: {
           'Content-Type': 'application/json'
         }
