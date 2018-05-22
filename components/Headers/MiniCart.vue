@@ -14,29 +14,28 @@
           .dropdown-item(v-else)
             .vendors(v-for="(vendors, index) in loadedCartItems" v-if="index < 5")
               .columns(v-for="cartItem in vendors")
-                p {{ cartItem.name }}
-                //- .column.is-4
-                //-   figure(v-if="cartItem.images")
-                //-     lazy-image(
-                //-       :src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                //-       :small-src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                //-       :alt="cartItem.images[0].alt")
-                //-   figure.no-image(v-else)
-                //-     i.fa.fa-file-image-o(aria-hidden="true")
-                //- .column
-                //-   h6
-                //-     router-link(:to="'/' + cartItem.category + '/' + cartItem.product_id") {{ cartItem.name }}
-                //-   span.seller By {{ cartItem.username }}
-                //-   .level
-                //-     .level-left.quantity Qty: {{ cartItem.quantity }}
-                //-     .level-right.price
-                //-       //- span(v-if="cartItem.on_sale")
-                //-       //-   | {{ cartItem.sale_price | currency(cartItem.meta.display_price.with_tax.unit.currency.currency) }}
-                //-       span
-                //-         | {{ cartItem.meta.display_price.with_tax.unit.amount | currency(cartItem.meta.display_price.with_tax.unit.currency) }}
-                //- .columns(v-if="index > 5")
-                //-   .column.has-text-centered
-                //-     nuxt-link.view-more(to="") view all items
+                .column.is-4
+                  figure(v-if="cartItem.images")
+                    lazy-image(
+                      :src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                      :small-src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                      :alt="cartItem.images[0].alt")
+                  figure.no-image(v-else)
+                    i.fa.fa-file-image-o(aria-hidden="true")
+                .column
+                  h6
+                    router-link(:to="'/' + cartItem.category + '/' + cartItem.product_id") {{ cartItem.name }}
+                  span.seller By {{ cartItem.cart_reference | makeUsername }}
+                  .level
+                    .level-left.quantity Qty: {{ cartItem.quantity }}
+                    .level-right.price
+                      //- span(v-if="cartItem.on_sale")
+                      //-   | {{ cartItem.sale_price | currency(cartItem.meta.display_price.with_tax.unit.currency.currency) }}
+                      span
+                        | {{ cartItem.meta.display_price.with_tax.unit.amount | currency(cartItem.meta.display_price.with_tax.unit.currency) }}
+                .columns(v-if="index > 5")
+                  .column.has-text-centered
+                    nuxt-link.view-more(to="") view all items
 
 </template>
 

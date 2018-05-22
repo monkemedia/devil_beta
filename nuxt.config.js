@@ -66,7 +66,8 @@ module.exports = {
     '~/plugins/mixins',
     '~/plugins/buefy',
     '~/plugins/lazy-image',
-    '~/plugins/currency',
+    '~/plugins/filters/make-username',
+    '~/plugins/filters/currency',
     '~/plugins/slick'
   ],
 

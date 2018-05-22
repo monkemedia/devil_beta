@@ -29,7 +29,8 @@ const mutations = {
     state.cartItems.forEach((items, index) => {
       items.forEach((it, i) => {
         if (it.cart_reference === payload.cart_reference) {
-          state.cartItems[index] = (payload)
+          delete payload.cart_reference
+          Vue.set(state.cartItems, [index], payload)
         }
       })
     })
@@ -83,7 +84,8 @@ const actions = {
             .then(res => {
               const data = res.data.data
 
-              data['cart_reference'] = reference
+              data[0]['cart_reference'] = reference
+
               // Add products to Store
               commit('SET_CART_ITEMS', data)
             })
@@ -94,10 +96,8 @@ const actions = {
 
           const filteredReference = cartReferenceArray.filter(ref => {
             // Lets see if cart reference already exists on Moltin
-            return ref.includes(merchantName)
+            return ref.includes(`${merchantName}_VENDOR`)
           })
-
-          console.log('filteredReference', filteredReference)
 
           if (filteredReference.length > 0) {
             return api.cart.fetchCartData(filteredReference[0])
@@ -125,7 +125,6 @@ const actions = {
                     })
                 } else {
                   // reference exists but no product, so set up new product
-                  console.log('reference exists but no product, so set up new product')
                   return api.cart.addToCart({
                     payload,
                     cart_reference: filteredReference[0]
@@ -133,8 +132,16 @@ const actions = {
                     .then(res => {
                       const data = res.data.data
 
-                      data['cart_reference'] = filteredReference[0]
-                      commit('ADD_PRODUCT_TO_EXISTING_REF', data)
+                      const addBackReference = _.map(data, item => {
+                        item['cart_reference'] = filteredReference[0]
+                        return item
+                      })
+
+                      console.log('addBackReference', addBackReference)
+
+                      addBackReference['cart_reference'] = filteredReference[0]
+
+                      commit('ADD_PRODUCT_TO_EXISTING_REF', addBackReference)
                     })
                 }
               })
@@ -156,7 +163,7 @@ const actions = {
                 // Add products to Store
                 const data = res.data.data
 
-                data['cart_reference'] = reference
+                data[0]['cart_reference'] = reference
 
                 commit('SET_CART_ITEMS', data)
               })
@@ -271,7 +278,9 @@ const actions = {
           res.map((merchantCartCollection, index) => {
             let data = merchantCartCollection.res.data.data
 
-            data[0]['cart_reference'] = merchantCartCollection.cart_reference
+            _.map(data, (item, i) => {
+              data[i]['cart_reference'] = merchantCartCollection.cart_reference
+            })
 
             commit('SET_CART_ITEMS', data)
           })
