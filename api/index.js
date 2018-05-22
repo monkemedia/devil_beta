@@ -129,7 +129,7 @@ export default {
       })
     },
 
-    merchantProducts: (brandId) => {
+    vendorProducts: (brandId) => {
       return axios({
         method: 'get',
         url: `${version}/products?filter=eq(brand.id,${brandId})`,

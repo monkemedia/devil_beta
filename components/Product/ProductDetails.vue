@@ -2,7 +2,7 @@
   .card
     .card-header-title
       h1 {{ product.name }}
-      span.username By {{ product.merchant_name }}
+      span.username By {{ product.vendor_name }}
       .price-container
         span.price(v-if="product.on_sale") {{ product.sale_price | currency(product.price[0].currency) }}
           span.was-price was {{ product.price[0].amount | currency(product.price[0].currency) }}

@@ -212,7 +212,7 @@
         return this.$store.getters['auth/getCustomerId']
       },
 
-      merchantName () {
+      vendorName () {
         return this.$store.getters['user/username']
       }
     },
@@ -228,7 +228,7 @@
           slug: slug(),
           sku: sku(),
           type: 'product',
-          merchant_name: this.merchantName
+          vender_name: this.venderName
         }
 
         function createItem () {

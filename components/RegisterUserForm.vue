@@ -4,11 +4,11 @@
 
     b-field.account-types
       b-radio-button(
-        v-model="merchantType"
-        native-value="buyer") Buyer
+        v-model="vendor"
+        native-value="false") Buyer
       b-radio-button(
-        v-model="merchantType"
-        native-value="seller") Seller
+        v-model="vendor"
+        native-value="true") Seller
 
     .field
       label.label Username #[sup *]
@@ -122,7 +122,7 @@
 
     data () {
       return {
-        merchantType: 'buyer',
+        vendor: 'true',
         username: 'incubusrich',
         name: 'Richy',
         email: 'incubusrich@hotmail.com',
@@ -155,7 +155,7 @@
               password: this.password,
               name: this.name,
               username: this.username,
-              merchant_type: this.merchantType,
+              vendor: this.vendor,
               type: 'customer'
             }
 
@@ -165,7 +165,7 @@
 
           .then(() => {
             // Need to create a BRAND, for seller to add their products too
-            if (this.merchantType === 'seller') {
+            if (this.vendor) {
               const customerId = this.$store.getters['auth/getCustomerId']
 
               return this.$store.dispatch('products/brands', {

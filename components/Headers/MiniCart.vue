@@ -36,6 +36,19 @@
                 .columns(v-if="index > 5")
                   .column.has-text-centered
                     nuxt-link.view-more(to="") view all items
+            .columns
+              .subtotal
+                .column
+                  | Subtotal
+                .column.has-text-right
+                  | {{ cartSubtotal | currency('USD') }}
+            .columns
+              .column
+                nuxt-link(to="/cart").button.is-flip.is-fullwidth
+                  span(data-text="View cart") View cart
+              .column
+                nuxt-link(to="/checkout").button.is-flip.is-secondary.is-fullwidth
+                    span(data-text="Checkout") Checkout
 
 </template>
 

@@ -61,8 +61,8 @@ const actions = {
     const product = rootGetters['products/loadedProduct']
     const customerId = rootGetters['auth/getCustomerId']
     const customerToken = rootGetters['auth/getToken']
-    const merchantName = product.merchant_name
-    const reference = `${merchantName}_VENDOR_${uuidv4()}`
+    const vendorName = product['vendor_name']
+    const reference = `${vendorName}_VENDOR_${uuidv4()}`
 
     return dispatch('fetchCartReferences')
       .then(currentReferences => {
@@ -96,7 +96,7 @@ const actions = {
 
           const filteredReference = cartReferenceArray.filter(ref => {
             // Lets see if cart reference already exists on Moltin
-            return ref.includes(`${merchantName}_VENDOR`)
+            return ref.includes(`${vendorName}_VENDOR`)
           })
 
           if (filteredReference.length > 0) {
@@ -275,11 +275,11 @@ const actions = {
           if (!res) {
             return
           }
-          res.map((merchantCartCollection, index) => {
-            let data = merchantCartCollection.res.data.data
+          res.map((vendorCartCollection, index) => {
+            let data = vendorCartCollection.res.data.data
 
             _.map(data, (item, i) => {
-              data[i]['cart_reference'] = merchantCartCollection.cart_reference
+              data[i]['cart_reference'] = vendorCartCollection.cart_reference
             })
 
             commit('SET_CART_ITEMS', data)
@@ -439,7 +439,6 @@ const getters = {
 
   cartTotalItems (state) {
     let newArray = []
-    console.log('HERE MONKEY')
     if (state.cartItems) {
       _.map(state.cartItems, items => {
         _.map(items, item => {
@@ -471,17 +470,19 @@ const getters = {
   },
 
   cartSubtotal (state) {
+    let newArray = []
     if (state.cartItems) {
-      return state.cartItems.reduce((a, b) => {
-        const isOnSale = b.on_sale
+      _.map(state.cartItems, item => {
+        newArray.push(item)
+      })
 
-        function price () {
-          if (isOnSale) {
-            return b.sale_price
-          }
-          return b.price
-        }
-        return a + price() * b[0].quantity
+      const flatten = _.flatMap(newArray, flat => {
+        return flat
+      })
+
+      return flatten.reduce((a, b) => {
+        console.log('B', b.quantity, b.value.amount)
+        return a + (b.quantity * b.unit_price.amount)
       }, 0)
     }
     return 0
