@@ -78,11 +78,12 @@
 
         this.loading = true
 
-        this.$store.dispatch('inventory/stock', productId)
-          .then((res) => {
-            console.log('STOCK LEVEL', res.data.data.available)
+        this.$store.dispatch('products/product', productId)
+          .then(res => {
+            console.log('record', record)
+            console.log('STOCK LEVEL', res.data.data.meta.stock.level)
             // Check to see if user is adding more items than the stock allows
-            if (record && (record.quantity + this.quantity) > res.data.data.available) {
+            if (record && (record.quantity + this.quantity) > res.data.data.meta.stock.level) {
               throw new Error('no-stock')
             }
           })
@@ -95,7 +96,6 @@
                 price: {
                   amount: this.product.price[0].amount
                 },
-                sale_price: this.product.sale_price,
                 product_id: this.product.id,
                 quantity: this.quantity
               }

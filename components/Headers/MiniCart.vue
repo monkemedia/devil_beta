@@ -7,47 +7,37 @@
         a.mini-cart-desktop(aria-haspopup="true" aria-controls="dropdown-menu-mini-cart" @click="isActive = !isActive" v-on-clickaway="away")
           span.mini-cart-label My Cart
           span.cart-count {{ cartTotalItems }}
-      //- .dropdown-menu#dropdown-menu-mini-cart(role="menu")
-      //-   .dropdown-content
-      //-     .dropdown-item.empty-cart(v-if="loadedCartItems.length === 0")
-      //-       p Your cart is empty
-      //-     .dropdown-item(v-else)
-      //-       .columns(v-for="(cartItem, index) in loadedCartItems" v-if="index < 5")
-      //-         .column.is-4
-      //-           figure(v-if="cartItem.item.images")
-      //-             lazy-image(
-      //-               :src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-      //-               :small-src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-      //-               :alt="cartItem.item.images[0].alt")
-      //-           figure.no-image(v-else)
-      //-             i.fa.fa-file-image-o(aria-hidden="true")
-      //-         .column
-      //-           h6
-      //-             router-link(:to="'/' + cartItem.item.category + '/' + cartItem.item.product_id") {{ cartItem.item.title }}
-      //-           span.seller By {{ cartItem.item.username }}
-      //-           .level
-      //-             .level-left.quantity Qty: {{ cartItem.quantity }}
-      //-             .level-right.price
-      //-               span(v-if="cartItem.item.on_sale")
-      //-                 | {{ cartItem.item.sale_price | currency }}
-      //-               span(v-else)
-      //-                 | {{ cartItem.item.price | currency }}
-      //-         .columns(v-if="index > 5")
-      //-           .column.has-text-centered
-      //-             nuxt-link.view-more(to="") view all items
-      //-       .columns
-      //-         .subtotal
-      //-           .column
-      //-             | Subtotal
-      //-           .column.has-text-right
-      //-             | {{ cartSubtotal | currency }}
-      //-       .columns
-      //-         .column
-      //-           nuxt-link(to="/cart").button.is-flip.is-fullwidth
-      //-             span(data-text="View cart") View cart
-      //-         .column
-      //-           nuxt-link(to="/checkout").button.is-flip.is-secondary.is-fullwidth
-      //-             span(data-text="Checkout") Checkout
+      .dropdown-menu#dropdown-menu-mini-cart(role="menu")
+        .dropdown-content
+          .dropdown-item.empty-cart(v-if="loadedCartItems.length === 0")
+            p Your cart is empty
+          .dropdown-item(v-else)
+            .vendors(v-for="(vendors, index) in loadedCartItems" v-if="index < 5")
+              .columns(v-for="cartItem in vendors")
+                p {{ cartItem.name }}
+                //- .column.is-4
+                //-   figure(v-if="cartItem.images")
+                //-     lazy-image(
+                //-       :src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                //-       :small-src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                //-       :alt="cartItem.images[0].alt")
+                //-   figure.no-image(v-else)
+                //-     i.fa.fa-file-image-o(aria-hidden="true")
+                //- .column
+                //-   h6
+                //-     router-link(:to="'/' + cartItem.category + '/' + cartItem.product_id") {{ cartItem.name }}
+                //-   span.seller By {{ cartItem.username }}
+                //-   .level
+                //-     .level-left.quantity Qty: {{ cartItem.quantity }}
+                //-     .level-right.price
+                //-       //- span(v-if="cartItem.on_sale")
+                //-       //-   | {{ cartItem.sale_price | currency(cartItem.meta.display_price.with_tax.unit.currency.currency) }}
+                //-       span
+                //-         | {{ cartItem.meta.display_price.with_tax.unit.amount | currency(cartItem.meta.display_price.with_tax.unit.currency) }}
+                //- .columns(v-if="index > 5")
+                //-   .column.has-text-centered
+                //-     nuxt-link.view-more(to="") view all items
+
 </template>
 
 <script>

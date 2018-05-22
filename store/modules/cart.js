@@ -1,4 +1,5 @@
-// import _ from 'lodash'
+import Vue from 'vue'
+import _ from 'lodash'
 // import axios from 'axios'
 import api from '~/api'
 // import uuidv3 from 'uuid/v3'
@@ -10,7 +11,28 @@ const state = () => ({
 
 const mutations = {
   SET_CART_ITEMS (state, payload) {
-    state.cartItems = payload
+    state.cartItems.push(payload)
+  },
+
+  UPDATE_QUANTITY (state, payload) {
+    state.cartItems.forEach((items, index) => {
+      items.forEach((it, i) => {
+        if (it.sku === payload.sku) {
+          const updatedQty = it.quantity += payload.quantity
+          Vue.set(state.cartItems[index][i], 'quantity', updatedQty)
+        }
+      })
+    })
+  },
+
+  ADD_PRODUCT_TO_EXISTING_REF (state, payload) {
+    state.cartItems.forEach((items, index) => {
+      items.forEach((it, i) => {
+        if (it.cart_reference === payload.cart_reference) {
+          state.cartItems[index] = (payload)
+        }
+      })
+    })
   },
 
   CLEAR_CART_ITEMS (state) {
@@ -23,7 +45,9 @@ const actions = {
     const customerId = rootGetters['auth/getCustomerId']
     const customerToken = rootGetters['auth/getToken']
 
-    console.log('customerId', customerId)
+    if (!customerToken) {
+      return
+    }
 
     return api.user.getCartReferences({
       customer_id: customerId,
@@ -37,9 +61,7 @@ const actions = {
     const customerId = rootGetters['auth/getCustomerId']
     const customerToken = rootGetters['auth/getToken']
     const merchantName = product.merchant_name
-    const reference = `${merchantName}_${uuidv4()}`
-
-    console.log('merchantName', merchantName)
+    const reference = `${merchantName}_VENDOR_${uuidv4()}`
 
     return dispatch('fetchCartReferences')
       .then(currentReferences => {
@@ -59,12 +81,13 @@ const actions = {
               })
             })
             .then(res => {
-              console.log('new response', res.data.data)
+              const data = res.data.data
+
+              data['cart_reference'] = reference
               // Add products to Store
-              commit('SET_CART_ITEMS', res.data.data)
+              commit('SET_CART_ITEMS', data)
             })
         } else {
-          console.log('HERE')
           // There is cart references stored on Moltin
           // Lets filter through them
           const cartReferenceArray = currentReferences.split(',')
@@ -74,26 +97,68 @@ const actions = {
             return ref.includes(merchantName)
           })
 
-          console.log(filteredReference.length)
+          console.log('filteredReference', filteredReference)
 
           if (filteredReference.length > 0) {
-            console.log('here', filteredReference[0])
-            return dispatch('fetchCartData', filteredReference[0])
+            return api.cart.fetchCartData(filteredReference[0])
               .then(res => {
                 // cart reference already exists, lets see if product exists
                 const productExists = res.data.data.filter(res => {
                   return res.sku === payload.data.sku
                 })
 
-                if (productExists) {
+                if (productExists.length) {
                   // Product exists, so lets update quantity only
                   const quantity = productExists[0].quantity += payload.data.quantity
+
                   return dispatch('updateCartItemQuantity', {
                     item_id: productExists[0].id,
                     cart_reference: filteredReference[0],
                     quantity
                   })
+                    .then(() => {
+                      const data = {
+                        quantity: payload.data.quantity,
+                        sku: payload.data.sku
+                      }
+                      commit('UPDATE_QUANTITY', data)
+                    })
+                } else {
+                  // reference exists but no product, so set up new product
+                  console.log('reference exists but no product, so set up new product')
+                  return api.cart.addToCart({
+                    payload,
+                    cart_reference: filteredReference[0]
+                  })
+                    .then(res => {
+                      const data = res.data.data
+
+                      data['cart_reference'] = filteredReference[0]
+                      commit('ADD_PRODUCT_TO_EXISTING_REF', data)
+                    })
                 }
+              })
+          } else {
+            // add new reference and product to cart
+            return dispatch('user/updateCartReferences', {
+              customer_id: customerId,
+              cart_reference: `${currentReferences},${reference}`,
+              customer_token: customerToken
+            }, { root: true })
+              .then(() => {
+                // Add new product to cart
+                return api.cart.addToCart({
+                  payload,
+                  cart_reference: reference
+                })
+              })
+              .then(res => {
+                // Add products to Store
+                const data = res.data.data
+
+                data['cart_reference'] = reference
+
+                commit('SET_CART_ITEMS', data)
               })
           }
         }
@@ -174,25 +239,51 @@ const actions = {
     return api.cart.updateCartItemQuantity(data)
   },
 
-  fetchCartData ({ commit, dispatch }, cartReference) {
-    console.log('FETCH CART MONKEY', cartReference)
+  fetchCartData ({ state, commit, dispatch }, cartReference) {
+    // commit('SET_CART_ITEMS', 0)
     if (!cartReference) {
       return dispatch('fetchCartReferences')
         .then(res => {
-          console.log('fetchCartData', res)
-          return api.cart.fetchCartData(res)
+          if (!res) {
+            return
+          }
+
+          const arrayOfReferences = res.split(',')
+          let promises
+
+          promises = arrayOfReferences.map(ref => {
+            console.log('ref')
+            return api.cart.fetchCartData(ref)
+              .then(res => {
+                return {
+                  res,
+                  cart_reference: ref
+                }
+              })
+          })
+
+          return Promise.all(promises)
         })
         .then(res => {
-          console.log('cart response here', res)
-          commit('SET_CART_ITEMS', res.data.data)
-          return res
+          if (!res) {
+            return
+          }
+          res.map((merchantCartCollection, index) => {
+            let data = merchantCartCollection.res.data.data
+
+            data[0]['cart_reference'] = merchantCartCollection.cart_reference
+
+            commit('SET_CART_ITEMS', data)
+          })
         })
     }
 
     return api.cart.fetchCartData(cartReference)
       .then(res => {
-        console.log('cart response', res)
-        commit('SET_CART_ITEMS', res.data.data)
+        const data = res.data.data
+
+        data['cart_reference'] = cartReference
+        commit('SET_CART_ITEMS', data)
         return res
       })
       // const vm = this
@@ -338,14 +429,34 @@ const getters = {
   },
 
   cartTotalItems (state) {
+    let newArray = []
+    console.log('HERE MONKEY')
     if (state.cartItems) {
-      const total = state.cartItems.reduce((a, b) => {
+      _.map(state.cartItems, items => {
+        _.map(items, item => {
+          console.log('ITEM', item)
+          if (items.includes(item.id)) {
+            return
+          }
+          newArray.push(item)
+        })
+      })
+
+      console.log('newArray', newArray)
+
+      const flatten = _.flatMap(newArray, flat => {
+        return flat
+      })
+
+      console.log('flatten', flatten)
+
+      const calculate = flatten.reduce((a, b) => {
         return {
           quantity: a.quantity + b.quantity
         }
       }, { quantity: 0 })
 
-      return total.quantity
+      return calculate.quantity
     }
     return 0
   },
@@ -353,7 +464,6 @@ const getters = {
   cartSubtotal (state) {
     if (state.cartItems) {
       return state.cartItems.reduce((a, b) => {
-        console.log('b', b)
         const isOnSale = b.on_sale
 
         function price () {
@@ -362,7 +472,7 @@ const getters = {
           }
           return b.price
         }
-        return a + price() * b.quantity
+        return a + price() * b[0].quantity
       }, 0)
     }
     return 0

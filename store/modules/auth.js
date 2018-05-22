@@ -30,7 +30,6 @@ const actions = {
     let customerId
     let username
     let merchantType
-    let cartReference
 
     if (req) {
       if (!req.headers.cookie) {
@@ -56,21 +55,15 @@ const actions = {
         .split(';')
         .find(c => c.trim().startsWith('merchantType='))
 
-      const cartReferenceCookie = req.headers.cookie
-        .split(';')
-        .find(c => c.trim().startsWith('cartReference='))
-
       token = tokenCookie.substring(tokenCookie.indexOf('=') + 1) // Using this method as tokens contain more than 1 equals (=) sign
       customerId = customerIdCookie.split('=')[1]
       username = usernameCookie.split('=')[1]
       merchantType = merchantTypeCookie.split('=')[1]
-      cartReference = cartReferenceCookie.split('=')[1]
     } else {
       token = localStorage.getItem('token')
       customerId = localStorage.getItem('customerId')
       username = localStorage.getItem('username')
       merchantType = localStorage.getItem('merchantType')
-      cartReference = localStorage.getItem('cartReference')
     }
     if (!token) {
       console.log('No token')
@@ -82,7 +75,6 @@ const actions = {
     commit('SET_CUSTOMER_ID', customerId)
     commit('user/SET_USERNAME', username, { root: true })
     commit('user/SET_MERCHANT_TYPE', merchantType, { root: true })
-    commit('user/SET_CART_REFERENCE', cartReference, { root: true })
   },
 
   setAuthData ({ commit }, data) {

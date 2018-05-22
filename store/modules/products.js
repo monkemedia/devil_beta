@@ -172,9 +172,11 @@ const actions = {
   },
 
   product ({ commit }, productId) {
+    console.log('productId', productId)
     return api.products.product(productId)
       .then(res => {
         commit('SET_PRODUCT', res.data.data)
+        return res
       })
       .catch(err => {
         throw err
