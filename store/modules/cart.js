@@ -95,14 +95,6 @@ const actions = {
       } else {
         // There is a cookie, lets see if cart references match
       }
-      
-        .then(res => {
-          console.log('RES', res)
-        })
-        // dispatch('addItemToLocalStorage', payload.data)
-        //   .then(res => {
-        //     commit('SET_CART_ITEMS', payload)
-        //   })
     }
 
     return dispatch('fetchCartReferences')
