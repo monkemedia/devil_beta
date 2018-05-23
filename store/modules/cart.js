@@ -56,6 +56,13 @@ const actions = {
     })
   },
 
+  addItemToLocalStorage ({ commit }, payload) {
+    const cartArray = []
+    cartArray.push(payload)
+    localStorage.setItem('cartItems', JSON.stringify(cartArray))
+    return payload
+  },
+
   addToCart ({ dispatch, commit, rootGetters }, payload) {
     // Does user have cart reference all ready
     const product = rootGetters['products/loadedProduct']
@@ -63,6 +70,40 @@ const actions = {
     const customerToken = rootGetters['auth/getToken']
     const vendorName = product['vendor_name']
     const reference = `${vendorName}_VENDOR_${uuidv4()}`
+    const cookieReferences = localStorage.getItem('cartItems')
+
+    // If user isnt logged in
+    // Add items to localstorage for now
+    if (!customerToken) {
+      // Lets see if they have a cart reference in localStorage first
+      if (!cookieReferences) {
+        // There are no cookies so lets create one
+        return dispatch('addItemToLocalStorage', reference)
+          .then(() => {
+            return api.cart.addToCart({
+              payload,
+              cart_reference: reference
+            })
+          })
+          .then(res => {
+            const data = res.data.data
+
+            data[0]['cart_reference'] = reference
+            // Add products to Store
+            commit('SET_CART_ITEMS', data)
+          })
+      } else {
+        // There is a cookie, lets see if cart references match
+      }
+      
+        .then(res => {
+          console.log('RES', res)
+        })
+        // dispatch('addItemToLocalStorage', payload.data)
+        //   .then(res => {
+        //     commit('SET_CART_ITEMS', payload)
+        //   })
+    }
 
     return dispatch('fetchCartReferences')
       .then(currentReferences => {
