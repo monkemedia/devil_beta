@@ -8,33 +8,33 @@
         h1 Your cart ({{ cartTotalItems }})
     .columns.is-multiline
       .column.is-12-tablet.is-7-widescreen
-        b-message(type="is-danger" v-if="isSoldOut.length > 0") Looks like one or more items are out of stock.
+        //- b-message(type="is-danger" v-if="isSoldOut.length > 0") Looks like one or more items are out of stock.
         .cart-box(:class="{ 'no-items' :  cartTotalItems < 1 }")
           span(v-if="cartTotalItems < 1")
             h2 There are no items in your cart.
             p If you have an account with us, <nuxt-link to="sign-in" class="underline">please log in</nuxt-link> to see items you previously added.
           b-table(:data="loadedCartItems" v-else)
             template(slot-scope="props")
-              b-table-column(field="item" label="Item")
-                .item-details.media
-                  figure.media-left(v-if="props.row.item.images")
-                    lazy-image(
-                      :src="props.row.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                      :small-src="props.row.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                      :alt="props.row.item.images[0].alt")
-                  figure.media-left.no-image(v-else)
-                    i.fa.fa-file-image-o(aria-hidden="true")
-                  .media-content
-                    h6 {{ props.row.item.title }}
-                    span.seller Seller: {{ props.row.item.username }}
-                    span.stock(:class="stock(props.row.item.stock, true)") {{ stock(props.row.item.stock) }}
-                    span.ctas
-                      a(@click="deleteModal(props.row, props.index)") Remove
-              b-table-column.quantity(field="quantity" label="Quantity")
-                increment-counter(:productDetails="{ quantity: props.row.quantity, product_id: props.row.item.product_id, cart_id: props.row.session_id }")
-              b-table-column.subtotal(field="subtotal" label="Subtotal") {{ props.row.item.on_sale ? props.row.item.sale_price : props.row.item.price * props.row.quantity | currency }}
+              .vendors(v-for="vendor in props.row")
+                b-table-column(field="item" label="Item")
+                  .item-details.media
+                    figure.media-left(v-if="vendor.images")
+                      lazy-image(
+                        :src="vendor.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                        :small-src="vendor.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                        :alt="vendor.images[0].alt")
+                    figure.media-left.no-image(v-else)
+                      i.fa.fa-file-image-o(aria-hidden="true")
+                    .media-content
+                      h6 {{ vendor.name }}
+                      span.seller Seller: {{ vendor.cart_reference | makeUsername }}
+                      span.ctas
+                        a(@click="deleteModal(props.row, props.index)") Remove
+                b-table-column.quantity(field="quantity" label="Quantity")
+                  increment-counter(:productDetails="{ quantity: vendor.quantity, product_id: vendor.product_id, cart_id: vendor.session_id }")
+                b-table-column.subtotal(field="subtotal" label="Subtotal") {{ vendor.unit_price.amount * vendor.quantity | currency('USD') }}
       .column.is-12-tablet.is-4-widescreen.is-offset-1-widescreen
-        order-summary(:isSoldOut="isSoldOut.length > 0")
+        order-summary()
 
 </template>
 
@@ -42,8 +42,6 @@
   import Breadcrumb from '@/components/Breadcrumbs/DefaultBreadcrumb'
   import IncrementCounter from '@/components/Checkout/IncrementCounter'
   import OrderSummary from '@/components/Checkout/OrderSummary'
-  import _ from 'lodash'
-  import __ from 'lodash-addons'
 
   export default {
     middleware: [
@@ -65,12 +63,6 @@
       }
     },
 
-    created () {
-      if (process.client) {
-        this.$store.dispatch('cart/fetchCartData')
-      }
-    },
-
     computed: {
       loadedCartItems () {
         return this.$store.getters['cart/loadedCartItems']
@@ -78,13 +70,13 @@
 
       cartTotalItems () {
         return this.$store.getters['cart/cartTotalItems']
-      },
-
-      isSoldOut () {
-        return _.filter(this.loadedCartItems, (item) => {
-          return item.item.stock === 0
-        })
       }
+
+      // isSoldOut () {
+      //   return _.filter(this.loadedCartItems, (item) => {
+      //     return item.item.stock === 0
+      //   })
+      // }
     },
 
     methods: {
@@ -105,15 +97,15 @@
               })
           }
         })
-      },
-
-      stock (value, isClass) {
-        let stock = value > 0 ? 'In stock' : 'Sold out'
-        if (isClass) {
-          return __.slugify(stock)
-        }
-        return stock
       }
+
+      // stock (value, isClass) {
+      //   let stock = value > 0 ? 'In stock' : 'Sold out'
+      //   if (isClass) {
+      //     return __.slugify(stock)
+      //   }
+      //   return stock
+      // }
     }
   }
 

@@ -5,16 +5,17 @@
       nuxt-link.edit-cart(to="/cart") Edit cart
     section
       .cart-items(v-if="paramName !== 'cart'")
-        mini-cart-items(v-for="(cartItem, index) in loadedCartItems" v-if="index < 5" :key="index" :cartItem="cartItem")
+        .vendor(v-for="vendor in loadedCartItems")
+          mini-cart-items(v-for="(cartItem, index) in vendor" v-if="index < 5" :key="index" :cartItem="cartItem")
       .row.subtotal
         span Subtotal ({{ cartTotalItems }} {{ item }})
-        span {{ cartSubtotal | currency }}
+        span {{ cartSubtotal | currency('USD') }}
       .row.shipping
         span Shipping
         span N/A
       .row.total
         span Estimated total
-        span {{ cartSubtotal + shipping | currency }}
+        span {{ cartSubtotal + shipping | currency('USD') }}
     footer(v-show="pageName !== 'checkout'")
       nuxt-link(to="/checkout" v-if="pageName !== 'shipping'").button.is-primary.is-fullwidth.is-flip
         span(data-text="Check out") Check out
@@ -30,14 +31,6 @@
 
   export default {
     name: 'OrderSummary',
-
-    props: {
-      isSoldOut: {
-        required: false,
-        type: Boolean,
-        default: false
-      }
-    },
 
     components: {
       MiniCartItems

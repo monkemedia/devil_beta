@@ -1,24 +1,24 @@
 <template lang="pug">
   .media
     .media-left
-      figure(v-if="cartItem.item.images")
+      figure(v-if="cartItem.images")
         lazy-image(
-          :src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-          :small-src="cartItem.item.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-          :alt="cartItem.item.images[0].alt")
+          :src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+          :small-src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+          :alt="cartItem.images[0].alt")
       figure.no-image(v-else)
         i.fa.fa-file-image-o(aria-hidden="true")
     .media-content
       h6
-        router-link(:to="'/' + cartItem.item.category + '/' + cartItem.item.product_id") {{ cartItem.item.title }}
-      span.seller By {{ cartItem.item.username }}
+        router-link(:to="'/' + cartItem.category + '/' + cartItem.product_id") {{ cartItem.name }}
+      span.seller By {{ cartItem.cart_reference | makeUsername }}
       .level
         .level-left.quantity Qty: {{ cartItem.quantity }}
         .level-right.price
-          span(v-if="cartItem.item.on_sale")
-            | {{ cartItem.item.sale_price | currency }}
-          span(v-else)
-            | {{ cartItem.item.price | currency }}
+          //- span(v-if="cartItem.on_sale")
+          //-   | {{ cartItem.sale_price | currency }}
+          span
+            | {{ cartItem.unit_price.amount | currency(cartItem.unit_price.currency) }}
 </template>
 
 <script>

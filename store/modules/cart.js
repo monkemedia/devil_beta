@@ -247,6 +247,7 @@ const actions = {
   },
 
   fetchCartData ({ state, commit, dispatch }, cartReference) {
+    console.log('FETCH')
     // commit('SET_CART_ITEMS', 0)
     if (!cartReference) {
       return dispatch('fetchCartReferences')
@@ -442,10 +443,6 @@ const getters = {
     if (state.cartItems) {
       _.map(state.cartItems, items => {
         _.map(items, item => {
-          console.log('ITEM', item)
-          if (items.includes(item.id)) {
-            return
-          }
           newArray.push(item)
         })
       })

@@ -81,11 +81,13 @@ const actions = {
     commit('SET_TOKEN', data.token)
     commit('SET_CUSTOMER_ID', data.customer_id)
 
-    localStorage.setItem('token', data.token)
-    localStorage.setItem('customerId', data.customer_id)
-
     Cookie.set('token', data.token)
     Cookie.set('customerId', data.customer_id)
+
+    if (process.client) {
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('customerId', data.customer_id)
+    }
   },
 
   login ({ rootGetters, dispatch }, data) {

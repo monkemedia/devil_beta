@@ -36,11 +36,7 @@
 
     middleware: [
       'init-auth'
-    ],
-
-    created () {
-      this.$store.dispatch('auth/initAuth')
-    }
+    ]
   }
 </script>
 
