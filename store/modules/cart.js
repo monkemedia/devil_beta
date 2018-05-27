@@ -57,7 +57,16 @@ const actions = {
   },
 
   addItemToLocalStorage ({ commit }, payload) {
-    const cartArray = []
+    let cartArray = []
+    const storeReferences = localStorage.getItem('cartItems')
+
+    if (storeReferences && storeReferences.length > 0) {
+      cartArray = JSON.parse(storeReferences)
+      cartArray.push(payload)
+      localStorage.setItem('cartItems', JSON.stringify(cartArray))
+      return cartArray
+    }
+
     cartArray.push(payload)
     localStorage.setItem('cartItems', JSON.stringify(cartArray))
     return payload
@@ -70,7 +79,7 @@ const actions = {
     const customerToken = rootGetters['auth/getToken']
     const vendorName = product['vendor_name']
     const reference = `${vendorName}_VENDOR_${uuidv4()}`
-    const cookieReferences = localStorage.getItem('cartItems')
+    const cookieReferences = JSON.parse(localStorage.getItem('cartItems'))
 
     // If user isnt logged in
     // Add items to localstorage for now
@@ -94,6 +103,71 @@ const actions = {
           })
       } else {
         // There is a cookie, lets see if cart references match
+        const filteredReference = cookieReferences.filter(ref => ref.includes(`${vendorName}_VENDOR`))
+
+        if (filteredReference.length > 0) {
+          // cart reference already exists, lets see if product exists
+          return api.cart.fetchCartData(filteredReference[0])
+            .then(res => {
+              const productExists = res.data.data.filter(res => res.sku === payload.data.sku)
+
+              if (productExists.length) {
+                // Product exists, so lets update quantity only
+                const quantity = productExists[0].quantity += payload.data.quantity
+
+                return dispatch('updateCartItemQuantity', {
+                  item_id: productExists[0].id,
+                  cart_reference: filteredReference[0],
+                  quantity
+                })
+                  .then(() => {
+                    const data = {
+                      quantity: payload.data.quantity,
+                      sku: payload.data.sku
+                    }
+                    commit('UPDATE_QUANTITY', data)
+                  })
+              } else {
+                // reference exists but no product, so set up new product
+                return api.cart.addToCart({
+                  payload,
+                  cart_reference: filteredReference[0]
+                })
+                  .then(res => {
+                    const data = res.data.data
+                    const newArray = []
+
+                    _.map(data, item => {
+                      item['cart_reference'] = filteredReference[0]
+                      newArray.push(item)
+                    })
+
+                    console.log('newArray', newArray)
+
+                    commit('ADD_PRODUCT_TO_EXISTING_REF', newArray)
+                  })
+              }
+            })
+        } else {
+          // Product doesn't exists, so lets add new cart reference to local storage
+          // before adding it to moltin
+          return dispatch('addItemToLocalStorage', reference)
+            .then(() => {
+              // Add new product to cart
+              return api.cart.addToCart({
+                payload,
+                cart_reference: reference
+              })
+            })
+            .then(res => {
+              // Add products to Store
+              const data = res.data.data
+
+              data[0]['cart_reference'] = reference
+
+              commit('SET_CART_ITEMS', data)
+            })
+        }
       }
     }
 
@@ -127,18 +201,13 @@ const actions = {
           // Lets filter through them
           const cartReferenceArray = currentReferences.split(',')
 
-          const filteredReference = cartReferenceArray.filter(ref => {
-            // Lets see if cart reference already exists on Moltin
-            return ref.includes(`${vendorName}_VENDOR`)
-          })
+          const filteredReference = cartReferenceArray.filter(ref => ref.includes(`${vendorName}_VENDOR`))
 
           if (filteredReference.length > 0) {
             return api.cart.fetchCartData(filteredReference[0])
               .then(res => {
                 // cart reference already exists, lets see if product exists
-                const productExists = res.data.data.filter(res => {
-                  return res.sku === payload.data.sku
-                })
+                const productExists = res.data.data.filter(res => res.sku === payload.data.sku)
 
                 if (productExists.length) {
                   // Product exists, so lets update quantity only
@@ -169,8 +238,6 @@ const actions = {
                         item['cart_reference'] = filteredReference[0]
                         return item
                       })
-
-                      console.log('addBackReference', addBackReference)
 
                       addBackReference['cart_reference'] = filteredReference[0]
 
@@ -279,8 +346,28 @@ const actions = {
     return api.cart.updateCartItemQuantity(data)
   },
 
-  fetchCartData ({ state, commit, dispatch }, cartReference) {
-    console.log('FETCH')
+  fetchCartData ({ state, commit, rootGetters, dispatch }, cartReference) {
+    const customerToken = rootGetters['auth/getToken']
+    const cookieReferences = JSON.parse(localStorage.getItem('cartItems'))
+
+    // Lets see if user is anonymous
+    if (!customerToken) {
+      // Then lets check for cart refernces in local storage
+      if (cookieReferences) {
+        // Map through cookie refernces and fetch data from Moltin
+        _.map(cookieReferences, ref => {
+          return api.cart.fetchCartData(ref)
+            .then(res => {
+              const data = res.data.data
+
+              data[0]['cart_reference'] = ref
+              commit('SET_CART_ITEMS', data)
+            })
+        })
+      }
+
+      return
+    }
     // commit('SET_CART_ITEMS', 0)
     if (!cartReference) {
       return dispatch('fetchCartReferences')
@@ -293,7 +380,6 @@ const actions = {
           let promises
 
           promises = arrayOfReferences.map(ref => {
-            console.log('ref')
             return api.cart.fetchCartData(ref)
               .then(res => {
                 return {
@@ -480,13 +566,9 @@ const getters = {
         })
       })
 
-      console.log('newArray', newArray)
-
       const flatten = _.flatMap(newArray, flat => {
         return flat
       })
-
-      console.log('flatten', flatten)
 
       const calculate = flatten.reduce((a, b) => {
         return {
@@ -511,7 +593,6 @@ const getters = {
       })
 
       return flatten.reduce((a, b) => {
-        console.log('B', b.quantity, b.value.amount)
         return a + (b.quantity * b.unit_price.amount)
       }, 0)
     }
