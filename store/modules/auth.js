@@ -90,7 +90,9 @@ const actions = {
     }
   },
 
-  login ({ rootGetters, dispatch }, data) {
+  login ({ rootGetters, commit, dispatch }, data) {
+    // commit('cart/CLEAR_CART_ITEMS', null, { root: true })
+
     return api.auth.login(data)
       .then(res => {
         console.log('LOGIN RES', res.data.data)
@@ -106,6 +108,20 @@ const actions = {
           customer_id: res.data.data.customer_id,
           customer_token: res.data.data.token
         }, { root: true })
+      })
+      .then(() => {
+        const localCartReferences = localStorage.getItem('cartItems')
+
+        if (localCartReferences) {
+          return dispatch('cart/localStorageToMoltin', JSON.parse(localCartReferences), { root: true })
+        }
+
+        return dispatch('cart/fetchCartData', null, { root: true })
+          .then(res => {
+            _.map(res, item => {
+              commit('cart/SET_CART_ITEMS', item, { root: true })
+            })
+          })
       })
   },
 
@@ -142,6 +158,7 @@ const actions = {
       localStorage.removeItem('customerId')
       localStorage.removeItem('username')
       localStorage.removeItem('merchantType')
+      localStorage.removeItem('cartItems')
     }
   }
 }

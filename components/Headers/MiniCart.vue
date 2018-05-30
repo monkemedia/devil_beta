@@ -54,6 +54,7 @@
 
 <script>
   import { mixin as clickaway } from 'vue-clickaway'
+  import _ from 'lodash'
 
   export default {
     name: 'MiniCart',
@@ -78,6 +79,11 @@
     created () {
       if (process.client) {
         this.$store.dispatch('cart/fetchCartData')
+          .then(res => {
+            _.map(res, item => {
+              this.$store.commit('cart/SET_CART_ITEMS', item, { root: true })
+            })
+          })
       }
     },
 

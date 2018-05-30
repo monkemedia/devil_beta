@@ -94,7 +94,8 @@
                   if (this.$route.name === 'checkout') {
                     this.$router.push('/shipping')
                   } else {
-                    this.$router.push('/admin')
+                    // this.$router.push('/admin')
+                    this.$router.push('/product/test/0c34cdc3-4fe5-42bf-b1fe-9969a8e8ea51')
                   }
                 })
                 .catch(err => {

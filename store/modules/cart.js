@@ -1,8 +1,6 @@
 import Vue from 'vue'
 import _ from 'lodash'
-// import axios from 'axios'
 import api from '~/api'
-// import uuidv3 from 'uuid/v3'
 import uuidv4 from 'uuid/v4'
 
 const state = () => ({
@@ -70,6 +68,74 @@ const actions = {
     cartArray.push(payload)
     localStorage.setItem('cartItems', JSON.stringify(cartArray))
     return payload
+  },
+
+  localStorageToMoltin ({ state, commit, getters, rootGetters, dispatch }, localCartReferences) {
+    // when user signs in, lets see if they have cart references in local storage
+    const customerId = rootGetters['auth/getCustomerId']
+    const customerToken = rootGetters['auth/getToken']
+
+    // there are cart refernences in local storage, so lets add them to moltin
+    return dispatch('fetchCartReferences')
+      .then(currentReferences => {
+        return api.cart.fetchCartData(currentReferences)
+          .then(res => {
+            // There are no store references in Moltin, so just add reference from localStorage straight to Moltin
+            if (!res.data.data.length) {
+              console.log('updateCartReferences')
+              return dispatch('user/updateCartReferences', {
+                customer_id: customerId,
+                cart_reference: localCartReferences.join(','),
+                customer_token: customerToken
+              }, { root: true })
+            } else {
+              // There are references in moltin, so lets see if products already exist
+              return dispatch('fetchCartData')
+                .then(() => {
+                  const cartData = res.data.data
+                  const currentCartItems = _.flattenDeep(state.cartItems)
+                  let productExists
+                  let quantityFromMoltin
+
+                  console.log('currentCartItems', currentCartItems)
+
+                  productExists = _.map(cartData, res => {
+                    return _.filter(currentCartItems, item => {
+                      return item.sku === res.sku
+                    })
+                  })
+
+                  quantityFromMoltin = cartData.find(item => {
+                    return item.sku === productExists[0][0].sku
+                  })
+
+                  console.log('quantityFromMoltin', quantityFromMoltin)
+
+                  console.log('product exists', productExists)
+                  if (productExists.length > 0) {
+                    console.log('productExists', productExists)
+                    // product exists, so lets just update quantity only
+                    console.log('update quantity ONLY', productExists[0][0].quantity)
+                    const quantity = productExists[0][0].quantity += quantityFromMoltin.quantity
+
+                    console.log('QUANTITY', quantity)
+
+                    return dispatch('updateCartItemQuantity', {
+                      item_id: productExists[0][0].id,
+                      cart_reference: productExists[0][0].cart_reference,
+                      quantity
+                    })
+                      .then(res => {
+                        console.log('moltin response', res)
+                      })
+                  }
+                })
+            }
+          })
+          .then(() => {
+            // localStorage.removeItem('cartItems')
+          })
+      })
   },
 
   addToCart ({ dispatch, commit, rootGetters }, payload) {
@@ -206,10 +272,12 @@ const actions = {
           if (filteredReference.length > 0) {
             return api.cart.fetchCartData(filteredReference[0])
               .then(res => {
+                console.log('res', res)
                 // cart reference already exists, lets see if product exists
                 const productExists = res.data.data.filter(res => res.sku === payload.data.sku)
 
                 if (productExists.length) {
+                  console.log('HERE')
                   // Product exists, so lets update quantity only
                   const quantity = productExists[0].quantity += payload.data.quantity
 
@@ -347,29 +415,8 @@ const actions = {
   },
 
   fetchCartData ({ state, commit, rootGetters, dispatch }, cartReference) {
-    const customerToken = rootGetters['auth/getToken']
-    const cookieReferences = JSON.parse(localStorage.getItem('cartItems'))
-
-    // Lets see if user is anonymous
-    if (!customerToken) {
-      // Then lets check for cart refernces in local storage
-      if (cookieReferences) {
-        // Map through cookie refernces and fetch data from Moltin
-        _.map(cookieReferences, ref => {
-          return api.cart.fetchCartData(ref)
-            .then(res => {
-              const data = res.data.data
-
-              data[0]['cart_reference'] = ref
-              commit('SET_CART_ITEMS', data)
-            })
-        })
-      }
-
-      return
-    }
-    // commit('SET_CART_ITEMS', 0)
     if (!cartReference) {
+      console.log('no cart reference ')
       return dispatch('fetchCartReferences')
         .then(res => {
           if (!res) {
@@ -395,6 +442,7 @@ const actions = {
           if (!res) {
             return
           }
+          const newArray = []
           res.map((vendorCartCollection, index) => {
             let data = vendorCartCollection.res.data.data
 
@@ -402,8 +450,10 @@ const actions = {
               data[i]['cart_reference'] = vendorCartCollection.cart_reference
             })
 
-            commit('SET_CART_ITEMS', data)
+            newArray.push(data)
           })
+
+          return newArray
         })
     }
 
