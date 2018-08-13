@@ -38,7 +38,7 @@
                 :class="{ 'is-danger': errors.has('category') }"
                 v-validate="'required'")
                   option(disabled value="") Please select a category
-                  option(v-for="cat in categories" :value="cat.id") {{ cat.name }}
+                  option(v-for="cat in categories" :value="cat") {{ cat }}
               p(v-show="errors.has('category')" class="help is-danger" v-html="errors.first('category')")
           .columns
             .column
@@ -164,11 +164,6 @@
       itemData: {
         type: Object,
         required: false
-      },
-
-      categories: {
-        type: Array,
-        required: true
       }
     },
 
@@ -183,7 +178,7 @@
         formData: {
           name: this.itemData ? this.itemData.name : '',
           description: this.itemData ? this.itemData.description : '',
-          category: this.itemData ? this.itemData.relationships.categories.data[0].id : '',
+          category: this.itemData ? this.itemData.categories : '',
           on_sale: this.itemData ? this.itemData.on_sale : false,
           sale_price: this.itemData ? this.itemData.sale_price : 0,
           price: [{
@@ -195,6 +190,9 @@
           status: this.itemData ? this.itemData.status : 'draft',
           stock: this.itemData ? this.itemData.meta.stock.level : 0
         },
+        categories: [
+          'Test1', 'Test2'
+        ],
         cached_store_front: '',
         storefront_options: [
           { label: 'Draft - Not live on storefront', value: 'draft' },
@@ -223,47 +221,15 @@
         const vm = this
         const payload = {
           ...this.formData,
-          manage_stock: true,
           id: paramId,
           slug: slug(),
           sku: sku(),
-          type: 'product',
           vender_name: this.venderName
         }
 
         function createItem () {
           vm.loading = true
           vm.$store.dispatch('products/createProduct', payload)
-            .then(res => {
-              console.log('res', res.data.data.id)
-              // Filter through brands to find BRAND ID
-              const customerId = vm.$store.getters['auth/getCustomerId']
-              console.log('customerId', customerId)
-
-              return Promise.all([
-                vm.$store.dispatch('products/brandId', { customerId }),
-                { productId: res.data.data.id }
-              ])
-            })
-            .then(res => {
-              console.log('res 2', res)
-              return Promise.all([
-                vm.$store.dispatch('products/brandRelationships', {
-                  brandId: res[0].data.data[0].id,
-                  productId: res[1].productId
-                }),
-                { productId: res[1].productId }
-              ])
-            })
-            .then(res => {
-              return Promise.all([
-                vm.$store.dispatch('products/categoryRelationships', {
-                  categoryId: vm.formData.category,
-                  productId: res[1].productId
-                }),
-                { productId: res[1].productId }
-              ])
-            })
             .then(res => {
               vm.cached_store_front = vm.cached_store_front
 

@@ -5,8 +5,7 @@ import uploadcare from 'uploadcare-widget'
 const state = () => ({
   loadedProduct: null,
   loadedMerchantProduct: null,
-  loadedMerchantProducts: null,
-  categories: null
+  loadedMerchantProducts: null
 })
 
 const mutations = {
@@ -20,10 +19,6 @@ const mutations = {
 
   SET_MERCHANT_PRODUCTS (state, product) {
     state.loadedMerchantProducts = product
-  },
-
-  SET_CATEGORIES (state, categories) {
-    state.categories = categories
   }
 }
 
@@ -91,33 +86,6 @@ const actions = {
         .then(res => resolve(res))
         .catch(err => reject(err))
     })
-  },
-
-  categories ({ commit }) {
-    return api.products.categories()
-      .then(response => {
-        commit('SET_CATEGORIES', response.data.data)
-      })
-  },
-
-  categoryRelationships ({}, data) {
-    return api.products.categoryRelationship(data)
-  },
-
-  brandId ({}, data) {
-    return api.products.brandId(data)
-      .then(res => {
-        console.log('brandId', res)
-        return res
-      })
-  },
-
-  brands ({}, data) {
-    return api.products.brands(data)
-  },
-
-  brandRelationships ({}, data) {
-    return api.products.brandRelationship(data)
   },
 
   updateProduct ({ commit }, itemDetails) {
@@ -205,10 +173,6 @@ const getters = {
 
   loadedProduct (state) {
     return state.loadedProduct
-  },
-
-  loadedCategories (state) {
-    return state.categories
   }
 }
 

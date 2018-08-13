@@ -5,7 +5,7 @@
         header
           breadcrumb(:crumb="breadcrumb")
           h1.add-product-heading Add Product
-    main-form(:categories="categories")
+    main-form
 </template>
 
 <script>
@@ -27,25 +27,9 @@
       MainForm
     },
 
-    async fetch ({ store }) {
-      return store.dispatch('products/categories')
-    },
-
-    mounted () {
-      if (process.client) {
-        return this.$store.dispatch('products/categories')
-      }
-    },
-
     data () {
       return {
         breadcrumb: { title: 'Products', path: '/admin/products' }
-      }
-    },
-
-    computed: {
-      categories () {
-        return this.$store.getters['products/loadedCategories']
       }
     }
   }

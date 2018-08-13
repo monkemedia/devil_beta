@@ -62,40 +62,11 @@ export default {
   },
 
   products: {
-    categories: () => {
-      return axios({
-        method: 'get',
-        url: `${baseURL}/categories`
-      })
-        .then(res => {
-          return res
-        })
-        .catch(err => {
-          return err
-        })
-    },
-
-    categoryRelationship: (data) => {
-      return axios({
-        method: 'post',
-        url: `${baseURL}/products/${data.productId}/relationships/categories`,
-        data: {
-          data: [{
-            type: 'category',
-            id: data.categoryId
-          }]
-        },
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-    },
-
     createProduct: (data) => {
       return axios({
         method: 'post',
         url: `${baseURL}/products`,
-        data: { data },
+        data,
         headers: {
           'Content-Type': 'application/json'
         }
@@ -129,43 +100,6 @@ export default {
       return axios({
         method: 'delete',
         url: `${baseURL}/products/${productId}`
-      })
-    },
-
-    brandId: (data) => {
-      return axios({
-        method: 'get',
-        url: `${baseURL}/brands?filter=eq(slug,${data.customerId})`,
-        headers: {
-          'authorization': `Bearer ${data.moltinToken}`
-        }
-      })
-    },
-
-    brands: (data) => {
-      return axios({
-        method: 'post',
-        url: `${baseURL}/brands`,
-        data: { data },
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-    },
-
-    brandRelationship: (data) => {
-      return axios({
-        method: 'post',
-        url: `${baseURL}/products/${data.productId}/relationships/brands`,
-        data: {
-          data: [{
-            type: 'brand',
-            id: data.brandId
-          }]
-        },
-        headers: {
-          'Content-Type': 'application/json'
-        }
       })
     },
 

@@ -7,7 +7,7 @@
           h1.add-product-heading Add Product
             span.tag.is-uppercase(:class="status(itemData.status)" v-if="itemData")
               | {{ itemData.status }}
-    main-form(:itemData="itemData" :categories="categories")
+    main-form(:itemData="itemData")
 </template>
 
 <script>
@@ -40,24 +40,21 @@
     async fetch ({ store, params, error }) {
       const paramId = params.id
 
-      return store.dispatch('products/categories')
-        .then(() => {
-          return api.products.product(paramId)
-            .then(res => {
-              if (res.data.data !== null) {
-                return store.commit('products/SET_MERCHANT_PRODUCT', res.data.data)
-              }
+      return api.products.product(paramId)
+        .then(res => {
+          if (res.data.data !== null) {
+            return store.commit('products/SET_MERCHANT_PRODUCT', res.data.data)
+          }
 
-              store.commit('products/SET_MERCHANT_PRODUCT', null)
-              error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-            })
-            .catch(err => {
-              if (err.response) {
-                error({ statusCode: err.response.status, message: err.response.data.error })
-              } else {
-                error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-              }
-            })
+          store.commit('products/SET_MERCHANT_PRODUCT', null)
+          error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
+        })
+        .catch(err => {
+          if (err.response) {
+            error({ statusCode: err.response.status, message: err.response.data.error })
+          } else {
+            error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
+          }
         })
     },
 
@@ -65,17 +62,14 @@
       if (process.client) {
         const paramId = this.$route.params.id
 
-        return this.$store.dispatch('products/categories')
-          .then(() => {
-            return api.products.product(paramId)
-              .then(res => {
-                if (res.data.data !== null) {
-                  return this.$store.commit('products/SET_MERCHANT_PRODUCT', res.data.data)
-                }
+        return api.products.product(paramId)
+          .then(res => {
+            if (res.data !== null) {
+              return this.$store.commit('products/SET_MERCHANT_PRODUCT', res.data.data)
+            }
 
-                this.$store.commit('products/SET_MERCHANT_PRODUCT', null)
-                this.error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-              })
+            this.$store.commit('products/SET_MERCHANT_PRODUCT', null)
+            this.error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
           })
       }
     },
@@ -83,10 +77,6 @@
     computed: {
       itemData () {
         return this.$store.getters['products/loadedMerchantProduct']
-      },
-
-      categories () {
-        return this.$store.getters['products/loadedCategories']
       }
     },
 
