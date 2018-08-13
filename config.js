@@ -1,2 +1,2 @@
-export const baseURL = 'https://api.moltin.com/'
-export const version = 'v2'
+export const baseURL = 'http://localhost:4000/v1'
+// export const version = 'v1'

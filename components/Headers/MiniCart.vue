@@ -77,13 +77,32 @@
     },
 
     created () {
-      if (process.client) {
-        this.$store.dispatch('cart/fetchCartData')
+      const vm = this
+      function fetchCartData (reference) {
+        console.log('POO')
+        vm.$store.dispatch('cart/fetchCartData', reference || null)
           .then(res => {
-            _.map(res, item => {
-              this.$store.commit('cart/SET_CART_ITEMS', item, { root: true })
+            console.log('TESTEES', res)
+            if (!res) {
+              return
+            }
+            _.map(res.data.data, item => {
+              vm.$store.commit('cart/SET_CART_ITEMS', [item], { root: true })
             })
           })
+      }
+
+      if (process.client) {
+        const localCartReferences = JSON.parse(localStorage.getItem('cartItems'))
+
+        if (localCartReferences && localCartReferences.length > 0) {
+          _.map(localCartReferences, reference => {
+            fetchCartData(reference)
+          })
+        } else {
+          console.log('HERE POEOPLE')
+          fetchCartData()
+        }
       }
     },
 

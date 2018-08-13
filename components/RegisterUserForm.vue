@@ -141,13 +141,6 @@
         this.isRegisterError = false
         // Validate form first
         this.$validator.validateAll()
-          // .then(() => {
-          //   const payload = {
-          //     type: 'entry',
-          //     username: this.username
-          //   }
-          //   return this.$store.dispatch('auth/username', payload)
-          // })
           .then(() => {
             // Validate username first
             const payload = {
@@ -155,30 +148,22 @@
               password: this.password,
               name: this.name,
               username: this.username,
-              vendor: this.vendor,
-              type: 'customer'
+              vendor: this.vendor
             }
 
             this.loading = true
             return this.$store.dispatch('auth/register', payload)
           })
-
           .then(() => {
-            // Need to create a BRAND, for seller to add their products too
-            if (this.vendor) {
-              const customerId = this.$store.getters['auth/getCustomerId']
-
-              return this.$store.dispatch('products/brands', {
-                type: 'brand',
-                name: customerId,
-                slug: customerId,
-                status: 'live'
-              })
+            // Now log user in
+            const payload = {
+              email: this.email,
+              password: this.password
             }
 
-            return true
+            this.loading = true
+            return this.$store.dispatch('auth/login', payload)
           })
-
           .then(() => {
             this.loading = false
             if (this.$route.query.visitor === 'unregistered') {
@@ -188,13 +173,12 @@
             }
           })
           .catch((err) => {
-            console.log(err)
             if (err.response) {
               if (err.response.status === 409) {
-                this.isRegisterError = err.response.data.errors[0].detail
+                this.isRegisterError = err.response.data.message
               }
             } else {
-              this.isRegisterError = _.lowerCase(err.message)
+              this.isRegisterError = _.lowerCase(err.response.data.message)
             }
             this.loading = false
             VueScrollTo.scrollTo('.is-danger')

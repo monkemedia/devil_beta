@@ -1,28 +1,14 @@
 // import Cookie from 'js-cookie'
 import axios from 'axios'
-import qs from 'qs'
-import { version } from '~/config.js'
+import { baseURL } from '~/config.js'
 
 export default {
-  moltin: {
-    credentials: (data) => {
-      return axios({
-        method: 'post',
-        url: 'oauth/access_token',
-        data: qs.stringify(data),
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded'
-        }
-      })
-    }
-  },
-
   auth: {
     login: (data) => {
       return axios({
         method: 'post',
-        url: `${version}/customers/tokens`,
-        data: { data },
+        url: `${baseURL}/user/login`,
+        data,
         headers: {
           'Content-Type': 'application/json'
         }
@@ -32,10 +18,8 @@ export default {
     register: (data) => {
       return axios({
         method: 'post',
-        url: `${version}/customers`,
-        data: {
-          data
-        },
+        url: `${baseURL}/user/signup`,
+        data,
         headers: {
           'Content-Type': 'application/json'
         }
@@ -44,22 +28,11 @@ export default {
   },
 
   user: {
-    user: (data) => {
-      return axios({
-        method: 'get',
-        url: `${version}/customers/${data.customer_id}`,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          'x-moltin-customer-token': data.customer_token
-        }
-      })
-    },
-
     updateCartReferences: (data) => {
       console.log('DATA', data)
       return axios({
         method: 'put',
-        url: `${version}/customers/${data.customer_id}`,
+        url: `${baseURL}/customers/${data.customer_id}`,
         headers: {
           'Content-Type': 'application/json',
           'x-moltin-customer-token': data.customer_token
@@ -76,7 +49,7 @@ export default {
     getCartReferences: (data) => {
       return axios({
         method: 'get',
-        url: `${version}/customers/${data.customer_id}`,
+        url: `${baseURL}/customers/${data.customer_id}`,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
           'x-moltin-customer-token': data.customer_token
@@ -92,7 +65,7 @@ export default {
     categories: () => {
       return axios({
         method: 'get',
-        url: `${version}/categories`
+        url: `${baseURL}/categories`
       })
         .then(res => {
           return res
@@ -105,7 +78,7 @@ export default {
     categoryRelationship: (data) => {
       return axios({
         method: 'post',
-        url: `${version}/products/${data.productId}/relationships/categories`,
+        url: `${baseURL}/products/${data.productId}/relationships/categories`,
         data: {
           data: [{
             type: 'category',
@@ -121,7 +94,7 @@ export default {
     createProduct: (data) => {
       return axios({
         method: 'post',
-        url: `${version}/products`,
+        url: `${baseURL}/products`,
         data: { data },
         headers: {
           'Content-Type': 'application/json'
@@ -132,7 +105,7 @@ export default {
     vendorProducts: (brandId) => {
       return axios({
         method: 'get',
-        url: `${version}/products?filter=eq(brand.id,${brandId})`,
+        url: `${baseURL}/products?filter=eq(brand.id,${brandId})`,
         headers: {
           'X-Moltin-Language': 'en'
         }
@@ -142,7 +115,7 @@ export default {
     updateProduct: (data) => {
       return axios({
         method: 'put',
-        url: `${version}/products/${data.productId}`,
+        url: `${baseURL}/products/${data.productId}`,
         data: {
           data: data.payload
         },
@@ -155,14 +128,14 @@ export default {
     deleteProduct: (productId) => {
       return axios({
         method: 'delete',
-        url: `${version}/products/${productId}`
+        url: `${baseURL}/products/${productId}`
       })
     },
 
     brandId: (data) => {
       return axios({
         method: 'get',
-        url: `${version}/brands?filter=eq(slug,${data.customerId})`,
+        url: `${baseURL}/brands?filter=eq(slug,${data.customerId})`,
         headers: {
           'authorization': `Bearer ${data.moltinToken}`
         }
@@ -172,7 +145,7 @@ export default {
     brands: (data) => {
       return axios({
         method: 'post',
-        url: `${version}/brands`,
+        url: `${baseURL}/brands`,
         data: { data },
         headers: {
           'Content-Type': 'application/json'
@@ -183,7 +156,7 @@ export default {
     brandRelationship: (data) => {
       return axios({
         method: 'post',
-        url: `${version}/products/${data.productId}/relationships/brands`,
+        url: `${baseURL}/products/${data.productId}/relationships/brands`,
         data: {
           data: [{
             type: 'brand',
@@ -199,7 +172,7 @@ export default {
     product: (productId) => {
       return axios({
         method: 'get',
-        url: `${version}/products/${productId}`,
+        url: `${baseURL}/products/${productId}`,
         headers: {
           'X-Moltin-Language': 'en'
         }
@@ -211,7 +184,7 @@ export default {
     stock: (productId) => {
       return axios({
         method: 'get',
-        url: `${version}/inventories/${productId}`
+        url: `${baseURL}/inventories/${productId}`
       })
     }
   },
@@ -220,7 +193,7 @@ export default {
     addToCart: (data) => {
       return axios({
         method: 'post',
-        url: `${version}/carts/${data.cart_reference}/items`,
+        url: `${baseURL}/carts/${data.cart_reference}/items`,
         data: data.payload,
         headers: {
           'Content-Type': 'application/json'
@@ -231,7 +204,7 @@ export default {
     updateCartItemQuantity: (data) => {
       return axios({
         method: 'put',
-        url: `${version}/carts/${data.cart_reference}/items/${data.item_id}`,
+        url: `${baseURL}/carts/${data.cart_reference}/items/${data.item_id}`,
         data: {
           data: {
             quantity: data.quantity,
@@ -248,7 +221,7 @@ export default {
       console.log('come on', reference)
       return axios({
         method: 'get',
-        url: `${version}/carts/${reference}/items`
+        url: `${baseURL}/carts/${reference}/items`
       })
     }
   }

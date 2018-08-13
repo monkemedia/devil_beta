@@ -119,6 +119,7 @@ const actions = {
                     const quantity = productExists[0][0].quantity += quantityFromMoltin.quantity
 
                     console.log('QUANTITY', quantity)
+                    console.log('PRODUCT ID', productExists[0][0].id)
 
                     return dispatch('updateCartItemQuantity', {
                       item_id: productExists[0][0].id,
@@ -162,6 +163,8 @@ const actions = {
           })
           .then(res => {
             const data = res.data.data
+
+            console.log('MONKEY BOY', data)
 
             data[0]['cart_reference'] = reference
             // Add products to Store
@@ -415,6 +418,7 @@ const actions = {
   },
 
   fetchCartData ({ state, commit, rootGetters, dispatch }, cartReference) {
+    console.log('cartreference monkey', cartReference)
     if (!cartReference) {
       console.log('no cart reference ')
       return dispatch('fetchCartReferences')
@@ -453,140 +457,151 @@ const actions = {
             newArray.push(data)
           })
 
-          return newArray
+          console.log('HERE', newArray)
+
+          return {
+            data: {
+              data: newArray
+            }
+          }
         })
     }
 
+    console.log('test')
     return api.cart.fetchCartData(cartReference)
-      .then(res => {
-        const data = res.data.data
+    // .then(res => {
+    //   console.log('res item', res)
+    //   const data = res.data.data
 
-        data['cart_reference'] = cartReference
-        commit('SET_CART_ITEMS', data)
-        return res
-      })
-      // const vm = this
-      // let token
-      // let uid
-      // let promises
-      // let isAuthenticated
-      // let isAnonAuthenticated
+    //   _.map(data, (item, i) => {
+    //     data[i]['cart_reference'] = cartReference
+    //   })
 
-      // if (req) {
-      //   if (!req.headers.cookie) {
-      //     // clear cart
-      //     console.log('clear cart')
-      //     commit('SET_CART_ITEMS', [])
-      //     return
-      //   }
-      // }
+    //   commit('SET_CART_ITEMS', data)
+    //   return res
+    // })
+    // const vm = this
+    // let token
+    // let uid
+    // let promises
+    // let isAuthenticated
+    // let isAnonAuthenticated
 
-      // function cartUidSession (token, cartId) {
-      //   return vm.$axios.$get(`${process.env.FB_URL}/cartSessions/${cartId}/products/.json?auth=${token}`)
-      //     .then((sessionData) => {
-      //       return {
-      //         session_data: sessionData,
-      //         cart_id: cartId
-      //       }
-      //     })
-      // }
+    // if (req) {
+    //   if (!req.headers.cookie) {
+    //     // clear cart
+    //     console.log('clear cart')
+    //     commit('SET_CART_ITEMS', [])
+    //     return
+    //   }
+    // }
 
-      // function getCartId (token, uid) {
-      //   return vm.$axios.$get(`${process.env.FB_URL}/users/${uid}/cart.json?auth=${token}`)
-      // }
+    // function cartUidSession (token, cartId) {
+    //   return vm.$axios.$get(`${process.env.FB_URL}/cartSessions/${cartId}/products/.json?auth=${token}`)
+    //     .then((sessionData) => {
+    //       return {
+    //         session_data: sessionData,
+    //         cart_id: cartId
+    //       }
+    //     })
+    // }
 
-      // function getProductData (sessionData) {
-      //   promises = []
+    // function getCartId (token, uid) {
+    //   return vm.$axios.$get(`${process.env.FB_URL}/users/${uid}/cart.json?auth=${token}`)
+    // }
 
-      //   _.filter(sessionData.session_data, (key) => {
-      //     promises.push(axios.get(`${process.env.FB_URL}/products/${key.product_id}.json`)
-      //       .then((res) => {
-      //         return {
-      //           item: res.data,
-      //           quantity: key.quantity,
-      //           session_id: sessionData.cart_id
-      //         }
-      //       })
-      //     )
-      //   })
+    // function getProductData (sessionData) {
+    //   promises = []
 
-      //   // Add product data and quantity to cart items in state
-      //   return axios.all(promises)
-      //     .then((result) => {
-      //       return result
-      //     })
-      //     .catch((err) => {
-      //       console.log(err)
-      //       throw err
-      //     })
-      // }
+    //   _.filter(sessionData.session_data, (key) => {
+    //     promises.push(axios.get(`${process.env.FB_URL}/products/${key.product_id}.json`)
+    //       .then((res) => {
+    //         return {
+    //           item: res.data,
+    //           quantity: key.quantity,
+    //           session_id: sessionData.cart_id
+    //         }
+    //       })
+    //     )
+    //   })
 
-      // isAuthenticated = rootGetters['auth/isAuthenticated']
-      // isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
-      // // User is ANON user
-      // if (isAnonAuthenticated) {
-      //   // Init anon auth first
-      //   console.log('Init anon auth first')
+    //   // Add product data and quantity to cart items in state
+    //   return axios.all(promises)
+    //     .then((result) => {
+    //       return result
+    //     })
+    //     .catch((err) => {
+    //       console.log(err)
+    //       throw err
+    //     })
+    // }
 
-      //   console.log('User is an ANON user')
-      //   // Get ANONUID and see if there is a CART SESSION
-      //   token = rootGetters['anonAuth/token']
-      //   uid = rootGetters['anonAuth/uid']
-      //   console.log('Get ANONUID and see if there is a cart session')
-      //   console.log('token', token)
-      //   return cartUidSession(token, uid)
-      //     .then((sessionData) => {
-      //       if (!sessionData) {
-      //         // If there isnt a session lets just stop here
-      //         console.log('If there isnt a session lets just stop here')
-      //         return false
-      //       }
+    // isAuthenticated = rootGetters['auth/isAuthenticated']
+    // isAnonAuthenticated = rootGetters['anonAuth/isAuthenticated']
+    // // User is ANON user
+    // if (isAnonAuthenticated) {
+    //   // Init anon auth first
+    //   console.log('Init anon auth first')
 
-      //       // There is a cart session, so lets get all the product ID'S
-      //       console.log('There is a cart session, so lets get all the product IDs', sessionData)
-      //       // Loop through Product IDs and get product data for each product ID
-      //       return getProductData(sessionData)
-      //     })
-      //     .then((result) => {
-      //       commit('SET_CART_ITEMS', result || [])
-      //     })
-      //     .catch((err) => {
-      //       console.log(err.data)
-      //       throw err
-      //     })
-      // }
+    //   console.log('User is an ANON user')
+    //   // Get ANONUID and see if there is a CART SESSION
+    //   token = rootGetters['anonAuth/token']
+    //   uid = rootGetters['anonAuth/uid']
+    //   console.log('Get ANONUID and see if there is a cart session')
+    //   console.log('token', token)
+    //   return cartUidSession(token, uid)
+    //     .then((sessionData) => {
+    //       if (!sessionData) {
+    //         // If there isnt a session lets just stop here
+    //         console.log('If there isnt a session lets just stop here')
+    //         return false
+    //       }
 
-      // console.log('FETCH CART DATA 2', isAuthenticated)
-      // // User is Officially signed in
-      // if (isAuthenticated) {
-      //   console.log('User is Officially signed in')
-      //   token = rootGetters['auth/token']
-      //   uid = rootGetters['auth/uid']
+    //       // There is a cart session, so lets get all the product ID'S
+    //       console.log('There is a cart session, so lets get all the product IDs', sessionData)
+    //       // Loop through Product IDs and get product data for each product ID
+    //       return getProductData(sessionData)
+    //     })
+    //     .then((result) => {
+    //       commit('SET_CART_ITEMS', result || [])
+    //     })
+    //     .catch((err) => {
+    //       console.log(err.data)
+    //       throw err
+    //     })
+    // }
 
-      //   return getCartId(token, uid)
-      //     .then((sessionId) => {
-      //       if (!sessionId) {
-      //         // If there isnt a session lets just stop here
-      //         console.log('If there isnt any CartIDs lets just stop here')
-      //         return false
-      //       }
+    // console.log('FETCH CART DATA 2', isAuthenticated)
+    // // User is Officially signed in
+    // if (isAuthenticated) {
+    //   console.log('User is Officially signed in')
+    //   token = rootGetters['auth/token']
+    //   uid = rootGetters['auth/uid']
 
-      //       // There are cart sessions, so lets get all the cart IDs
-      //       console.log('There are cart sessions, so lets get all the cart IDs', sessionId)
-      //       // There are cart sessions, so lets get all the cart IDs
-      //       return cartUidSession(token, sessionId)
-      //     })
-      //     .then((sessionData) => {
-      //       return getProductData(sessionData)
-      //     })
-      //     .then((result) => {
-      //       commit('SET_CART_ITEMS', result)
-      //     })
-      //     .catch((err) => {
-      //       console.log(err)
-      //       throw err
-      //     })
-      // }
+    //   return getCartId(token, uid)
+    //     .then((sessionId) => {
+    //       if (!sessionId) {
+    //         // If there isnt a session lets just stop here
+    //         console.log('If there isnt any CartIDs lets just stop here')
+    //         return false
+    //       }
+
+    //       // There are cart sessions, so lets get all the cart IDs
+    //       console.log('There are cart sessions, so lets get all the cart IDs', sessionId)
+    //       // There are cart sessions, so lets get all the cart IDs
+    //       return cartUidSession(token, sessionId)
+    //     })
+    //     .then((sessionData) => {
+    //       return getProductData(sessionData)
+    //     })
+    //     .then((result) => {
+    //       commit('SET_CART_ITEMS', result)
+    //     })
+    //     .catch((err) => {
+    //       console.log(err)
+    //       throw err
+    //     })
+    // }
   },
 
   liveStock ({ commit }, payload) {
@@ -632,15 +647,10 @@ const getters = {
   },
 
   cartSubtotal (state) {
-    let newArray = []
     if (state.cartItems) {
-      _.map(state.cartItems, item => {
-        newArray.push(item)
-      })
+      const flatten = _.flattenDeep(state.cartItems)
 
-      const flatten = _.flatMap(newArray, flat => {
-        return flat
-      })
+      console.log('flatten', flatten)
 
       return flatten.reduce((a, b) => {
         return a + (b.quantity * b.unit_price.amount)

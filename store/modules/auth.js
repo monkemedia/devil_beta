@@ -2,8 +2,7 @@ import Cookie from 'js-cookie'
 import api from '~/api'
 
 const state = () => ({
-  token: null,
-  customerId: null
+  token: null
 })
 
 const mutations = {
@@ -11,25 +10,16 @@ const mutations = {
     store.token = data
   },
 
-  SET_CUSTOMER_ID (store, data) {
-    store.customerId = data
-  },
-
   CLEAR_TOKEN (store) {
     store.token = null
-  },
-
-  CLEAR_CUSTOMER_ID (store) {
-    store.customerId = null
   }
 }
 
 const actions = {
   initAuth ({ dispatch, commit, getters }, req) {
     let token
-    let customerId
     let username
-    let merchantType
+    let vendor
 
     if (req) {
       if (!req.headers.cookie) {
@@ -43,27 +33,21 @@ const actions = {
         return
       }
 
-      const customerIdCookie = req.headers.cookie
-        .split(';')
-        .find(c => c.trim().startsWith('customerId='))
-
       const usernameCookie = req.headers.cookie
         .split(';')
         .find(c => c.trim().startsWith('username='))
 
-      const merchantTypeCookie = req.headers.cookie
+      const vendorCookie = req.headers.cookie
         .split(';')
-        .find(c => c.trim().startsWith('merchantType='))
+        .find(c => c.trim().startsWith('vendor='))
 
       token = tokenCookie.substring(tokenCookie.indexOf('=') + 1) // Using this method as tokens contain more than 1 equals (=) sign
-      customerId = customerIdCookie.split('=')[1]
       username = usernameCookie.split('=')[1]
-      merchantType = merchantTypeCookie.split('=')[1]
+      vendor = vendorCookie.split('=')[1]
     } else {
       token = localStorage.getItem('token')
-      customerId = localStorage.getItem('customerId')
       username = localStorage.getItem('username')
-      merchantType = localStorage.getItem('merchantType')
+      vendor = localStorage.getItem('vendor')
     }
     if (!token) {
       console.log('No token')
@@ -72,21 +56,23 @@ const actions = {
     }
 
     commit('SET_TOKEN', token)
-    commit('SET_CUSTOMER_ID', customerId)
     commit('user/SET_USERNAME', username, { root: true })
-    commit('user/SET_MERCHANT_TYPE', merchantType, { root: true })
+    commit('user/SET_MERCHANT_TYPE', vendor, { root: true })
   },
 
   setAuthData ({ commit }, data) {
     commit('SET_TOKEN', data.token)
-    commit('SET_CUSTOMER_ID', data.customer_id)
+    commit('SET_USERNAME', data.username)
+    commit('SET_VENDOR', data.vendor)
 
     Cookie.set('token', data.token)
-    Cookie.set('customerId', data.customer_id)
+    Cookie.set('username', data.username)
+    Cookie.set('vendor', data.vendor)
 
     if (process.client) {
       localStorage.setItem('token', data.token)
-      localStorage.setItem('customerId', data.customer_id)
+      localStorage.setItem('username', data.username)
+      localStorage.setItem('vendor', data.vendor)
     }
   },
 
@@ -95,34 +81,28 @@ const actions = {
 
     return api.auth.login(data)
       .then(res => {
-        console.log('LOGIN RES', res.data.data)
+        console.log('LOGIN RES', res.data)
         dispatch('setAuthData', {
-          token: res.data.data.token,
-          customer_id: res.data.data.customer_id
+          token: res.data.token,
+          username: res.data.username,
+          vendor: res.data.vendor
         })
         return res
       })
-      .then(res => {
-        console.log('3', res)
-        return dispatch('user/user', {
-          customer_id: res.data.data.customer_id,
-          customer_token: res.data.data.token
-        }, { root: true })
-      })
-      .then(() => {
-        const localCartReferences = localStorage.getItem('cartItems')
+      // .then(() => {
+      //   const localCartReferences = localStorage.getItem('cartItems')
 
-        if (localCartReferences) {
-          return dispatch('cart/localStorageToMoltin', JSON.parse(localCartReferences), { root: true })
-        }
+      //   if (localCartReferences) {
+      //     return dispatch('cart/localStorageToMoltin', JSON.parse(localCartReferences), { root: true })
+      //   }
 
-        return dispatch('cart/fetchCartData', null, { root: true })
-          .then(res => {
-            _.map(res, item => {
-              commit('cart/SET_CART_ITEMS', item, { root: true })
-            })
-          })
-      })
+      //   return dispatch('cart/fetchCartData', null, { root: true })
+      //     .then(res => {
+      //       _.map(res.data.data, item => {
+      //         commit('cart/SET_CART_ITEMS', item, { root: true })
+      //       })
+      //     })
+      // })
   },
 
   register ({ dispatch }, data) {
@@ -131,14 +111,15 @@ const actions = {
         return dispatch('login', {
           email: data.email,
           password: data.password,
-          type: 'token'
+          username: data.username,
+          vendor: data.vendor,
+          name: data.name
         })
       })
   },
 
   logout ({ dispatch, commit }, req) {
     commit('CLEAR_TOKEN')
-    commit('CLEAR_CUSTOMER_ID')
     commit('user/CLEAR_USERNAME', null, { root: true })
     commit('user/CLEAR_MERCHANT_TYPE', null, { root: true })
 
@@ -147,17 +128,15 @@ const actions = {
     // }
 
     Cookie.remove('token')
-    Cookie.remove('customerId')
     Cookie.remove('username')
-    Cookie.remove('merchantType')
+    Cookie.remove('vendor')
 
     // Clear all moltin data
 
     if (process.client) {
       localStorage.removeItem('token')
-      localStorage.removeItem('customerId')
       localStorage.removeItem('username')
-      localStorage.removeItem('merchantType')
+      localStorage.removeItem('vendor')
       localStorage.removeItem('cartItems')
     }
   }
@@ -170,10 +149,6 @@ const getters = {
 
   getToken (state) {
     return state.token
-  },
-
-  getCustomerId (state) {
-    return state.customerId
   }
 }
 

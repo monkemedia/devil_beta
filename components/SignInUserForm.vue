@@ -69,7 +69,7 @@
     data () {
       return {
         loading: false,
-        email: 'incubusrich@hotmail.com',
+        email: 'info@monkemedia.co.uk',
         password: '1111qqqq',
         isSignInError: false
       }
@@ -86,21 +86,20 @@
               this.loading = true
               this.$store.dispatch('auth/login', {
                 email: this.email,
-                password: this.password,
-                type: 'token'
+                password: this.password
               })
                 .then(() => {
                   this.loading = false
                   if (this.$route.name === 'checkout') {
                     this.$router.push('/shipping')
                   } else {
-                    // this.$router.push('/admin')
-                    this.$router.push('/product/test/0c34cdc3-4fe5-42bf-b1fe-9969a8e8ea51')
+                    this.$router.push('/admin')
                   }
                 })
                 .catch(err => {
-                  if (err.response) {
-                    if (err.response.data.errors[0].status === 404) {
+                  if (err) {
+                    console.log(err.response)
+                    if (err.response.status === 401) {
                       this.isSignInError = _.lowerCase('Looks like your email or password is incorrect')
                     }
                   } else {

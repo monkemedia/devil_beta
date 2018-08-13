@@ -29,14 +29,14 @@ const actions = {
     return api.user.user(data)
       .then(response => {
         console.log(response)
-        localStorage.setItem('username', response.data.data.username)
-        localStorage.setItem('merchantType', response.data.data.merchant_type)
+        localStorage.setItem('username', response.data.username)
+        localStorage.setItem('merchantType', response.data.merchant_type)
 
-        Cookie.set('username', response.data.data.username)
-        Cookie.set('merchantType', response.data.data.merchant_type)
+        Cookie.set('username', response.data.username)
+        Cookie.set('merchantType', response.data.merchant_type)
 
-        commit('SET_USERNAME', response.data.data.username)
-        commit('SET_MERCHANT_TYPE', response.data.data.merchant_type)
+        commit('SET_USERNAME', response.data.username)
+        commit('SET_MERCHANT_TYPE', response.data.merchant_type)
       })
   },
 
