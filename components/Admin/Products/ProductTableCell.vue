@@ -12,11 +12,11 @@
     td
       .product-details
         strong {{ item.name || 'No Title' }}
-    td.is-hidden-mobile {{ item.meta.stock.level }}
+    td.is-hidden-mobile {{ item.stock }}
     td.is-hidden-mobile
-      span(v-if="item.on_sale") {{ item.sale_price | currency(item.price[0].currency) }}
-        span.was-price {{ item.price[0].amount | currency(item.price[0].currency) }}
-      span(v-else) {{ item.price[0].amount | currency(item.price[0].currency) }}
+      span(v-if="item.on_sale") {{ item.sale_price | currency(item.price.currency) }}
+        span.was-price {{ item.price.amount | currency(item.price.currency) }}
+      span(v-else) {{ item.price.amount | currency(item.price.currency) }}
     td
       span.tag.is-uppercase(:class="status(item.storefront)")
         | {{ item.status }}

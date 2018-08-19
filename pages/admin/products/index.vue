@@ -41,17 +41,12 @@
     },
 
     async fetch ({ store }) {
-      const customerId = store.getters['auth/getCustomerId']
-      return store.dispatch('products/brandId', { customerId })
-        .then(res => {
-          console.log('brand id', res.data.data[0].id)
-          return store.dispatch('products/merchantProducts', res.data.data[0].id)
-        })
+      return store.dispatch('products/vendorProducts')
     },
 
     computed: {
       products () {
-        return this.$store.getters['products/loadedMerchantProducts']
+        return this.$store.getters['products/loadedVendorProducts']
       }
     },
 

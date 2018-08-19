@@ -3,7 +3,7 @@ import api from '~/api'
 
 const state = () => ({
   username: null,
-  merchantType: null
+  vendor: null
 })
 
 const mutations = {
@@ -15,12 +15,12 @@ const mutations = {
     state.username = null
   },
 
-  SET_MERCHANT_TYPE (state, merchant) {
-    state.merchantType = merchant
+  SET_VENDOR_TYPE (state, vendor) {
+    state.vendor = vendor
   },
 
-  CLEAR_MERCHANT_TYPE (state) {
-    state.merchantType = null
+  CLEAR_VENDOR_TYPE (state) {
+    state.vendor = null
   }
 }
 
@@ -30,13 +30,13 @@ const actions = {
       .then(response => {
         console.log(response)
         localStorage.setItem('username', response.data.username)
-        localStorage.setItem('merchantType', response.data.merchant_type)
+        localStorage.setItem('vendor', response.data.vendor)
 
         Cookie.set('username', response.data.username)
-        Cookie.set('merchantType', response.data.merchant_type)
+        Cookie.set('vendor', response.data.vendor)
 
         commit('SET_USERNAME', response.data.username)
-        commit('SET_MERCHANT_TYPE', response.data.merchant_type)
+        commit('SET_VENDOR_TYPE', response.data.vendor)
       })
   },
 
@@ -54,8 +54,8 @@ const getters = {
     return state.username
   },
 
-  merchant (state) {
-    return state.merchantType
+  vendor (state) {
+    return state.vendor
   }
 }
 

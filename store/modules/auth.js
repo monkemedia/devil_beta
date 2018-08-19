@@ -57,13 +57,13 @@ const actions = {
 
     commit('SET_TOKEN', token)
     commit('user/SET_USERNAME', username, { root: true })
-    commit('user/SET_MERCHANT_TYPE', vendor, { root: true })
+    commit('user/SET_VENDOR_TYPE', vendor, { root: true })
   },
 
   setAuthData ({ commit }, data) {
     commit('SET_TOKEN', data.token)
     commit('SET_USERNAME', data.username)
-    commit('SET_VENDOR', data.vendor)
+    commit('user/SET_VENDOR_TYPE', data.vendor, { root: true })
 
     Cookie.set('token', data.token)
     Cookie.set('username', data.username)
@@ -81,7 +81,6 @@ const actions = {
 
     return api.auth.login(data)
       .then(res => {
-        console.log('LOGIN RES', res.data)
         dispatch('setAuthData', {
           token: res.data.token,
           username: res.data.username,
@@ -121,7 +120,7 @@ const actions = {
   logout ({ dispatch, commit }, req) {
     commit('CLEAR_TOKEN')
     commit('user/CLEAR_USERNAME', null, { root: true })
-    commit('user/CLEAR_MERCHANT_TYPE', null, { root: true })
+    commit('user/CLEAR_VENDOR_TYPE', null, { root: true })
 
     // if (req) {
     //   console.log('LOGGING OUT', req)

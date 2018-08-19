@@ -4,8 +4,8 @@ import uploadcare from 'uploadcare-widget'
 
 const state = () => ({
   loadedProduct: null,
-  loadedMerchantProduct: null,
-  loadedMerchantProducts: null
+  loadedVendorProduct: null,
+  loadedVendorProducts: null
 })
 
 const mutations = {
@@ -13,12 +13,12 @@ const mutations = {
     state.loadedProduct = product
   },
 
-  SET_MERCHANT_PRODUCT (state, product) {
-    state.loadedMerchantProduct = product
+  SET_VENDOR_PRODUCT (state, product) {
+    state.loadedVendorProduct = product
   },
 
-  SET_MERCHANT_PRODUCTS (state, product) {
-    state.loadedMerchantProducts = product
+  SET_VENDOR_PRODUCTS (state, product) {
+    state.loadedVendorProducts = product
   }
 }
 
@@ -95,7 +95,7 @@ const actions = {
 
     return api.products.updateProduct(itemData)
       .then(res => {
-        commit('SET_MERCHANT_PRODUCT', res)
+        commit('SET_VENDOR_PRODUCT', res)
         return res
       })
       .catch(err => {
@@ -111,7 +111,7 @@ const actions = {
 
     return api.products.createProduct(itemData)
       .then(res => {
-        commit('SET_MERCHANT_PRODUCT', res.data.data)
+        commit('SET_VENDOR_PRODUCT', res.data.data)
         return res
       })
       .catch(err => {
@@ -120,7 +120,7 @@ const actions = {
   },
 
   deleteProduct ({ getters, commit }, productId) {
-    const products = getters['loadedMerchantProducts']
+    const products = getters['loadedVendorProducts']
 
     return api.products.deleteProduct(productId)
       .then(() => {
@@ -129,9 +129,9 @@ const actions = {
         })
 
         if (_.isEmpty(removeItem)) {
-          commit('SET_MERCHANT_PRODUCTS', [])
+          commit('SET_VENDOR_PRODUCTS', [])
         } else {
-          commit('SET_MERCHANT_PRODUCTS', removeItem)
+          commit('SET_VENDOR_PRODUCTS', removeItem)
         }
       })
       .catch(err => {
@@ -151,10 +151,10 @@ const actions = {
       })
   },
 
-  merchantProducts ({ commit }, brandId) {
-    return api.products.merchantProducts(brandId)
+  vendorProducts ({ commit }) {
+    return api.products.vendorProducts()
       .then(res => {
-        commit('SET_MERCHANT_PRODUCTS', res.data.data)
+        commit('SET_VENDOR_PRODUCTS', res.data.products)
       })
       .catch(err => {
         throw err
@@ -163,12 +163,12 @@ const actions = {
 }
 
 const getters = {
-  loadedMerchantProduct (state) {
-    return state.loadedMerchantProduct
+  loadedVendorProduct (state) {
+    return state.loadedVendorProduct
   },
 
-  loadedMerchantProducts (state) {
-    return state.loadedMerchantProducts
+  loadedVendorProducts (state) {
+    return state.loadedVendorProducts
   },
 
   loadedProduct (state) {

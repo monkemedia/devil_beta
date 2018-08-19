@@ -34,8 +34,7 @@ export default {
         method: 'put',
         url: `${baseURL}/customers/${data.customer_id}`,
         headers: {
-          'Content-Type': 'application/json',
-          'x-moltin-customer-token': data.customer_token
+          'Content-Type': 'application/json'
         },
         data: {
           data: {
@@ -73,12 +72,12 @@ export default {
       })
     },
 
-    vendorProducts: (brandId) => {
+    vendorProducts: () => {
       return axios({
         method: 'get',
-        url: `${baseURL}/products?filter=eq(brand.id,${brandId})`,
+        url: `${baseURL}/vendor-products`,
         headers: {
-          'X-Moltin-Language': 'en'
+          'Content-Type': 'application/json'
         }
       })
     },
@@ -106,10 +105,7 @@ export default {
     product: (productId) => {
       return axios({
         method: 'get',
-        url: `${baseURL}/products/${productId}`,
-        headers: {
-          'X-Moltin-Language': 'en'
-        }
+        url: `${baseURL}/products/${productId}`
       })
     }
   },

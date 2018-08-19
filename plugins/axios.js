@@ -1,9 +1,12 @@
 // import { baseURL } from '~/config'
 // import Cookie from 'js-cookie'
-// import axios from 'axios'
+import axios from 'axios'
 // import qs from 'qs'
 
 export default ({ store }) => {
+  const token = store.getters['auth/getToken']
+
+  axios.defaults.headers.common['Authorization'] = `Bear ${token}`
   // function refreshToken () {
   //   console.log('set token')
   //   const payload = {
@@ -70,9 +73,7 @@ export default ({ store }) => {
   // axios.defaults.baseURL = baseURL
 
   // axios.interceptors.request.use(req => {
-  //   const token = store.getters['moltin/token']
-
-  //   req.baseURL = baseURL
+  //   const token = store.getters['auth/token']
 
   //   if (token) {
   //     req.headers['authorization'] = `Bearer ${token}`
