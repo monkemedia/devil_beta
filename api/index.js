@@ -1,6 +1,7 @@
 // import Cookie from 'js-cookie'
 import axios from 'axios'
 import { baseURL } from '~/config.js'
+import qs from 'qs'
 
 export default {
   auth: {
@@ -82,15 +83,24 @@ export default {
       })
     },
 
+    vendorProduct: (productId) => {
+      return axios({
+        method: 'get',
+        url: `${baseURL}/vendor-products/${productId}`,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    },
+
     updateProduct: (data) => {
+      console.log('data', data)
       return axios({
         method: 'put',
         url: `${baseURL}/products/${data.productId}`,
-        data: {
-          data: data.payload
-        },
+        data: qs.stringify(data),
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/x-www-form-urlencoded'
         }
       })
     },

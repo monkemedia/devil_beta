@@ -1,10 +1,21 @@
 // import { baseURL } from '~/config'
-// import Cookie from 'js-cookie'
 import axios from 'axios'
-// import qs from 'qs'
 
-export default ({ store }) => {
-  const token = store.getters['auth/getToken']
+export default ({ req }) => {
+  let token
+
+  if (req) {
+    if (!req.headers.cookie) {
+      return
+    }
+    const tokenCookie = req.headers.cookie
+      .split(';')
+      .find(c => c.trim().startsWith('token='))
+
+    token = tokenCookie.substring(tokenCookie.indexOf('=') + 1)
+  } else {
+    token = localStorage.getItem('token')
+  }
 
   axios.defaults.headers.common['Authorization'] = `Bear ${token}`
   // function refreshToken () {

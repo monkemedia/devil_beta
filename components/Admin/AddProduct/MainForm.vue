@@ -68,7 +68,7 @@
                     input.input(
                       name="price"
                       id="price"
-                      v-model.number="formData.price[0].amount"
+                      v-model.number="formData.price.amount"
                       data-vv-delay="600"
                       :class="{ 'is-danger': errors.has('price') }"
                       v-validate="'required'"
@@ -102,7 +102,7 @@
                     name="status"
                     id="status"
                     @change="clearErrors(formData.status)"
-                    v-model="formData.status")
+                    v-model="formData.store_front")
                       option(v-for="store in storefront_options" :value="store.value") {{ store.label }}
 
           //- variants(@passVariant="updateFormDataVariants" :formData="formData")
@@ -127,7 +127,6 @@
 <script>
   import Vue from 'vue'
   import VeeValidate, { Validator } from 'vee-validate'
-  import { slug, sku } from '../../../utils/code-generators.js'
   // import __ from 'lodash-addons'
   import VueScrollTo from 'vue-scrollto'
   import Variants from '@/components/Admin/AddProduct/Variants'
@@ -181,22 +180,20 @@
           category: this.itemData ? this.itemData.categories : '',
           on_sale: this.itemData ? this.itemData.on_sale : false,
           sale_price: this.itemData ? this.itemData.sale_price : 0,
-          price: [{
-            amount: this.itemData ? this.itemData.price[0].amount : 0,
-            currency: 'GBP',
-            includes_tax: false
-          }],
-          commodity_type: 'physical',
-          status: this.itemData ? this.itemData.status : 'draft',
-          stock: this.itemData ? this.itemData.meta.stock.level : 0
+          price: {
+            amount: this.itemData ? this.itemData.price.amount : 0,
+            currency: 'GBP'
+          },
+          store_front: this.itemData ? this.itemData.store_front : false,
+          stock: this.itemData ? this.itemData.stock : 0
         },
         categories: [
-          'Test1', 'Test2'
+          'cars', 'Test'
         ],
         cached_store_front: '',
         storefront_options: [
-          { label: 'Draft - Not live on storefront', value: 'draft' },
-          { label: 'Live - Currently live on storefront', value: 'live' }
+          { label: 'Draft - Not live on storefront', value: false },
+          { label: 'Live - Currently live on storefront', value: true }
         ]
       }
     },
@@ -204,10 +201,6 @@
     computed: {
       isFormValid () {
         return Object.keys(this.fields).every(key => this.fields[key] && this.fields[key].validated)
-      },
-
-      customerId () {
-        return this.$store.getters['auth/getCustomerId']
       },
 
       vendorName () {
@@ -219,13 +212,7 @@
       onSubmitForm () {
         const paramId = this.$route.params.id || null
         const vm = this
-        const payload = {
-          ...this.formData,
-          id: paramId,
-          slug: slug(),
-          sku: sku(),
-          vender_name: this.venderName
-        }
+        const payload = this.formData
 
         function createItem () {
           vm.loading = true
@@ -259,22 +246,20 @@
           console.log('paramId', paramId)
           vm.loading = true
           vm.$store.dispatch('products/updateProduct', {
-            payload,
+            ...payload,
             productId: paramId
           })
             .then(() => {
               vm.loading = false
               vm.cached_store_front = vm.cached_store_front
 
-              console.log('PAYLOAD', payload)
-
-              if (payload.status === 'live' && payload.status !== vm.cached_store_front) {
-                vm.cached_store_front = payload.status
-                vm.alertToast({ message: 'Item is now visible on storefront', type: 'is-success' })
-              } else if (payload.status === 'draft' && payload.status !== vm.cached_store_front) {
-                vm.cached_store_front = payload.status
-                vm.alertToast({ message: 'Item is now hidden from storefront', type: 'is-warning' })
-              }
+              // if (payload.store_front && payload.store_front !== vm.cached_store_front) {
+              //   vm.cached_store_front = payload.store_front
+              //   vm.alertToast({ message: 'Item is now visible on storefront', type: 'is-success' })
+              // } else if (payload.store_front === 'draft' && payload.store_front !== vm.cached_store_front) {
+              //   vm.cached_store_front = payload.store_front
+              //   vm.alertToast({ message: 'Item is now hidden from storefront', type: 'is-warning' })
+              // }
             })
             .catch((err) => {
               vm.alertToast({ message: err.message, type: 'is-danger' })

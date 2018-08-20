@@ -18,8 +18,8 @@
         span.was-price {{ item.price.amount | currency(item.price.currency) }}
       span(v-else) {{ item.price.amount | currency(item.price.currency) }}
     td
-      span.tag.is-uppercase(:class="status(item.storefront)")
-        | {{ item.status }}
+      span.tag.is-uppercase(:class="statusClass(item.store_front)")
+        | {{ status(item.store_front) }}
     td
       .dropdown.is-right(:class="{ 'is-active': toggled }")
         .dropdown-trigger
@@ -27,7 +27,7 @@
             i.fa.fa-ellipsis-h(aria-hidden="true")
         .dropdown-menu(role="menu" :id="item.id")
           .dropdown-content
-            nuxt-link.dropdown-item(:to="'/admin/add-product/' + item.id")
+            nuxt-link.dropdown-item(:to="'/admin/add-product/' + item._id")
               span.icon.is-small.m-r-md
                 i.fa.fa-pencil
               | Edit item
@@ -61,8 +61,12 @@
     },
 
     methods: {
+      statusClass (value) {
+        return value ? 'is-success' : 'is-warning'
+      },
+
       status (value) {
-        return value === 'draft' ? 'is-warning' : 'is-success'
+        return value ? 'Live' : 'Draft'
       },
 
       toggle () {

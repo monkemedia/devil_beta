@@ -89,11 +89,7 @@ const actions = {
   },
 
   updateProduct ({ commit }, itemDetails) {
-    const itemData = {
-      ...itemDetails
-    }
-
-    return api.products.updateProduct(itemData)
+    return api.products.updateProduct(itemDetails)
       .then(res => {
         commit('SET_VENDOR_PRODUCT', res)
         return res
