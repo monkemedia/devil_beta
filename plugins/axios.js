@@ -34,7 +34,9 @@ export default (context) => {
 
   axios.interceptors.request.use((response) => {
     let originalRequest = response
-    if (token) {
+    const isAuthenticated = context.store.getters['auth/isAuthenticated']
+
+    if (isAuthenticated) {
       const decodedToken = jwt.decode(token)
       const expiry = decodedToken.exp
       const currentDate = Math.floor(new Date() / 1000)
@@ -42,19 +44,14 @@ export default (context) => {
       if (currentDate >= expiry) {
         return api.auth.token({ userId, refresh_token: refreshToken })
           .then(result => {
-            console.log('2')
             Cookie.set('token', result.data.token)
             Cookie.set('refreshToken', result.data.refresh_token)
             context.store.commit('auth/SET_TOKEN', result.data.token, { root: true })
-
-            console.log('RESULT', result.data)
 
             if (process.client) {
               localStorage.setItem('token', result.data.token)
               localStorage.setItem('refreshToken', result.data.refresh_token)
             }
-
-            console.log('new header', result.data.token)
 
             originalRequest.headers['Authorization'] = `Bearer ${result.data.token}`
             return Promise.resolve(originalRequest)
