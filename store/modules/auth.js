@@ -66,12 +66,16 @@ const actions = {
     commit('user/SET_VENDOR_TYPE', data.vendor, { root: true })
 
     Cookie.set('token', data.token)
+    Cookie.set('refreshToken', data.refreshToken)
     Cookie.set('username', data.username)
+    Cookie.set('userId', data.userId)
     Cookie.set('vendor', data.vendor)
 
     if (process.client) {
       localStorage.setItem('token', data.token)
+      localStorage.setItem('refreshToken', data.refreshToken)
       localStorage.setItem('username', data.username)
+      localStorage.setItem('userId', data.userId)
       localStorage.setItem('vendor', data.vendor)
     }
   },
@@ -83,7 +87,9 @@ const actions = {
       .then(res => {
         dispatch('setAuthData', {
           token: res.data.token,
+          refreshToken: res.data.refresh_token,
           username: res.data.username,
+          userId: res.data._id,
           vendor: res.data.vendor
         })
         return res
@@ -127,14 +133,18 @@ const actions = {
     // }
 
     Cookie.remove('token')
+    Cookie.remove('refreshToken')
     Cookie.remove('username')
+    Cookie.remove('userId')
     Cookie.remove('vendor')
 
     // Clear all moltin data
 
     if (process.client) {
       localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
       localStorage.removeItem('username')
+      localStorage.removeItem('userId')
       localStorage.removeItem('vendor')
       localStorage.removeItem('cartItems')
     }

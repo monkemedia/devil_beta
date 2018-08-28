@@ -93,7 +93,8 @@
                   if (this.$route.name === 'checkout') {
                     this.$router.push('/shipping')
                   } else {
-                    this.$router.push('/admin')
+                    // Force SSR
+                    document.location.href = '/admin'
                   }
                 })
                 .catch(err => {

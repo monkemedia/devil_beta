@@ -1,176 +1,79 @@
 // import { baseURL } from '~/config'
+import Cookie from 'js-cookie'
 import axios from 'axios'
+import jwt from 'jsonwebtoken'
+import api from '~/api'
 
-export default ({ req }) => {
+export default (context) => {
   let token
+  let refreshToken
+  let userId
 
-  if (req) {
-    if (!req.headers.cookie) {
-      return
-    }
-    const tokenCookie = req.headers.cookie
+  if (process.server) {
+    if (!context.req.headers.cookie) return
+    const tokenCookie = context.req.headers.cookie
       .split(';')
       .find(c => c.trim().startsWith('token='))
 
+    const refreshTokenCookie = context.req.headers.cookie
+      .split(';')
+      .find(c => c.trim().startsWith('refreshToken='))
+
+    const userIdCookie = context.req.headers.cookie
+      .split(';')
+      .find(c => c.trim().startsWith('userId='))
+
     token = tokenCookie.substring(tokenCookie.indexOf('=') + 1)
+    refreshToken = refreshTokenCookie.substring(refreshTokenCookie.indexOf('=') + 1)
+    userId = userIdCookie.substring(userIdCookie.indexOf('=') + 1)
   } else {
     token = localStorage.getItem('token')
+    refreshToken = localStorage.getItem('refreshToken')
+    userId = localStorage.getItem('userId')
   }
 
-  axios.defaults.headers.common['Authorization'] = `Bear ${token}`
-  // function refreshToken () {
-  //   console.log('set token')
-  //   const payload = {
-  //     client_id: process.env.MOLTIN_CLIENT_ID,
-  //     client_secret: process.env.MOLTIN_CLIENT_SECRET,
-  //     grant_type: 'client_credentials'
-  //   }
-  //   const instance = axios.create()
+  axios.interceptors.request.use((response) => {
+    let originalRequest = response
+    if (token) {
+      const decodedToken = jwt.decode(token)
+      const expiry = decodedToken.exp
+      const currentDate = Math.floor(new Date() / 1000)
 
-  //   return instance.post('oauth/access_token', qs.stringify(payload))
-  //     .then(res => {
-  //       console.log('set token 3', res)
-  //       axios.defaults.headers.common['moltinAccessToken'] = res.data.access_token
-  //       axios.defaults.headers.common['moltinExpiry'] = res.data.expires
+      if (currentDate >= expiry) {
+        return api.auth.token({ userId, refresh_token: refreshToken })
+          .then(result => {
+            console.log('2')
+            Cookie.set('token', result.data.token)
+            Cookie.set('refreshToken', result.data.refresh_token)
+            context.store.commit('auth/SET_TOKEN', result.data.token, { root: true })
 
-  //       store.commit('moltin/SET_MOLTIN_TOKEN', res.data.access_token)
-  //       store.commit('moltin/SET_MOLTIN_EXPIRY', res.data.expires)
+            console.log('RESULT', result.data)
 
-  //       if (process.client) {
-  //         localStorage.setItem('moltinAccessToken', res.data.access_token)
-  //         localStorage.setItem('moltinExpiry', res.data.expires)
-  //       }
+            if (process.client) {
+              localStorage.setItem('token', result.data.token)
+              localStorage.setItem('refreshToken', result.data.refresh_token)
+            }
 
-  //       return res.data
-  //     })
-  //     .catch(err => {
-  //       console.log('ERROR one', err)
-  //       return err
-  //     })
-  // }
-  // function refreshToken () {
-  //   const data = {
-  //     client_id: process.env.MOLTIN_CLIENT_ID,
-  //     client_secret: process.env.MOLTIN_CLIENT_SECRET,
-  //     grant_type: 'client_credentials'
-  //   }
+            console.log('new header', result.data.token)
 
-  //   return axios({
-  //     method: 'post',
-  //     url: 'oauth/access_token',
-  //     data: qs.stringify(data)
-  //   })
-  //     .then(res => {
-  //       console.log('RES', res)
-  //       const token = res.data.access_token
-  //       console.log('TOKEN', token)
-  //       store.commit('moltin/SET_MOLTIN_CREDENTIALS', res.data)
+            originalRequest.headers['Authorization'] = `Bearer ${result.data.token}`
+            return Promise.resolve(originalRequest)
+          })
+          .catch(() => {
+            // Refresh token has expired so sign user out.
+            context.store.dispatch('auth/logout')
+            context.redirect('/logout')
+          })
+      }
 
-  //       Cookie.set('moltin-access-token', res.data.access_token)
-  //       Cookie.set('moltin-expiry', res.data.expires)
-  //       // originalRequest.headers['authorization'] = `Bearer ${token}`
+      originalRequest.headers['Authorization'] = `Bearer ${token}`
+      return response
+    }
+    return response
+  }, err => {
+    console.log('error here baby', err)
+    return Promise.reject(err)
+  })
 
-  //       if (process.client) {
-  //         localStorage.setItem('moltin-access-token', res.data.access_token)
-  //         localStorage.setItem('moltin-expiry', res.data.expires)
-  //       }
-  //       // return axios(originalRequest)
-  //     })
-  //     .catch(err => {
-  //       console.log('knob', err)
-  //     })
-  // }
-
-  // axios.defaults.baseURL = baseURL
-
-  // axios.interceptors.request.use(req => {
-  //   const token = store.getters['auth/token']
-
-  //   if (token) {
-  //     req.headers['authorization'] = `Bearer ${token}`
-  //   }
-
-  //   return req
-  // })
-
-  // axios.interceptors.response.use(response => {
-  //   return response
-  // }, err => {
-  //   console.log('hello', err.message)
-  //   console.log('bye', err.status)
-  //   console.log('geroge', err.config)
-  //   console.log('geroge2', err.error)
-
-  //   console.log('error here', err.response.status === 401)
-  //   // let deferred = Promise.defer()
-  //   let originalRequest = err.config
-
-  //   if (err.response.status === 401) {
-  //     console.log('dispatch')
-  //     refreshToken()
-  //       .then(() => {
-  //         return axios(originalRequest)
-  //       })
-  //       // store.dispatch('moltin/setToken')
-  //       //   .then(() => {
-  //       //
-  //       //   })
-  //       // const data = {
-  //       //   client_id: process.env.MOLTIN_CLIENT_ID,
-  //       //   client_secret: process.env.MOLTIN_CLIENT_SECRET,
-  //       //   grant_type: 'client_credentials'
-  //       // }
-  //       // console.log('shit head', qs.stringify(data))
-  //       // // originalRequest._retry = true
-  //       // // axios.headers['authorization'] = null
-  //       // // originalRequest.headers['content-type'] = 'application/x-www-form-urlencoded'
-  //       // console.log(1)
-  //       // console.log(2)
-  //       // return axios({
-  //       //   method: 'post',
-  //       //   url: 'oauth/access_token',
-  //       //   data: qs.stringify(data)
-  //       // })
-  //       //   .then(res => {
-  //       //     console.log('RES', res)
-  //       //     const token = res.data.access_token
-  //       //     console.log('TOKEN', token)
-  //       //     store.commit('moltin/SET_MOLTIN_CREDENTIALS', res.data)
-
-  //       //     Cookie.set('moltin-access-token', res.data.access_token)
-  //       //     originalRequest.headers['authorization'] = `Bearer ${token}`
-
-  //       //     if (process.client) {
-  //       //       localStorage.setItem('moltin-access-token', res.data.access_token)
-  //       //     }
-  //       //     return axios(originalRequest)
-  //       //   })
-  //       //   .catch(err => {
-  //       //     console.log('knob', err)
-  //       //   })
-  //   }
-  // })
-
-  // axios.interceptors.response.use(undefined, (err) => {
-  //   console.log('monkey error 4', err.response)
-  //   console.log('monkey error 6', err.response.status)
-  //   const originalRequest = err.config
-
-  //   if (err.response.status === 401) {
-  //     console.log('refresh token')
-  //     console.log('headers', err)
-  //     err.config.headers['authorization'] = null
-  //     return store.dispatch('moltin/credentials')
-  //       .then((token) => {
-  //         console.log('new token', token)
-
-  //         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-  //         originalRequest.headers['Authorization'] = `Bearer ${token}`
-  //         console.log('shit head 2', axios.defaults)
-  //         // return axios(originalRequest)
-  //       })
-  //   }
-
-  //   // return Promise.reject(err)
-  // })
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }

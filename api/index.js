@@ -25,12 +25,24 @@ export default {
           'Content-Type': 'application/json'
         }
       })
+    },
+
+    token: (data) => {
+      console.log('DATA', data)
+      const instance = axios.create()
+      return instance({
+        method: 'post',
+        url: `${baseURL}/user/token`,
+        data,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
     }
   },
 
   user: {
     updateCartReferences: (data) => {
-      console.log('DATA', data)
       return axios({
         method: 'put',
         url: `${baseURL}/customers/${data.customer_id}`,

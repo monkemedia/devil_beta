@@ -44,6 +44,12 @@
       return store.dispatch('products/vendorProducts')
     },
 
+    mounted () {
+      if (process.client) {
+        return this.$store.dispatch('products/vendorProducts')
+      }
+    },
+
     computed: {
       products () {
         return this.$store.getters['products/loadedVendorProducts']
