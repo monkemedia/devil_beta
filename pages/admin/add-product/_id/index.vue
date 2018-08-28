@@ -5,8 +5,8 @@
         header
           breadcrumb(:crumb="breadcrumb")
           h1.add-product-heading Add Product
-            span.tag.is-uppercase(:class="statusClass(itemData.status)" v-if="itemData")
-              | {{ status(itemData.status) }}
+            span.tag.is-uppercase(:class="statusClass(itemData.store_front)" v-if="itemData")
+              | {{ status(itemData.store_front) }}
     main-form(:itemData="itemData")
 </template>
 
