@@ -64,7 +64,7 @@ export default (context) => {
           })
       }
 
-      originalRequest.headers['Authorization'] = `Bearer ${token}`
+      console.log('MONKEY STICKS')
       return response
     }
     return response
