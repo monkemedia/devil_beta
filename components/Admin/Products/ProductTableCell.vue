@@ -87,7 +87,7 @@
           type: 'is-success',
           onConfirm: () => {
             this.$emit('deleteProduct', {
-              product_id: this.item.id,
+              product_id: this.item._id,
               images: this.item.images || null
             })
           }

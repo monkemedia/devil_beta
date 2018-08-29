@@ -116,7 +116,7 @@ const actions = {
     return api.products.deleteProduct(productId)
       .then(() => {
         const removeItem = _.pickBy(products, (key) => {
-          return productId !== key.id
+          return productId !== key._id
         })
 
         if (_.isEmpty(removeItem)) {
