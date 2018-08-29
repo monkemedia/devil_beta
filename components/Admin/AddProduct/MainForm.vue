@@ -212,7 +212,10 @@
       onSubmitForm () {
         const paramId = this.$route.params.id || null
         const vm = this
-        const payload = this.formData
+        const payload = {
+          ...this.formData,
+          username: this.$store.getters['user/username']
+        }
 
         function createItem () {
           vm.loading = true
@@ -230,13 +233,13 @@
 
               if (paramId === null) {
                 vm.$router.push({
-                  path: `/admin/add-product/${res[1].productId}`
+                  path: `/admin/add-product/${res.data.product._id}`
                 })
               }
               vm.loading = false
             })
             .catch(err => {
-              console.log('ERROR', err)
+              console.log('ERROR', err.message)
               vm.alertToast({ message: err.message, type: 'is-danger' })
               vm.loading = false
             })

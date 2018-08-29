@@ -100,14 +100,9 @@ const actions = {
   },
 
   createProduct ({ commit }, itemDetails) {
-    const itemData = {
-      ...itemDetails,
-      type: 'product'
-    }
-
-    return api.products.createProduct(itemData)
+    return api.products.createProduct(itemDetails)
       .then(res => {
-        commit('SET_VENDOR_PRODUCT', res.data.data)
+        commit('SET_VENDOR_PRODUCT', res.data.products)
         return res
       })
       .catch(err => {

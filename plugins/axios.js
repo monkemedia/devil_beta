@@ -58,6 +58,7 @@ export default (context) => {
           })
           .catch(() => {
             // Refresh token has expired so sign user out.
+            console.log('catched error')
             context.store.dispatch('auth/logout')
             context.redirect('/logout')
           })
