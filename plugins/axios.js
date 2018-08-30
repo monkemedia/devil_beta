@@ -1,5 +1,6 @@
 // import { baseURL } from '~/config'
 import Cookie from 'js-cookie'
+import cookie from 'cookie'
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import api from '~/api'
@@ -11,21 +12,12 @@ export default (context) => {
 
   if (process.server) {
     if (!context.req.headers.cookie) return
-    const tokenCookie = context.req.headers.cookie
-      .split(';')
-      .find(c => c.trim().startsWith('token='))
+    token = cookie.parse(context.req.headers.cookie)['token']
 
-    const refreshTokenCookie = context.req.headers.cookie
-      .split(';')
-      .find(c => c.trim().startsWith('refreshToken='))
-
-    const userIdCookie = context.req.headers.cookie
-      .split(';')
-      .find(c => c.trim().startsWith('userId='))
-
-    token = tokenCookie.substring(tokenCookie.indexOf('=') + 1)
-    refreshToken = refreshTokenCookie.substring(refreshTokenCookie.indexOf('=') + 1)
-    userId = userIdCookie.substring(userIdCookie.indexOf('=') + 1)
+    if (token) {
+      refreshToken = cookie.parse(context.req.headers.cookie)['refreshToken']
+      userId = cookie.parse(context.req.headers.cookie)['userId']
+    }
   } else {
     token = localStorage.getItem('token')
     refreshToken = localStorage.getItem('refreshToken')
@@ -42,6 +34,7 @@ export default (context) => {
       const currentDate = Math.floor(new Date() / 1000)
 
       if (currentDate >= expiry) {
+        console.log('HERE')
         return api.auth.token({ userId, refresh_token: refreshToken })
           .then(result => {
             Cookie.set('token', result.data.token)
@@ -64,7 +57,6 @@ export default (context) => {
           })
       }
 
-      console.log('MONKEY STICKS')
       return response
     }
     return response

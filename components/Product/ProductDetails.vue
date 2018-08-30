@@ -2,26 +2,26 @@
   .card
     .card-header-title
       h1 {{ product.name }}
-      span.username By {{ product.vendor_name }}
+      span.username By {{ product.username }}
       .price-container
-        span.price(v-if="product.on_sale") {{ product.sale_price | currency(product.price[0].currency) }}
-          span.was-price was {{ product.price[0].amount | currency(product.price[0].currency) }}
-        span.price(v-else) {{ product.price[0].amount || 0 | currency(product.price[0].currency) }}
+        span.price(v-if="product.on_sale") {{ product.sale_price | currency(product.price.currency) }}
+          span.was-price was {{ product.price.amount | currency(product.price.currency) }}
+        span.price(v-else) {{ product.price.amount || 0 | currency(product.price.currency) }}
       hr
     .card-content
       .content
         p {{ product.description }}
-        .select.quantity.is-multiple(v-if="product.meta.stock.level > 0")
+        .select.quantity.is-multiple(v-if="product.stock > 0")
           select(v-model="quantity")
             option(value="default" disabled) Select quantity
-            option(v-for="n in 5" :value="n" :disabled="n > product.meta.stock.level") {{ n }}
+            option(v-for="n in 5" :value="n" :disabled="n > product.stock") {{ n }}
 
-        span.sold-out(v-if="product.meta.stock.level === 0") Sold out
+        span.sold-out(v-if="product.stock === 0") Sold out
 
         button.button.is-secondary.is-fullwidth.is-flip.add-to-cart(
           :class="{ 'item-added' : itemAdded, 'is-loading' : loading }"
           @click="addToCart"
-          :disabled="product.meta.stock.level === 0 || quantity === 'default'")
+          :disabled="product.stock === 0 || quantity === 'default'")
           span.add-to-cart-text(data-text="Add to cart") Add to cart
           span.added-to-cart-text Added
 
@@ -70,35 +70,34 @@
       },
 
       addToCart () {
-        console.log('product', this.product)
-        console.log('this.$store.getters', this.$store.getters['cart/loadedCartItems'])
         const cartItems = this.$store.getters['cart/loadedCartItems']
-        const record = cartItems.find(element => element.id === this.product.id)
-        const productId = this.product.id
+        const productId = this.product._id
+        let record
 
         this.loading = true
 
+        if (cartItems.length > 0) {
+          record = cartItems.find(element => element._id === this.product._id)
+        } else {
+          record = undefined
+        }
+
         this.$store.dispatch('products/product', productId)
           .then(res => {
-            console.log('record', record)
-            console.log('STOCK LEVEL', res.data.data.meta.stock.level)
             // Check to see if user is adding more items than the stock allows
-            if (record && (record.quantity + this.quantity) > res.data.data.meta.stock.level) {
+            if (record && (record.quantity + this.quantity) > res.data.product.stock) {
               throw new Error('no-stock')
             }
           })
           .then(() => {
+            const product = this.product
+            const quantity = this.quantity
+
+            delete product.stock
+            delete product.store_front
             return this.$store.dispatch('cart/addToCart', {
-              data: {
-                type: 'custom_item',
-                name: this.product.name,
-                sku: this.product.sku,
-                price: {
-                  amount: this.product.price[0].amount
-                },
-                product_id: this.product.id,
-                quantity: this.quantity
-              }
+              product,
+              quantity
             })
           })
           .then(() => {

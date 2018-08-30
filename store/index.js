@@ -19,8 +19,8 @@ export default () => {
       checkout
     },
     actions: {
-      async nuxtServerInit ({ dispatch }, req) {
-        // return dispatch('moltin/credentials', req)
+      async nuxtServerInit ({ dispatch }, context) {
+        return dispatch('cart/fetchCartData', context)
       }
     }
   })

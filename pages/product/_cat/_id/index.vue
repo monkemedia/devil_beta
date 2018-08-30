@@ -17,7 +17,8 @@
 
   export default {
     middleware: [
-    'init-auth' ],
+      'init-auth'
+    ],
 
     components: {
       Breadcrumb,

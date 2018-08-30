@@ -26,6 +26,7 @@
     "buefy": "^0.6.3",
     "bulma.styl": "^0.6.11",
     "connect-wwwhisper": "*",
+    "cookie": "^0.3.1",
     "cookie-parser": "^1.4.3",
     "cross-env": "^5.0.1",
     "dotenv": "^5.0.1",

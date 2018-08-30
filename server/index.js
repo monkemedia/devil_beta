@@ -32,7 +32,7 @@ if (process.env.NODE_ENV === 'staging') {
   app.use(wwwhisper())
 }
 
-  // Import API Routes
+// Import API Routes
 app.use('/api/', api)
 
 // Give nuxt middleware to express

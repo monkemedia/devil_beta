@@ -130,17 +130,16 @@ const actions = {
       })
   },
 
-  // product ({ commit }, productId) {
-  //   console.log('productId', productId)
-  //   return api.products.product(productId)
-  //     .then(res => {
-  //       commit('SET_PRODUCT', res)
-  //       return res
-  //     })
-  //     .catch(err => {
-  //       throw err
-  //     })
-  // },
+  product ({ commit }, productId) {
+    return api.products.product(productId)
+      .then(res => {
+        commit('SET_PRODUCT', res.data.product)
+        return res
+      })
+      .catch(err => {
+        throw err.message
+      })
+  },
 
   vendorProducts ({ commit }) {
     return api.products.vendorProducts()

@@ -106,7 +106,6 @@ export default {
     },
 
     updateProduct: (data) => {
-      console.log('data', data)
       return axios({
         method: 'put',
         url: `${baseURL}/products/${data.productId}`,
