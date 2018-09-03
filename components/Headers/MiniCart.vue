@@ -1,54 +1,54 @@
 <template lang="pug">
   div
     .mini-cart-mobile
-      //- span {{ cartTotalItems }}
+      span {{ cartTotalItems }}
     .dropdown.mini-cart-desktop-container(:class="{ 'is-active': isActive }")
       .dropdown-trigger
         a.mini-cart-desktop(aria-haspopup="true" aria-controls="dropdown-menu-mini-cart" @click="isActive = !isActive" v-on-clickaway="away")
           span.mini-cart-label My Cart
-          //- span.cart-count {{ cartTotalItems }}
-      //- .dropdown-menu#dropdown-menu-mini-cart(role="menu")
-      //-   .dropdown-content
-      //-     .dropdown-item.empty-cart(v-if="loadedCartItems.length === 0")
-      //-       p Your cart is empty
-      //-     .dropdown-item(v-else)
-      //-       .vendors(v-for="(vendors, index) in loadedCartItems" v-if="index < 5")
-      //-         .columns(v-for="cartItem in vendors")
-      //-           .column.is-4
-      //-             figure(v-if="cartItem.images")
-      //-               lazy-image(
-      //-                 :src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-      //-                 :small-src="cartItem.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-      //-                 :alt="cartItem.images[0].alt")
-      //-             figure.no-image(v-else)
-      //-               i.fa.fa-file-image-o(aria-hidden="true")
-      //-           .column
-      //-             h6
-      //-               router-link(:to="'/' + cartItem.category + '/' + cartItem.product_id") {{ cartItem.name }}
-      //-             span.seller By {{ cartItem.cart_reference | makeUsername }}
-      //-             .level
-      //-               .level-left.quantity Qty: {{ cartItem.quantity }}
-      //-               .level-right.price
-      //-                 //- span(v-if="cartItem.on_sale")
-      //-                 //-   | {{ cartItem.sale_price | currency(cartItem.meta.display_price.with_tax.unit.currency.currency) }}
-      //-                 span
-      //-                   | {{ cartItem.meta.display_price.with_tax.unit.amount | currency(cartItem.meta.display_price.with_tax.unit.currency) }}
-      //-           .columns(v-if="index > 5")
-      //-             .column.has-text-centered
-      //-               nuxt-link.view-more(to="") view all items
-      //-       .columns
-      //-         .subtotal
-      //-           .column
-      //-             | Subtotal
-      //-           .column.has-text-right
-      //-             | {{ cartSubtotal | currency('USD') }}
-      //-       .columns
-      //-         .column
-      //-           nuxt-link(to="/cart").button.is-flip.is-fullwidth
-      //-             span(data-text="View cart") View cart
-      //-         .column
-      //-           nuxt-link(to="/checkout").button.is-flip.is-secondary.is-fullwidth
-      //-               span(data-text="Checkout") Checkout
+          span.cart-count {{ cartTotalItems }}
+      .dropdown-menu#dropdown-menu-mini-cart(role="menu")
+        .dropdown-content
+          .dropdown-item.empty-cart(v-if="loadedCartItems.length < 1")
+            p Your cart is empty
+          .dropdown-item(v-else)
+            .columns(v-for="(item, index) in loadedCartItems" v-if="index < 5")
+                .column.is-4
+                  p {{ item.product.product }}
+                  figure(v-if="item.product.images")
+                    lazy-image(
+                      :src="item.product.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                      :small-src="item.product.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                      :alt="item.product.images[0].alt")
+                  figure.no-image(v-else)
+                    i.fa.fa-file-image-o(aria-hidden="true")
+                .column
+                  h6
+                    router-link(:to="'/' + item.product.category + '/' + item.product.product_id") {{ item.product.name }}
+                  span.seller By {{ item.product.username }}
+                  .level
+                    .level-left.quantity Qty: {{ item.quantity }}
+                    .level-right.price
+                      span(v-if="item.product.on_sale")
+                        | {{ item.product.price.sale_price | currency(item.product.price.currency) }}
+                      span
+                        | {{ item.product.price.amount | currency(item.product.price.currency) }}
+                .columns(v-if="index > 5")
+                  .column.has-text-centered
+                    nuxt-link.view-more(to="") view all items
+            .columns
+              .subtotal
+                .column
+                  | Subtotal
+                .column.has-text-right
+                  | {{ cartSubtotal | currency('USD') }}
+            .columns
+              .column
+                nuxt-link(to="/cart").button.is-flip.is-fullwidth
+                  span(data-text="View cart") View cart
+              .column
+                nuxt-link(to="/checkout").button.is-flip.is-secondary.is-fullwidth
+                    span(data-text="Checkout") Checkout
 
 </template>
 
@@ -75,50 +75,18 @@
       }
     },
 
-    created () {
-      if (process.client) {
-        this.$store.dispatch('cart/fetchCartData')
-      }
-
-      // // const vm = this
-      // function fetchCartData (reference) {
-      //   // vm.$store.dispatch('cart/fetchCartData', reference || null)
-      //   //   .then(res => {
-      //   //     console.log('TESTEES', res)
-      //   //     if (!res) {
-      //   //       return
-      //   //     }
-      //   //     _.map(res.data.data, item => {
-      //   //       vm.$store.commit('cart/SET_CART_ITEMS', [item], { root: true })
-      //   //     })
-      //   //   })
-      // }
-
-      // if (process.client) {
-      //   const localCartReferences = JSON.parse(localStorage.getItem('cartItems'))
-
-      //   if (localCartReferences && localCartReferences.length > 0) {
-      //     _.map(localCartReferences, reference => {
-      //       fetchCartData(reference)
-      //     })
-      //   } else {
-      //     fetchCartData()
-      //   }
-      // }
-    },
-
     computed: {
-      // loadedCartItems () {
-      //   return this.$store.getters['cart/loadedCartItems']
-      // },
+      loadedCartItems () {
+        return this.$store.getters['cart/loadedCartItems']
+      },
 
-      // cartTotalItems () {
-      //   return this.$store.getters['cart/cartTotalItems']
-      // },
+      cartTotalItems () {
+        return this.$store.getters['cart/cartTotalItems']
+      },
 
-      // cartSubtotal () {
-      //   return this.$store.getters['cart/cartSubtotal']
-      // }
+      cartSubtotal () {
+        return this.$store.getters['cart/cartSubtotal']
+      }
     }
   }
 </script>
