@@ -1,4 +1,4 @@
-import Vue from 'vue'
+// import Vue from 'vue'
 import _ from 'lodash'
 import Cookie from 'js-cookie'
 import cookie from 'cookie'
@@ -10,30 +10,17 @@ const state = () => ({
 })
 
 const mutations = {
-  SET_CART_ITEMS (state, payload) {
-    state.cartItems.push(payload)
+  PUSH_PRODUCT_TO_CART (state, product) {
+    state.cartItems.push(product)
   },
 
-  UPDATE_QUANTITY (state, payload) {
-    state.cartItems.forEach((items, index) => {
-      items.forEach((it, i) => {
-        if (it.sku === payload.sku) {
-          const updatedQty = it.quantity += payload.quantity
-          Vue.set(state.cartItems[index][i], 'quantity', updatedQty)
-        }
-      })
-    })
+  ADD_PRODUCT_TO_CART (state, product) {
+    state.cartItems = product
   },
 
-  ADD_PRODUCT_TO_EXISTING_REF (state, payload) {
-    state.cartItems.forEach((items, index) => {
-      items.forEach((it, i) => {
-        if (it.cart_reference === payload.cart_reference) {
-          delete payload.cart_reference
-          Vue.set(state.cartItems, [index], payload)
-        }
-      })
-    })
+  INCREMENT_ITEM_QUANTITY (state, product) {
+    const cartItem = state.cartItems.find(item => item.product._id === product.product._id)
+    cartItem.quantity += product.quantity
   },
 
   CLEAR_CART_ITEMS (state) {
@@ -42,31 +29,34 @@ const mutations = {
 }
 
 const actions = {
-  addToCart ({}, payload) {
-    let cartArray = []
-    const cartItems = localStorage.getItem('cartItems')
-
-    if (cartItems && cartItems.length > 0) {
-      cartArray = JSON.parse(cartItems)
-      cartArray.push(payload)
-      localStorage.setItem('cartItems', JSON.stringify(cartArray))
-      Cookie.set('cartItems', JSON.stringify(cartArray))
+  addToCart ({ state, commit }, product) {
+    if (product.product.stock > 0) {
+      const cartItem = state.cartItems.find(item => item.product._id === product.product._id)
+      if (!cartItem) {
+        commit('PUSH_PRODUCT_TO_CART', product)
+      } else {
+        commit('INCREMENT_ITEM_QUANTITY', product)
+      }
+      // Update local storage
+      localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
+      Cookie.set('cartItems', JSON.stringify(state.cartItems))
     } else {
-      cartArray.push(payload)
-      localStorage.setItem('cartItems', JSON.stringify(cartArray))
-      Cookie.set('cartItems', JSON.stringify(cartArray))
+      console.log('no stock')
     }
   },
 
-  fetchCartData ({}, context) {
+  fetchCartData ({ commit }, context) {
+    let cartItems
     if (process.client) {
-      console.log('CLIENT Cart Items', localStorage.getItem('cartItems'))
-      return localStorage.getItem('cartItems')
+      cartItems = localStorage.getItem('cartItems')
+      commit('ADD_PRODUCT_TO_CART', JSON.parse(cartItems) || [])
+      return cartItems
     }
 
     if (context.req.headers.cookie && cookie.parse(context.req.headers.cookie)['cartItems']) {
-      console.log('SERVER Cart Items', cookie.parse(context.req.headers.cookie)['cartItems'])
-      return cookie.parse(context.req.headers.cookie)['cartItems']
+      cartItems = cookie.parse(context.req.headers.cookie)['cartItems']
+      commit('ADD_PRODUCT_TO_CART', JSON.parse(cartItems) || null)
+      return cartItems
     }
   }
   // fetchCartReferences ({ rootGetters }) {
@@ -642,19 +632,19 @@ const getters = {
       return calculate.quantity
     }
     return 0
-  },
-
-  cartSubtotal (state) {
-    if (state.cartItems) {
-      // const flatten = _.flattenDeep(state.cartItems)
-
-      return state.cartItems.reduce((a, b) => {
-        console.log('b', b)
-        return a + (b.quantity * b.product.price.amount)
-      }, 0)
-    }
-    return 0
   }
+
+  // cartSubtotal (state) {
+  //   if (state.cartItems) {
+  //     // const flatten = _.flattenDeep(state.cartItems)
+
+  //     return state.cartItems.reduce((a, b) => {
+  //       console.log('b', b)
+  //       return a + (b.quantity * b.product.price.amount)
+  //     }, 0)
+  //   }
+  //   return 0
+  // }
 }
 
 export default {

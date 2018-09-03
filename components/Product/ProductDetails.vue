@@ -70,62 +70,10 @@
       },
 
       addToCart () {
-        const cartItems = this.$store.getters['cart/loadedCartItems']
-        const productId = this.product._id
-        let record
-
-        this.loading = true
-
-        if (cartItems.length > 0) {
-          record = cartItems.find(element => element._id === this.product._id)
-        } else {
-          record = undefined
-        }
-
-        this.$store.dispatch('products/product', productId)
-          .then(res => {
-            // Check to see if user is adding more items than the stock allows
-            if (record && (record.quantity + this.quantity) > res.data.product.stock) {
-              throw new Error('no-stock')
-            }
-          })
-          .then(() => {
-            const product = this.product
-            const quantity = this.quantity
-
-            delete product.stock
-            delete product.store_front
-            return this.$store.dispatch('cart/addToCart', {
-              product,
-              quantity
-            })
-          })
-          .then(() => {
-            this.loading = false
-            this.itemAdded = true
-            setTimeout(() => {
-              this.itemAdded = false
-            }, 2500)
-          })
-          .catch((err) => {
-            this.loading = false
-            this.itemAdded = false
-
-            if (err.message === 'no-stock') {
-              this.$dialog.alert({
-                title: 'Whoops',
-                message: 'There isn\'t enough items in stock',
-                confirmText: 'Agree'
-              })
-              return
-            }
-
-            this.$dialog.alert({
-              title: 'Whoops',
-              message: 'Looks like something has gone wrong',
-              confirmText: 'Agree'
-            })
-          })
+        this.$store.dispatch('cart/addToCart', {
+          product: this.product,
+          quantity: this.quantity
+        })
       }
     }
   }
