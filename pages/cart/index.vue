@@ -13,26 +13,27 @@
           span(v-if="cartTotalItems < 1")
             h2 There are no items in your cart.
             p If you have an account with us, <nuxt-link to="sign-in" class="underline">please log in</nuxt-link> to see items you previously added.
-          b-table(:data="loadedCartItems" v-else)
+          b-table(:data="mapToUsers()" v-else)
             template(slot-scope="props")
-              .vendors(v-for="vendor in props.row")
-                b-table-column(field="item" label="Item")
-                  .item-details.media
-                    figure.media-left(v-if="vendor.images")
-                      lazy-image(
-                        :src="vendor.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                        :small-src="vendor.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                        :alt="vendor.images[0].alt")
-                    figure.media-left.no-image(v-else)
-                      i.fa.fa-file-image-o(aria-hidden="true")
-                    .media-content
-                      h6 {{ vendor.name }}
-                      span.seller Seller: {{ vendor.cart_reference | makeUsername }}
-                      span.ctas
-                        a(@click="deleteModal(props.row, props.index)") Remove
-                b-table-column.quantity(field="quantity" label="Quantity")
-                  increment-counter(:productDetails="{ quantity: vendor.quantity, product_id: vendor.product_id, cart_id: vendor.session_id }")
-                b-table-column.subtotal(field="subtotal" label="Subtotal") {{ vendor.unit_price.amount * vendor.quantity | currency('USD') }}
+              .vendors(v-for="vendor in props")
+                p {{ vendor.username }}
+                //- b-table-column(field="item" label="Item")
+                //-   .item-details.media
+                //-     figure.media-left(v-if="vendor.images")
+                //-       lazy-image(
+                //-         :src="vendor.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                //-         :small-src="vendor.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                //-         :alt="vendor.images[0].alt")
+                //-     figure.media-left.no-image(v-else)
+                //-       i.fa.fa-file-image-o(aria-hidden="true")
+                //-     .media-content
+                //-       h6 {{ vendor.username }}
+                //-       span.seller Seller: {{ vendor.username }}
+                //-       span.ctas
+                //-         a(@click="deleteModal(props.row, props.index)") Remove
+                //- b-table-column.quantity(field="quantity" label="Quantity")
+                //-   increment-counter(:productDetails="{ quantity: vendor.quantity, product_id: vendor.product_id, cart_id: vendor.session_id }")
+                //- b-table-column.subtotal(field="subtotal" label="Subtotal") {{ vendor.unit_price.amount * vendor.quantity | currency('USD') }}
       .column.is-12-tablet.is-4-widescreen.is-offset-1-widescreen
         order-summary()
 
@@ -42,6 +43,7 @@
   import Breadcrumb from '@/components/Breadcrumbs/DefaultBreadcrumb'
   import IncrementCounter from '@/components/Checkout/IncrementCounter'
   import OrderSummary from '@/components/Checkout/OrderSummary'
+  import _ from 'lodash'
 
   export default {
     middleware: [
@@ -80,6 +82,16 @@
     },
 
     methods: {
+      mapToUsers () {
+        console.log('test', this.loadedCartItems)
+        return _(this.loadedCartItems).groupBy(item => item.product.username).map((items, username) => {
+          return {
+            username: username,
+            items
+          }
+        }).value()
+      },
+
       deleteModal (product, index) {
         this.$dialog.confirm({
           title: 'Test',
