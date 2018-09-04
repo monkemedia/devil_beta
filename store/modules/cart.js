@@ -18,10 +18,8 @@ const mutations = {
     state.cartItems = product
   },
 
-  REMOVE_PRODUCT_FROM_CART (state, product) {
-    const cartItem = state.cartItems.find(item => item.product._id === product.product._id)
-    // this.$delete(state.cartItems, cartItem)
-    state.cartItems.splice(product, 1)
+  REMOVE_PRODUCT_FROM_CART (state, index) {
+    state.cartItems.splice(index, 1)
   },
 
   ADD_ITEM_QUANTITY (state, product) {
@@ -60,10 +58,17 @@ const actions = {
     }
   },
 
-  deleteFromCart ({ commit }, product) {
-    commit('REMOVE_PRODUCT_FROM_CART', product)
-    // localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
-    // Cookie.set('cartItems', JSON.stringify(state.cartItems))
+  deleteFromCart ({ state, commit }, index) {
+    commit('REMOVE_PRODUCT_FROM_CART', index)
+
+    if (!state.cartItems) {
+      // There are no items in cart state, so remove storage completely
+      localStorage.removeItem('cartItems')
+      Cookie.remove('cartItems')
+    } else {
+      localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
+      Cookie.set('cartItems', JSON.stringify(state.cartItems))
+    }
   },
 
   fetchCartData ({ commit }, context) {

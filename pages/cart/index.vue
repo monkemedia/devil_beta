@@ -103,8 +103,7 @@
           confirmText: 'Agree',
           type: 'is-success',
           onConfirm: () => {
-            this.$delete(this.loadedCartItems, index)
-            this.$store.dispatch('cart/deleteFromCart', product)
+            this.$store.dispatch('cart/deleteFromCart', index)
           }
         })
       }
