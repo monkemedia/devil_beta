@@ -3,13 +3,11 @@
     a.minus(@click="increment('minus')" :class="{ 'disabled' : quantity < 2 }")
       i.fa.fa-minus
     input(v-model="quantity" disabled)
-    a.plus(@click="increment('plus')" :class="{ 'disabled' : quantity > 4 }")
+    a.plus(@click="increment('plus')")
       i.fa.fa-plus
 </template>
 
 <script>
-  import _ from 'lodash'
-
   export default {
     name: 'IncrementCounter',
 
@@ -27,46 +25,9 @@
     },
 
     methods: {
-      updateDb: _.debounce(function (qty, val) {
-        this.$store.dispatch('cart/liveStock', this.productDetails)
-          .then((liveStock) => {
-            console.log(qty)
-            // Check to see if user is adding more items than the stock allows
-            if (qty > liveStock) {
-              this.quantity = liveStock
-              throw new Error('no-stock')
-            }
-
-            return this.$store.dispatch('cart/updateCartItemQuantity', {
-              ...this.productDetails,
-              quantity: qty
-            })
-          })
-          .then(() => {
-            console.log('val', val)
-            this.$emit('quantity', qty)
-            return this.$store.dispatch('cart/fetchCartData')
-          })
-          .catch((err) => {
-            if (err.message === 'no-stock') {
-              this.$dialog.alert({
-                title: 'Whoops',
-                message: 'There isn\'t enough items in stock',
-                confirmText: 'Agree'
-              })
-              return
-            }
-
-            this.$dialog.alert({
-              title: 'Whoops',
-              message: 'Looks like something has gone wrong',
-              confirmText: 'Agree'
-            })
-          })
-      }, 300),
-
       increment (val) {
         let qty = this.quantity
+        const stock = this.productDetails.product.stock
 
         if (val === 'plus') {
           qty += 1
@@ -74,9 +35,20 @@
           qty -= 1
         }
 
+        if (qty > stock) {
+          return this.$dialog.alert({
+            title: 'Whoops',
+            message: 'There isn\'t enough items in stock',
+            confirmText: 'Agree'
+          })
+        }
+
         this.quantity = qty
-        this.updateDb(qty, val)
-        this.$emit('quantity', qty)
+        this.$store.dispatch('cart/addToCart', {
+          ...this.productDetails,
+          quantity: qty,
+          page: 'cart'
+        })
       }
     }
   }

@@ -72,7 +72,8 @@
       addToCart () {
         this.$store.dispatch('cart/addToCart', {
           product: this.product,
-          quantity: this.quantity
+          quantity: this.quantity,
+          page: 'pdp'
         })
       }
     }

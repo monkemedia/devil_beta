@@ -18,9 +18,20 @@ const mutations = {
     state.cartItems = product
   },
 
-  INCREMENT_ITEM_QUANTITY (state, product) {
+  REMOVE_PRODUCT_FROM_CART (state, product) {
+    const cartItem = state.cartItems.find(item => item.product._id === product.product._id)
+    // this.$delete(state.cartItems, cartItem)
+    state.cartItems.splice(product, 1)
+  },
+
+  ADD_ITEM_QUANTITY (state, product) {
     const cartItem = state.cartItems.find(item => item.product._id === product.product._id)
     cartItem.quantity += product.quantity
+  },
+
+  INCREMENT_ITEM_QUANTITY (state, product) {
+    const cartItem = state.cartItems.find(item => item.product._id === product.product._id)
+    cartItem.quantity = product.quantity
   },
 
   CLEAR_CART_ITEMS (state) {
@@ -35,18 +46,24 @@ const actions = {
       if (!cartItem) {
         commit('PUSH_PRODUCT_TO_CART', product)
       } else {
-        if (cartItem.quantity >= product.product.stock) {
-          console.log('No Stock')
-          return
+        if (product.page === 'pdp') {
+          commit('ADD_ITEM_QUANTITY', product)
+        } else if (product.page === 'cart') {
+          commit('INCREMENT_ITEM_QUANTITY', product)
         }
-        commit('INCREMENT_ITEM_QUANTITY', product)
       }
       // Update local storage
       localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
       Cookie.set('cartItems', JSON.stringify(state.cartItems))
     } else {
-      console.log('no stock')
+      return Promise.reject(new Error('no-stock'))
     }
+  },
+
+  deleteFromCart ({ commit }, product) {
+    commit('REMOVE_PRODUCT_FROM_CART', product)
+    // localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
+    // Cookie.set('cartItems', JSON.stringify(state.cartItems))
   },
 
   fetchCartData ({ commit }, context) {
