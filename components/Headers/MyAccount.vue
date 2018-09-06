@@ -5,7 +5,7 @@
       span.or or
       nuxt-link.animated-underline(to="/create-account") Register
 
-    .user-logged-in(v-else)
+    .user-logged-in(v-if="isAuthenticated")
       .dropdown(:class="{ 'is-active': isActive }")
         .dropdown-trigger
           a.user-logged-in-wrapper(aria-haspopup="true" aria-controls="dropdown-menu-user-account" @click="isActive = !isActive" v-on-clickaway="away")

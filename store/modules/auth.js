@@ -20,6 +20,7 @@ const actions = {
     let token
     let username
     let vendor
+    let shopId
 
     if (req) {
       if (!req.headers.cookie) {
@@ -41,13 +42,19 @@ const actions = {
         .split(';')
         .find(c => c.trim().startsWith('vendor='))
 
+      const shopIdCookie = req.headers.cookie
+        .split(';')
+        .find(c => c.trim().startsWith('shopId='))
+
       token = tokenCookie.substring(tokenCookie.indexOf('=') + 1) // Using this method as tokens contain more than 1 equals (=) sign
       username = usernameCookie.split('=')[1]
       vendor = vendorCookie.split('=')[1]
+      shopId = shopIdCookie.split('=')[1]
     } else {
       token = localStorage.getItem('token')
       username = localStorage.getItem('username')
       vendor = localStorage.getItem('vendor')
+      shopId = localStorage.getItem('shopId')
     }
     if (!token) {
       console.log('No token')
@@ -58,18 +65,21 @@ const actions = {
     commit('SET_TOKEN', token)
     commit('user/SET_USERNAME', username, { root: true })
     commit('user/SET_VENDOR_TYPE', vendor, { root: true })
+    commit('user/SET_SHOP_ID', shopId, { root: true })
   },
 
   setAuthData ({ commit }, data) {
     commit('SET_TOKEN', data.token)
-    commit('SET_USERNAME', data.username)
+    commit('auth/SET_USERNAME', data.username, { root: true })
     commit('user/SET_VENDOR_TYPE', data.vendor, { root: true })
+    commit('user/SET_SHOP_ID', data.shopId, { root: true })
 
     Cookie.set('token', data.token)
     Cookie.set('refreshToken', data.refreshToken)
     Cookie.set('username', data.username)
     Cookie.set('userId', data.userId)
     Cookie.set('vendor', data.vendor)
+    Cookie.set('shopId', data.shopId)
 
     if (process.client) {
       localStorage.setItem('token', data.token)
@@ -77,12 +87,11 @@ const actions = {
       localStorage.setItem('username', data.username)
       localStorage.setItem('userId', data.userId)
       localStorage.setItem('vendor', data.vendor)
+      localStorage.setItem('shopId', data.shopId)
     }
   },
 
   login ({ rootGetters, commit, dispatch }, data) {
-    // commit('cart/CLEAR_CART_ITEMS', null, { root: true })
-
     return api.auth.login(data)
       .then(res => {
         dispatch('setAuthData', {
@@ -90,36 +99,18 @@ const actions = {
           refreshToken: res.data.refresh_token,
           username: res.data.username,
           userId: res.data._id,
-          vendor: res.data.vendor
+          vendor: res.data.vendor,
+          shopId: res.data.shop_id
         })
         return res
       })
-      // .then(() => {
-      //   const localCartReferences = localStorage.getItem('cartItems')
-
-      //   if (localCartReferences) {
-      //     return dispatch('cart/localStorageToMoltin', JSON.parse(localCartReferences), { root: true })
-      //   }
-
-      //   return dispatch('cart/fetchCartData', null, { root: true })
-      //     .then(res => {
-      //       _.map(res.data.data, item => {
-      //         commit('cart/SET_CART_ITEMS', item, { root: true })
-      //       })
-      //     })
-      // })
   },
 
   register ({ dispatch }, data) {
-    return api.auth.register(data)
-      .then(() => {
-        return dispatch('login', {
-          email: data.email,
-          password: data.password,
-          username: data.username,
-          vendor: data.vendor,
-          name: data.name
-        })
+    // If vendor equals true, we create a shop for them
+    return dispatch('shop/createShop', data, { root: true })
+      .then(shopId => {
+        return api.auth.register({ ...data, shop_id: shopId.data.shop._id })
       })
   },
 
@@ -127,6 +118,7 @@ const actions = {
     commit('CLEAR_TOKEN')
     commit('user/CLEAR_USERNAME', null, { root: true })
     commit('user/CLEAR_VENDOR_TYPE', null, { root: true })
+    commit('user/CLEAR_SHOP_ID', null, { root: true })
 
     // if (req) {
     //   console.log('LOGGING OUT', req)
@@ -137,6 +129,7 @@ const actions = {
     Cookie.remove('username')
     Cookie.remove('userId')
     Cookie.remove('vendor')
+    Cookie.remove('shopId')
 
     // Clear all moltin data
 
@@ -146,6 +139,7 @@ const actions = {
       localStorage.removeItem('username')
       localStorage.removeItem('userId')
       localStorage.removeItem('vendor')
+      localStorage.removeItem('shopId')
       localStorage.removeItem('cartItems')
     }
   }

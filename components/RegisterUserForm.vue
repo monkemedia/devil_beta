@@ -1,15 +1,6 @@
 <template lang="pug">
   form(@submit.prevent="onRegister")
     b-message(type="is-danger" v-if="isRegisterError") {{ isRegisterError }}
-
-    b-field.account-types
-      b-radio-button(
-        v-model="vendor"
-        native-value="false") Buyer
-      b-radio-button(
-        v-model="vendor"
-        native-value="true") Seller
-
     .field
       label.label Username #[sup *]
       .control
@@ -89,7 +80,6 @@
   import Vue from 'vue'
   import VeeValidate, { Validator } from 'vee-validate'
   import VueScrollTo from 'vue-scrollto'
-  import _ from 'lodash'
 
   Vue.use(VeeValidate)
 
@@ -122,7 +112,6 @@
 
     data () {
       return {
-        vendor: 'true',
         username: 'incubusrich',
         name: 'Richy',
         email: 'incubusrich@hotmail.com',
@@ -148,38 +137,35 @@
               password: this.password,
               name: this.name,
               username: this.username,
-              vendor: this.vendor
+              vendor: this.$route.query.page === 'seller'
             }
 
             this.loading = true
             return this.$store.dispatch('auth/register', payload)
           })
           .then(() => {
-            // Now log user in
-            const payload = {
+            return this.$store.dispatch('auth/login', {
               email: this.email,
               password: this.password
-            }
-
-            this.loading = true
-            return this.$store.dispatch('auth/login', payload)
+            })
           })
           .then(() => {
             this.loading = false
-            if (this.$route.query.visitor === 'unregistered') {
-              this.$router.push('/shipping')
+            if (this.$route.query.page === 'seller') {
+              console.log('go to seller account')
+              this.$router.push({ path: `/shop/${this.username}/setup/preferences` })
             } else {
               this.$router.push('/admin')
             }
           })
-          .catch((err) => {
-            if (err.response) {
-              if (err.response.status === 409) {
-                this.isRegisterError = err.response.data.message
-              }
+          .catch(err => {
+            console.log('err', err)
+            if (err.response.status === 409) {
+              this.isRegisterError = err.response.data.message
             } else {
-              this.isRegisterError = _.lowerCase(err.response.data.message)
+              this.isRegisterError = err.message
             }
+
             this.loading = false
             VueScrollTo.scrollTo('.is-danger')
           })
@@ -187,21 +173,10 @@
     }
   }
 </script>
-<style lang="stylus">
-  .account-types
-    .control[data-v-01644966]
-      .button
-        width 100% !important
-        margin-top 0
-</style>
 
 <style lang="stylus" scoped>
   @import '~assets/css/utilities/variables.styl'
   @import '~assets/css/utilities/mixins.styl'
-
-  .account-types
-    .control
-      width 50%
 
   .sign-in-button
     width 100%

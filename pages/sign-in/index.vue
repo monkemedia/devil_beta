@@ -7,7 +7,9 @@
       .column
         h2.h3 Create account
         p Accounts are for members only, so please create an account below, and if you are a member, your account will be approved.
-        nuxt-link.button.is-secondary.sign-in-button.is-flip(to="/create-account")
+        nuxt-link.button.is-secondary.sign-in-button.is-flip(to="/create-account?page=seller" v-if="getParams.page === 'seller'")
+          span(data-text="Create account") Create account
+        nuxt-link.button.is-secondary.sign-in-button.is-flip(to="/create-account" v-else)
           span(data-text="Create account") Create account
 </template>
 
@@ -17,8 +19,19 @@
   export default {
     name: 'SignIn',
 
+    middleware: [
+      'init-auth',
+      'add-item-error'
+    ],
+
     components: {
       SignInUserForm
+    },
+
+    computed: {
+      getParams () {
+        return this.$route.query
+      }
     }
   }
 </script>

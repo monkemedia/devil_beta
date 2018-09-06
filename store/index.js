@@ -2,6 +2,7 @@ import Vuex from 'vuex'
 import auth from './modules/auth.js'
 import user from './modules/user.js'
 import products from './modules/products.js'
+import shop from './modules/shop.js'
 import cart from './modules/cart.js'
 import modals from './modules/modals.js'
 import navigation from './modules/navigation.js'
@@ -13,6 +14,7 @@ export default () => {
       auth,
       user,
       products,
+      shop,
       cart,
       modals,
       navigation,

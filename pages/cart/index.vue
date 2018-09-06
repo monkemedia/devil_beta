@@ -13,26 +13,50 @@
           span(v-if="cartTotalItems < 1")
             h2 There are no items in your cart.
             p If you have an account with us, <nuxt-link to="sign-in" class="underline">please log in</nuxt-link> to see items you previously added.
-          b-table(:data="loadedCartItems" v-else)
-            template(slot-scope="props")
-              b-table-column(field="item" label="Item")
-                .item-details.media
-                  figure.media-left(v-if="props.row.product.images")
+          .cart-list(v-else)
+            .cart-list__vendor(v-for="(users, index) in mapToUsers()")
+              .cart-list__vendor__header.media
+                p {{ users.username }}
+              .cart-list__vendor__list(v-for="item in users.items")
+                .media
+                  figure.media-left(v-if="item.product.images")
                     lazy-image(
-                      :src="props.row.product.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                      :small-src="props.row.product.images[0].url + '-/resize/70/-/crop/70x70/center/'"
-                      :alt="props.row.product.images[0].alt")
+                      :src="item.product.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                      :small-src="item.product.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+                      :alt="item.product.images[0].alt")
                   figure.media-left.no-image(v-else)
                     i.fa.fa-file-image-o(aria-hidden="true")
                   .media-content
-                    h6 {{ props.row.product.name }}
-                    span.seller Seller: {{ props.row.product.username }}
+                    h6 {{ item.product.name }}
                     span.ctas
-                      a(@click="deleteModal(props.row, props.index)") Remove
-              b-table-column.quantity(field="quantity" label="Quantity")
-                increment-counter(:productDetails="{ quantity: props.row.quantity, product: props.row.product }")
-              b-table-column.subtotal(field="subtotal" label="Subtotal") {{ props.row.product.price.amount * props.row.quantity | currency(props.row.product.price.currency) }}
-                .each(v-if="props.row.quantity > 1") ({{ props.row.product.price.amount | currency(props.row.product.price.currency) }} each)
+                      a(@click="deleteModal(item, index)") Remove
+                  .media-right
+                    .media
+                      .media-left
+                         increment-counter(:productDetails="{ quantity: item.quantity, product: item.product }")
+                      .media-right
+                        | {{ item.product.price.amount * item.quantity | currency(item.product.price.currency) }}
+
+          //- b-table(:data="loadedCartItems" v-else)
+          //-   template(slot-scope="props")
+          //-     b-table-column(field="item" label="Item")
+          //-       .item-details.media
+          //-         figure.media-left(v-if="props.row.product.images")
+          //-           lazy-image(
+          //-             :src="props.row.product.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+          //-             :small-src="props.row.product.images[0].url + '-/resize/70/-/crop/70x70/center/'"
+          //-             :alt="props.row.product.images[0].alt")
+          //-         figure.media-left.no-image(v-else)
+          //-           i.fa.fa-file-image-o(aria-hidden="true")
+          //-         .media-content
+          //-           h6 {{ props.row.product.name }}
+          //-           span.seller Seller: {{ props.row.product.username }}
+          //-           span.ctas
+          //-             a(@click="deleteModal(props.row, props.index)") Remove
+          //-     b-table-column.quantity(field="quantity" label="Quantity")
+          //-       increment-counter(:productDetails="{ quantity: props.row.quantity, product: props.row.product }")
+          //-     b-table-column.subtotal(field="subtotal" label="Subtotal") {{ props.row.product.price.amount * props.row.quantity | currency(props.row.product.price.currency) }}
+          //-       .each(v-if="props.row.quantity > 1") ({{ props.row.product.price.amount | currency(props.row.product.price.currency) }} each)
       .column.is-12-tablet.is-4-widescreen.is-offset-1-widescreen
         order-summary()
 
@@ -42,7 +66,7 @@
   import Breadcrumb from '@/components/Breadcrumbs/DefaultBreadcrumb'
   import IncrementCounter from '@/components/Checkout/IncrementCounter'
   import OrderSummary from '@/components/Checkout/OrderSummary'
-  // import _ from 'lodash'
+  import _ from 'lodash'
 
   export default {
     middleware: [
@@ -82,18 +106,18 @@
     },
 
     methods: {
-      // mapToUsers () {
-      //   console.log('test', this.loadedCartItems)
-      //   return _(this.loadedCartItems)
-      //     .groupBy(item => item.product.username)
-      //     .map((items, username) => {
-      //       console.log('items', items)
-      //       return {
-      //         username: username,
-      //         items: items
-      //       }
-      //     }).value()
-      // },
+      mapToUsers () {
+        console.log('test', this.loadedCartItems)
+        return _(this.loadedCartItems)
+          .groupBy(item => item.product.username)
+          .map((items, username) => {
+            console.log('items', items)
+            return {
+              username: username,
+              items: items
+            }
+          }).value()
+      },
 
       deleteModal (product, index) {
         this.$dialog.confirm({

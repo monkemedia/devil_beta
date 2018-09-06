@@ -10,23 +10,24 @@ export default (context) => {
   let refreshToken
   let userId
 
-  if (process.server) {
-    if (!context.req.headers.cookie) return
-    token = cookie.parse(context.req.headers.cookie)['token']
-
-    if (token) {
-      refreshToken = cookie.parse(context.req.headers.cookie)['refreshToken']
-      userId = cookie.parse(context.req.headers.cookie)['userId']
-    }
-  } else {
-    token = localStorage.getItem('token')
-    refreshToken = localStorage.getItem('refreshToken')
-    userId = localStorage.getItem('userId')
-  }
-
   axios.interceptors.request.use((response) => {
     let originalRequest = response
     const isAuthenticated = context.store.getters['auth/isAuthenticated']
+
+    if (process.server) {
+      console.log('is server')
+      if (!context.req.headers.cookie) return
+      token = cookie.parse(context.req.headers.cookie)['token']
+
+      if (token) {
+        refreshToken = cookie.parse(context.req.headers.cookie)['refreshToken']
+        userId = cookie.parse(context.req.headers.cookie)['userId']
+      }
+    } else {
+      token = localStorage.getItem('token')
+      refreshToken = localStorage.getItem('refreshToken')
+      userId = localStorage.getItem('userId')
+    }
 
     if (isAuthenticated) {
       const decodedToken = jwt.decode(token)
@@ -34,9 +35,10 @@ export default (context) => {
       const currentDate = Math.floor(new Date() / 1000)
 
       if (currentDate >= expiry) {
-        console.log('HERE')
+        console.log('HERE GEORGE')
         return api.auth.token({ userId, refresh_token: refreshToken })
           .then(result => {
+            console.log('MONKEY BOY')
             Cookie.set('token', result.data.token)
             Cookie.set('refreshToken', result.data.refresh_token)
             context.store.commit('auth/SET_TOKEN', result.data.token, { root: true })

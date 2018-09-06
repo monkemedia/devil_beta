@@ -17,6 +17,7 @@ export default {
     },
 
     register: (data) => {
+      console.log('register data', data)
       return axios({
         method: 'post',
         url: `${baseURL}/user/signup`,
@@ -70,6 +71,31 @@ export default {
         .then(res => {
           return res.data.data.cart_reference
         })
+    }
+  },
+
+  shop: {
+    createShop: (data) => {
+      return axios({
+        method: 'post',
+        url: `${baseURL}/shop/`,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: {
+          name: data.username
+        }
+      })
+    },
+
+    fetchShop: (shopId) => {
+      return axios({
+        method: 'get',
+        url: `${baseURL}/shop/${shopId}`,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
     }
   },
 

@@ -92,6 +92,8 @@
                   this.loading = false
                   if (this.$route.name === 'checkout') {
                     this.$router.push('/shipping')
+                  } else if (this.$route.query.page === 'seller') {
+                    this.$router.push('/shop/')
                   } else {
                     // Force SSR
                     document.location.href = '/admin'
