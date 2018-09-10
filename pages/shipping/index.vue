@@ -40,9 +40,9 @@
     },
 
     mounted () {
-      if (process.client) {
-        return this.$store.dispatch('checkout/getShippingData')
-      }
+      if (!process.client) return
+
+      return this.$store.dispatch('checkout/getShippingData')
     },
 
     data () {

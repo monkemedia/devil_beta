@@ -15,9 +15,12 @@ export default (context) => {
     const isAuthenticated = context.store.getters['auth/isAuthenticated']
 
     if (process.server) {
-      console.log('is server')
-      if (!context.req.headers.cookie) return
+      console.log('is server', context.req.headers)
+      if (!context.req.headers.cookie) return response
+
       token = cookie.parse(context.req.headers.cookie)['token']
+
+      console.log('token', token)
 
       if (token) {
         refreshToken = cookie.parse(context.req.headers.cookie)['refreshToken']
@@ -53,7 +56,7 @@ export default (context) => {
           })
           .catch(() => {
             // Refresh token has expired so sign user out.
-            console.log('catched error')
+            console.log('catched error 20', context)
             context.store.dispatch('auth/logout')
             context.redirect('/logout')
           })

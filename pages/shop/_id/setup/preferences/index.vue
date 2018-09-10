@@ -1,30 +1,15 @@
 <template lang="pug">
   div
-    .columns
-      .column
-        header
-          //- breadcrumb(:crumb="breadcrumb")
-          h1.add-product-heading Shop Preferences
-
-          form
-            .columns
-              .column.is-half
-                .field
-                  label.label Title #[sup *]
-                  .control
-                    input.input(
-                      name="language"
-                      id="language"
-                      v-model="formData.language"
-                      type="text")
-    //-         span.tag.is-uppercase(:class="statusClass(itemData.store_front)" v-if="itemData")
-    //-           | {{ status(itemData.store_front) }}
-    //- main-form(:itemData="itemData")
+    subway
+    shop-preferences-form(:formData="formData" @updateProgress="updateProgress" v-if="progress.step === 0")
+    stock-your-shop(v-if="progress.step === 1")
 </template>
 
 <script>
   // import Breadcrumb from '@/components/Breadcrumbs/AdminBreadcrumb'
-  // import MainForm from '@/components/Admin/AddProduct/MainForm'
+  import Subway from '@/components/Shop/Admin/Subway'
+  import ShopPreferencesForm from '@/components/Shop/Admin/ShopPreferencesForm'
+  import StockYourShop from '@/components/Shop/Admin/StockYourShop'
 
   export default {
     name: 'ShopPreferences',
@@ -37,16 +22,25 @@
       'add-item-error'
     ],
 
-    //   components: {
-    //     Breadcrumb,
-    //     MainForm
-    //   },
+    components: {
+      // Breadcrumb,
+      Subway,
+      ShopPreferencesForm,
+      StockYourShop
+    },
 
     data () {
       return {
         // breadcrumb: { title: 'Products', path: '/admin/products' }
         formData: {
-          language: ''
+          language: '',
+          country: '',
+          currency: '',
+          step: ''
+        },
+
+        progress: {
+          step: ''
         }
       }
     },
@@ -54,70 +48,53 @@
     async fetch ({ store }) {
       const shopId = store.getters['user/shopId']
 
-      // console.log('shop', shopId)
-
       return store.dispatch('shop/fetchShop', shopId)
         .then(res => {
-          console.log('my test', res.data)
+          console.log('test res', res)
+          const shop = res.data.shop
+          const progress = res.data.progress
+
+          this.formData = {
+            language: shop.language || '',
+            country: shop.country || '',
+            currency: shop.currency || ''
+          }
+
+          this.progress = {
+            step: progress.step || ''
+          }
         })
+    },
+
+    mounted () {
+      if (!process.client) return
+
+      const shopId = this.$store.getters['user/shopId']
+
+      return this.$store.dispatch('shop/fetchShop', shopId)
+        .then(res => {
+          console.log('test res', res)
+          const shop = res.data.shop
+          const progress = res.data.progress
+
+          this.formData = {
+            language: shop.language || '',
+            country: shop.country || '',
+            currency: shop.currency || ''
+          }
+
+          this.progress = {
+            step: progress.step || ''
+          }
+        })
+    },
+
+    methods: {
+      updateProgress (value) {
+        console.log('method')
+        this.progress.step = value
+      }
     }
-
-  //   async fetch ({ store, params, error }) {
-  //     const paramId = params.id
-
-  //     return api.products.vendorProduct(paramId)
-  //       .then(res => {
-  //         if (res.data.product !== null) {
-  //           return store.commit('products/SET_VENDOR_PRODUCT', res.data.product)
-  //         }
-
-  //         store.commit('products/SET_VENDOR_PRODUCT', null)
-  //         error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-  //       })
-  //       .catch(err => {
-  //         if (err.response) {
-  //           error({ statusCode: err.response.status, message: err.response.data.message })
-  //         } else {
-  //           error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-  //         }
-  //       })
-  //   },
-
-  //   mounted () {
-  //     if (process.client) {
-  //       const paramId = this.$route.params.id
-
-  //       return api.products.vendorProduct(paramId)
-  //         .then(res => {
-  //           if (res.data.product !== null) {
-  //             return this.$store.commit('products/SET_VENDOR_PRODUCT', res.data.product)
-  //           }
-
-  //           this.$store.commit('products/SET_VENDOR_PRODUCT', null)
-  //           this.error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-  //         })
-  //     }
-  //   },
-
-  //   computed: {
-  //     itemData () {
-  //       return this.$store.getters['products/loadedVendorProduct']
-  //     }
-  //   },
-
-  //   methods: {
-  //     statusClass (value) {
-  //       return value ? 'is-success' : 'is-warning'
-  //     },
-
-  //     status (value) {
-  //       return value ? 'Live' : 'Draft'
-  //     },
-
-  //     passStorefront (value) {
-  //       this.storefront = value
-  //     }
-  //   }
   }
 </script>
 

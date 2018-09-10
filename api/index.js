@@ -83,8 +83,21 @@ export default {
           'Content-Type': 'application/json'
         },
         data: {
-          name: data.username
+          name: data.username,
+          step: 0
         }
+      })
+    },
+
+    updateShop: (data) => {
+      console.log('data', data)
+      return axios({
+        method: 'put',
+        url: `${baseURL}/shop/${data.shopId}`,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: data.data
       })
     },
 
@@ -96,6 +109,10 @@ export default {
           'Content-Type': 'application/json'
         }
       })
+    },
+
+    updateShopPreferences: () => {
+
     }
   },
 

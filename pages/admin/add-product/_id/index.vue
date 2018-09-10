@@ -59,19 +59,19 @@
     },
 
     mounted () {
-      if (process.client) {
-        const paramId = this.$route.params.id
+      if (!process.client) return
 
-        return api.products.vendorProduct(paramId)
-          .then(res => {
-            if (res.data.product !== null) {
-              return this.$store.commit('products/SET_VENDOR_PRODUCT', res.data.product)
-            }
+      const paramId = this.$route.params.id
 
-            this.$store.commit('products/SET_VENDOR_PRODUCT', null)
-            this.error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-          })
-      }
+      return api.products.vendorProduct(paramId)
+        .then(res => {
+          if (res.data.product !== null) {
+            return this.$store.commit('products/SET_VENDOR_PRODUCT', res.data.product)
+          }
+
+          this.$store.commit('products/SET_VENDOR_PRODUCT', null)
+          this.error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
+        })
     },
 
     computed: {

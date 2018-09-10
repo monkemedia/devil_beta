@@ -1,12 +1,17 @@
 import api from '~/api'
 
 const state = () => ({
-  loadedShop: null
+  loadedShop: null,
+  shopProgress: null
 })
 
 const mutations = {
   SET_SHOP (state, product) {
     state.loadedShop = product
+  },
+
+  SET_SHOP_PROGRESS (state, progress) {
+    state.shopProgress = progress
   }
 }
 
@@ -18,6 +23,17 @@ const actions = {
       .then(res => {
         console.log('created shop res', res)
         commit('SET_SHOP', res.data.shop)
+        commit('SET_SHOP_PROGRESS', res.data.progress)
+        return res
+      })
+      .catch(err => {
+        throw err
+      })
+  },
+
+  updateShop ({ commit }, data) {
+    return api.shop.updateShop(data)
+      .then(res => {
         return res
       })
       .catch(err => {
@@ -29,6 +45,7 @@ const actions = {
     return api.shop.fetchShop(shopId)
       .then(res => {
         commit('SET_SHOP', res.data.shop)
+        commit('SET_SHOP_PROGRESS', res.data.progress)
         return res
       })
       .catch(err => {
@@ -40,6 +57,10 @@ const actions = {
 const getters = {
   loadedShop (state) {
     return state.loadedShop
+  },
+
+  shopProgress (state) {
+    return state.shopProgress
   }
 }
 

@@ -70,7 +70,7 @@ const actions = {
 
   setAuthData ({ commit }, data) {
     commit('SET_TOKEN', data.token)
-    commit('auth/SET_USERNAME', data.username, { root: true })
+    commit('user/SET_USERNAME', data.username, { root: true })
     commit('user/SET_VENDOR_TYPE', data.vendor, { root: true })
     commit('user/SET_SHOP_ID', data.shopId, { root: true })
 
@@ -94,7 +94,7 @@ const actions = {
   login ({ rootGetters, commit, dispatch }, data) {
     return api.auth.login(data)
       .then(res => {
-        dispatch('setAuthData', {
+        return dispatch('setAuthData', {
           token: res.data.token,
           refreshToken: res.data.refresh_token,
           username: res.data.username,
@@ -102,7 +102,6 @@ const actions = {
           vendor: res.data.vendor,
           shopId: res.data.shop_id
         })
-        return res
       })
   },
 

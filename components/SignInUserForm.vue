@@ -90,14 +90,21 @@
               })
                 .then(() => {
                   this.loading = false
-                  if (this.$route.name === 'checkout') {
-                    this.$router.push('/shipping')
-                  } else if (this.$route.query.page === 'seller') {
-                    this.$router.push('/shop/')
-                  } else {
-                    // Force SSR
-                    document.location.href = '/admin'
+                  const isVendor = this.$store.getters['user/vendor']
+                  const username = this.$store.getters['user/username']
+
+                  if (this.$route.query.page === 'seller' && isVendor) {
+                    console.log('go to seller account')
+                    this.$router.push({ path: `/shop/${username}/setup/preferences` })
                   }
+                  // if (this.$route.name === 'checkout') {
+                  //   this.$router.push('/shipping')
+                  // } else if (this.$route.query.page === 'seller') {
+                  //   this.$router.push('/shop/')
+                  // } else {
+                  //   // Force SSR
+                  //   document.location.href = '/admin'
+                  // }
                 })
                 .catch(err => {
                   if (err) {
