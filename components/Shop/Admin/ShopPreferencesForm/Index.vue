@@ -47,7 +47,7 @@
                 .field
                   .control
                     button.button.is-primary.is-fullwidth.is-flip(@click.prevent="saveForm" :class="{ 'is-loading': loading }")
-                      span(data-text="Save") Save
+                      span(data-text="Save & continue") Save & continue
 </template>
 
 <script>
@@ -127,7 +127,18 @@
             return this.$store.dispatch('shop/fetchShop', shopId)
           })
           .then(() => {
+            const username = this.$store.getters['user/username']
+
             this.loading = false
+
+            switch (this.updateStep()) {
+            case 0:
+              this.$router.push({ path: `/shop/${username}/setup/preferences` })
+              break
+            case 1:
+              this.$router.push({ path: `/shop/${username}/setup/listings` })
+              break
+            }
           })
       }
     }

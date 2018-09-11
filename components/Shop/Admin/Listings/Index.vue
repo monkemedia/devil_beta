@@ -4,15 +4,16 @@
         header
           //- breadcrumb(:crumb="breadcrumb")
           h1.add-product-heading Stock your shop
+
+        section
+          ul
+            li(v-for="n in 10")
+              p test
 </template>
 
 <script>
   export default {
-    name: 'StockYourShop',
-
-    props: {
-
-    },
+    name: 'Listings',
 
     data () {
       return {

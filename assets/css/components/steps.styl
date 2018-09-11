@@ -1,0 +1,69 @@
+.steps
+    display flex
+    flex-wrap wrap
+    font-size 1rem
+    min-height 2rem
+
+    .step-item
+      margin-top 0
+      position relative
+      flex-grow 1
+      flex-basis 0
+
+      &:before
+        background linear-gradient(to left, #dbdbdb 50%, #00d1b2 50%)
+        background-size 200% 100%
+        background-position right bottom
+
+      &:not(:first-child):before
+        content " "
+        display block
+        position absolute
+        height .2em
+        width 100%
+        bottom 0
+        left -50%
+        top 1rem
+
+      &.is-active
+        .step-marker
+          background-color #fff
+          border-color #00d1b2
+          color #00d1b2
+
+      &.is-active.is-success
+        .step-marker
+          background-color #fff
+          border-color #23d160
+          color #23d160
+
+      &.is-completed
+        .step-marker
+          color #fff
+          background-color #23d160
+
+      .step-marker
+        height 2rem
+        width 2rem
+        position absolute
+        left calc(50% - 1rem)
+        align-items center
+        display flex
+        border-radius 50%
+        font-weight 700
+        justify-content center
+        background #b5b5b5
+        color #fff
+        border .2em solid #fff
+        z-index 1
+
+      .step-details
+        margin-top 2rem
+        margin-left .5em
+        margin-right .5em
+        padding-top .2em
+        text-align center
+
+        .step-title
+          font-size 1.2rem
+          font-weight 600

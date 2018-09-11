@@ -56,7 +56,7 @@ export default (context) => {
           })
           .catch(() => {
             // Refresh token has expired so sign user out.
-            console.log('catched error 20', context)
+            console.log('catched error 20')
             context.store.dispatch('auth/logout')
             context.redirect('/logout')
           })
@@ -70,5 +70,5 @@ export default (context) => {
     return Promise.reject(err)
   })
 
-  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+  // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }

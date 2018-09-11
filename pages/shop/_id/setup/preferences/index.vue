@@ -1,15 +1,13 @@
 <template lang="pug">
   div
-    subway
-    shop-preferences-form(:formData="formData" @updateProgress="updateProgress" v-if="progress.step === 0")
-    stock-your-shop(v-if="progress.step === 1")
+    steps
+    shop-preferences-form(:formData="formData")
 </template>
 
 <script>
   // import Breadcrumb from '@/components/Breadcrumbs/AdminBreadcrumb'
-  import Subway from '@/components/Shop/Admin/Subway'
+  import Steps from '@/components/Shop/Admin/Steps'
   import ShopPreferencesForm from '@/components/Shop/Admin/ShopPreferencesForm'
-  import StockYourShop from '@/components/Shop/Admin/StockYourShop'
 
   export default {
     name: 'ShopPreferences',
@@ -24,9 +22,8 @@
 
     components: {
       // Breadcrumb,
-      Subway,
-      ShopPreferencesForm,
-      StockYourShop
+      Steps,
+      ShopPreferencesForm
     },
 
     data () {
@@ -87,13 +84,6 @@
             step: progress.step || ''
           }
         })
-    },
-
-    methods: {
-      updateProgress (value) {
-        console.log('method')
-        this.progress.step = value
-      }
     }
   }
 </script>

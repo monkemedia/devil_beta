@@ -91,12 +91,16 @@
                 .then(() => {
                   this.loading = false
                   const isVendor = this.$store.getters['user/vendor']
+                  const shopId = this.$store.getters['user/shopId']
                   const username = this.$store.getters['user/username']
 
                   if (this.$route.query.page === 'seller' && isVendor) {
-                    console.log('go to seller account')
-                    this.$router.push({ path: `/shop/${username}/setup/preferences` })
+                    return this.$store.dispatch('shop/fetchShop', shopId)
                   }
+
+                  // Needs to push somewhere else
+                  this.$router.push({ path: `/shop/${username}/setup/preferences` })
+                  return false
                   // if (this.$route.name === 'checkout') {
                   //   this.$router.push('/shipping')
                   // } else if (this.$route.query.page === 'seller') {
@@ -106,11 +110,26 @@
                   //   document.location.href = '/admin'
                   // }
                 })
+                .then(() => {
+                  const progress = this.$store.getters['shop/shopProgress']
+                  const username = this.$store.getters['user/username']
+
+                  switch (progress.step) {
+                  case 0:
+                    this.$router.push({ path: `/shop/${username}/setup/preferences` })
+                    break
+                  case 1:
+                    this.$router.push({ path: `/shop/${username}/setup/listings` })
+                    break
+                  }
+                })
                 .catch(err => {
                   if (err) {
-                    console.log(err.response)
-                    if (err.response.status === 401) {
+                    console.log(err)
+                    if (err.response && err.response.status === 401) {
                       this.isSignInError = _.lowerCase('Looks like your email or password is incorrect')
+                    } else {
+                      this.isSignInError = _.lowerCase(err.message)
                     }
                   } else {
                     this.isSignInError = _.lowerCase(err.message)
