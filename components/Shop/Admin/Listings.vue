@@ -6,14 +6,16 @@
           h1.add-product-heading Stock your shop
 
         section
-          .columns
+          .columns.is-multiline
             .column.is-3
               nuxt-link(to="listings/create")
                 .card.add-item
                   .card-content
                     | add item
-            .column.is-3(v-for="n in 9")
-              ListingItem
+            .column.is-3(v-for="item in vendorProducts")
+              ListingItem(:item="item")
+            .column.is-3(v-for="n in (7 - vendorProducts.length)")
+              ListingItem()
 </template>
 
 <script>
@@ -28,6 +30,12 @@
 
     data () {
       return {
+      }
+    },
+
+    computed: {
+      vendorProducts () {
+        return this.$store.getters['products/loadedVendorProducts']
       }
     }
   }

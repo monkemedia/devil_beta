@@ -3,9 +3,9 @@
   .card-image
     figure.image
       img(src="https://bulma.io/images/placeholders/1280x960.png" alt="Placeholder image")
-  .card-content
-    p tst
-  footer.card-footer
+  .card-content(v-if="item")
+    p {{ item.name }}
+  footer.card-footer(v-if="item")
     <a href="#" class="card-footer-item">Save</a>
     <a href="#" class="card-footer-item">Edit</a>
     <a href="#" class="card-footer-item">Delete</a>
@@ -14,6 +14,13 @@
 <script>
   export default {
     name: 'ListingItem',
+
+    props: {
+      item: {
+        type: Object,
+        required: false
+      }
+    },
 
     data () {
       return {
