@@ -1,5 +1,4 @@
 import api from '~/api'
-import _ from 'lodash'
 import uploadcare from 'uploadcare-widget'
 
 const state = () => ({
@@ -15,6 +14,10 @@ const mutations = {
 
   SET_VENDOR_PRODUCT (state, product) {
     state.loadedVendorProduct = product
+  },
+
+  REMOVE_VENDOR_PRODUCT (state, index) {
+    state.loadedVendorProducts.splice(index, 1)
   },
 
   SET_VENDOR_PRODUCTS (state, product) {
@@ -111,20 +114,22 @@ const actions = {
       })
   },
 
-  deleteProduct ({ getters, commit }, productId) {
-    const products = getters['loadedVendorProducts']
+  deleteProduct ({ getters, commit }, data) {
+    const productId = data.productId
+    const productIndex = data.productIndex
 
     return api.products.deleteProduct(productId)
       .then(() => {
-        const removeItem = _.pickBy(products, (key) => {
-          return productId !== key._id
-        })
+        commit('REMOVE_VENDOR_PRODUCT', productIndex)
+        // const removeItem = _.pickBy(products, (key) => {
+        //   return productId !== key._id
+        // })
 
-        if (_.isEmpty(removeItem)) {
-          commit('SET_VENDOR_PRODUCTS', [])
-        } else {
-          commit('SET_VENDOR_PRODUCTS', removeItem)
-        }
+        // if (_.isEmpty(removeItem)) {
+        //   commit('SET_VENDOR_PRODUCTS', [])
+        // } else {
+        //   commit('SET_VENDOR_PRODUCTS', removeItem)
+        // }
       })
       .catch(err => {
         throw err
@@ -146,6 +151,16 @@ const actions = {
     return api.products.vendorProducts()
       .then(res => {
         commit('SET_VENDOR_PRODUCTS', res.data.products)
+      })
+      .catch(err => {
+        throw err
+      })
+  },
+
+  vendorProduct ({ commit }, productId) {
+    return api.products.vendorProduct(productId)
+      .then(res => {
+        commit('SET_VENDOR_PRODUCT', res.data.product)
       })
       .catch(err => {
         throw err

@@ -50,18 +50,12 @@
       }
     },
 
-    // mounted () {
-    //   console.log(this.$store.getters['auth/getToken'])
-    //   this.isAuthenticated = !!this.$store.getters['auth/getToken']
-    // },
-
     computed: {
       isAuthenticated () {
         return this.$store.getters['auth/isAuthenticated']
       },
 
       username () {
-        console.log(this.$store.getters['user/username'])
         return this.$store.getters['user/username']
       }
     },

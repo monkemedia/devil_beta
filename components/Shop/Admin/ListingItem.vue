@@ -6,9 +6,8 @@
   .card-content(v-if="item")
     p {{ item.name }}
   footer.card-footer(v-if="item")
-    <a href="#" class="card-footer-item">Save</a>
-    <a href="#" class="card-footer-item">Edit</a>
-    <a href="#" class="card-footer-item">Delete</a>
+    nuxt-link.card-footer-item(:to="`listings/create/${item._id}`") Edit
+    a.card-footer-item(@click="deleteModal()") Delete
 </template>
 
 <script>
@@ -19,11 +18,36 @@
       item: {
         type: Object,
         required: false
+      },
+      index: {
+        type: Number,
+        required: false
       }
     },
 
     data () {
       return {
+      }
+    },
+
+    methods: {
+      deleteModal () {
+        console.log(this.item)
+        this.$dialog.confirm({
+          title: 'Test',
+          message: 'Are you sure you want to delete',
+          cancelText: 'Disagree',
+          confirmText: 'Agree',
+          type: 'is-success',
+          onConfirm: () => {
+            console.log('confirmed')
+            this.$root.$emit('deleteProduct', {
+              productId: this.item._id,
+              productIndex: this.index,
+              images: this.item.images || null
+            })
+          }
+        })
       }
     }
   }

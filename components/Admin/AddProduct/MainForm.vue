@@ -212,16 +212,15 @@
     methods: {
       onSubmitForm () {
         const params = this.$route.params || null
+        const pageUrl = this.$route.path
+        const username = this.$store.getters['user/username']
         const vm = this
         const payload = {
           ...this.formData,
-          username: this.$store.getters['user/username']
+          username
         }
 
         function createItem () {
-          const pageUrl = vm.$route.path.split('/').pop()
-          const username = vm.$store.getters['user/username']
-
           vm.loading = true
           vm.$store.dispatch('products/createProduct', payload)
             .then(res => {
@@ -235,13 +234,9 @@
                 vm.alertToast({ message: 'Item is now hidden from storefront', type: 'is-warning' })
               }
 
-              if (pageUrl === 'create') {
+              if (pageUrl.split('/').pop() === 'create') {
                 vm.$router.push({
                   path: `/shop/${username}/setup/listings`
-                })
-              } else if (params.productId === null) {
-                vm.$router.push({
-                  path: `/admin/add-product/${res.data.product._id}`
                 })
               }
               vm.loading = false
@@ -269,6 +264,12 @@
               } else if (payload.store_front === false && payload.store_front !== vm.cached_store_front) {
                 vm.cached_store_front = payload.store_front
                 vm.alertToast({ message: 'Item is now hidden from storefront', type: 'is-warning' })
+              }
+
+              if (pageUrl.split('/').includes('create')) {
+                vm.$router.push({
+                  path: `/shop/${username}/setup/listings`
+                })
               }
             })
             .catch((err) => {

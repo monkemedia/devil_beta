@@ -1,7 +1,7 @@
 <template lang="pug">
   div
     steps
-    listings
+    listings(@deleteProduct="deleteProduct")
 </template>
 
 <script>
@@ -26,43 +26,6 @@
       Listings
     },
 
-    // async fetch ({ store, params, error }) {
-    //   const paramId = params.id
-
-    //   return api.products.vendorProduct(paramId)
-    //     .then(res => {
-    //       if (res.data.product !== null) {
-    //         return store.commit('products/SET_VENDOR_PRODUCT', res.data.product)
-    //       }
-
-    //       store.commit('products/SET_VENDOR_PRODUCT', null)
-    //       error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-    //     })
-    //     .catch(err => {
-    //       if (err.response) {
-    //         error({ statusCode: err.response.status, message: err.response.data.message })
-    //       } else {
-    //         error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-    //       }
-    //     })
-    // },
-
-    // mounted () {
-    //   if (!process.client) return
-
-    //   const paramId = this.$route.params.id
-
-    //   return api.products.vendorProduct(paramId)
-    //     .then(res => {
-    //       if (res.data.product !== null) {
-    //         return this.$store.commit('products/SET_VENDOR_PRODUCT', res.data.product)
-    //       }
-
-    //       this.$store.commit('products/SET_VENDOR_PRODUCT', null)
-    //       this.error({ statusCode: 404, message: 'This page cannot be found', path: '/admin/add-product' })
-    //     })
-    // },
-
     async fetch ({ store }) {
       const shopId = store.getters['user/shopId']
 
@@ -81,6 +44,28 @@
         .then(() => {
           return this.$store.dispatch('products/vendorProducts')
         })
+    },
+
+    created () {
+      this.$root.$on('deleteProduct', (payload) => {
+        this.deleteProduct(payload)
+      })
+    },
+
+    methods: {
+      deleteProduct (payload) {
+        const loadingComponent = this.$loading.open()
+
+        return this.$store.dispatch('products/deleteProduct', payload)
+          .then(() => {
+            loadingComponent.close()
+            this.alertToast({ message: 'Item has been deleted', type: 'is-success' })
+          })
+          .catch(() => {
+            this.alertToast({ message: 'Your item cannot be deleted', type: 'is-warning' })
+            loadingComponent.close()
+          })
+      }
     }
   }
 </script>

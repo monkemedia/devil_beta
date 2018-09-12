@@ -16,7 +16,6 @@
     name: 'Steps',
 
     data () {
-      console.log('this.$route', this.$route)
       const username = this.$store.getters['user/username']
 
       return {
@@ -51,7 +50,6 @@
         const pageParam = this.$route.path.split('/').pop()
 
         if (index < this.progressSteps.step) {
-          console.log('here')
           if (pageParam === step.name) {
             return 'is-success is-active'
           }

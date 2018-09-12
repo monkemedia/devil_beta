@@ -4,7 +4,7 @@
         header
           //- breadcrumb(:crumb="breadcrumb")
           h1.add-product-heading Stock your shop
-
+          | {{ vendorProducts.length }}
         section
           .columns.is-multiline
             .column.is-3
@@ -12,9 +12,9 @@
                 .card.add-item
                   .card-content
                     | add item
-            .column.is-3(v-for="item in vendorProducts")
-              ListingItem(:item="item")
-            .column.is-3(v-for="n in (7 - vendorProducts.length)")
+            .column.is-3(v-for="(item, index) in vendorProducts")
+              ListingItem(:item="item" :index="index")
+            .column.is-3(v-for="n in itemPlaceholders()")
               ListingItem()
 </template>
 
@@ -36,6 +36,12 @@
     computed: {
       vendorProducts () {
         return this.$store.getters['products/loadedVendorProducts']
+      }
+    },
+
+    methods: {
+      itemPlaceholders () {
+        return 7 - this.vendorProducts.length
       }
     }
   }
