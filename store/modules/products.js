@@ -100,6 +100,7 @@ const actions = {
   },
 
   createProduct ({ commit }, itemDetails) {
+    console.log('item details', itemDetails)
     return api.products.createProduct(itemDetails)
       .then(res => {
         commit('SET_VENDOR_PRODUCT', res.data.products)

@@ -7,7 +7,7 @@
     .navbar-end
       .navbar-item#user-login-desktop
         my-account
-      .navbar-item#become-a-seller-desktop
+      .navbar-item#become-a-seller-desktop(v-if="!isVendor")
         nuxt-link.become-a-seller-button(to="/sign-in?page=seller" v-if="!isAuthenticated") Become a seller
         nuxt-link.become-a-seller-button(to="/create-shop" v-else) Become a seller
       .navbar-item#mini-cart-desktop
@@ -45,6 +45,10 @@
 
       isAuthenticated () {
         return this.$store.getters['auth/isAuthenticated']
+      },
+
+      isVendor () {
+        return this.$store.getters['user/vendor']
       }
     },
 

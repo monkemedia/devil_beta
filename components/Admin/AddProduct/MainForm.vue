@@ -17,13 +17,14 @@
               p(v-show="errors.has('name')" class="help is-danger" v-html="errors.first('name')")
 
           .field
-            label.label Description
+            label.label Description #[sup *]
             .control
               textarea.textarea(
                 name="description"
                 id="description"
                 v-model="formData.description"
                 type="text"
+                :class="{ 'is-danger': errors.has('description') }"
                 v-validate="'required'")
               p(v-show="errors.has('description')" class="help is-danger" v-html="errors.first('description')")
           .field
@@ -210,7 +211,7 @@
 
     methods: {
       onSubmitForm () {
-        const paramId = this.$route.params.id || null
+        const params = this.$route.params || null
         const vm = this
         const payload = {
           ...this.formData,
@@ -218,6 +219,9 @@
         }
 
         function createItem () {
+          const pageUrl = vm.$route.path.split('/').pop()
+          const username = vm.$store.getters['user/username']
+
           vm.loading = true
           vm.$store.dispatch('products/createProduct', payload)
             .then(res => {
@@ -231,7 +235,11 @@
                 vm.alertToast({ message: 'Item is now hidden from storefront', type: 'is-warning' })
               }
 
-              if (paramId === null) {
+              if (pageUrl === 'create') {
+                vm.$router.push({
+                  path: `/shop/${username}/setup/listings`
+                })
+              } else if (params.productId === null) {
                 vm.$router.push({
                   path: `/admin/add-product/${res.data.product._id}`
                 })
@@ -249,7 +257,7 @@
           vm.loading = true
           vm.$store.dispatch('products/updateProduct', {
             ...payload,
-            productId: paramId
+            productId: params.productId
           })
             .then(() => {
               vm.loading = false
@@ -272,13 +280,13 @@
         this.$validator.validateAll()
           .then((result) => {
             if (result) {
-              if (paramId) {
+              if (params.productId) {
                 updateItem()
               } else {
                 createItem()
               }
             } else {
-              VueScrollTo.scrollTo('select.is-danger, .input.is-danger')
+              VueScrollTo.scrollTo('select.is-danger, .input.is-danger, .textarea.is-danger')
             }
           })
       },

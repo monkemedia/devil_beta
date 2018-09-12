@@ -8,7 +8,7 @@
         section
           ul
             li(v-for="n in 10")
-              p test
+              nuxt-link(to="listings/create") test
 </template>
 
 <script>

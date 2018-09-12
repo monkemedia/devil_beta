@@ -118,6 +118,7 @@ export default {
 
   products: {
     createProduct: (data) => {
+      console.log('DATA', data)
       return axios({
         method: 'post',
         url: `${baseURL}/products`,

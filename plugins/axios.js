@@ -62,6 +62,7 @@ export default (context) => {
           })
       }
 
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       return response
     }
     return response
@@ -69,6 +70,4 @@ export default (context) => {
     console.log('error here baby', err)
     return Promise.reject(err)
   })
-
-  // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }

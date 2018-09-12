@@ -1,7 +1,7 @@
 <template lang="pug">
   .steps
     .step-item(v-for="(step, index) in steps" :class="stepClass(step, index)")
-      nuxt-link(:to="step.path" v-if="index <= progressSteps.step ")
+      nuxt-link(:to="step.path" v-if="index <= progressSteps.step" exact)
         .step-marker {{ index + 1 }}
         .step-details
           p.step-title {{ step.label }}
@@ -17,19 +17,24 @@
 
     data () {
       console.log('this.$route', this.$route)
+      const username = this.$store.getters['user/username']
+
       return {
         steps: [
           {
             label: 'Shop preferences',
-            path: 'preferences'
+            path: `/shop/${username}/setup/preferences`,
+            name: 'preferences'
           },
           {
             label: 'Stock your shop',
-            path: 'listings'
+            path: '/shop/monkeyboy/setup/listings',
+            name: 'listings'
           },
           {
             label: 'Billing address',
-            path: 'test'
+            path: 'test',
+            name: 'test'
           }
         ]
       }
@@ -44,14 +49,14 @@
     methods: {
       stepClass (step, index) {
         const pageParam = this.$route.path.split('/').pop()
-        console.log('one', pageParam)
-        console.log('two', step.path)
+
         if (index < this.progressSteps.step) {
-          if (pageParam === step.path) {
+          console.log('here')
+          if (pageParam === step.name) {
             return 'is-success is-active'
           }
           return 'is-success is-completed'
-        } else if (pageParam === step.path) {
+        } else if (pageParam === step.name || (pageParam === 'create' && step.name === 'listings')) {
           return 'is-success is-active'
         }
       }
