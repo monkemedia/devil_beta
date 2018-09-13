@@ -4,7 +4,6 @@
         header
           //- breadcrumb(:crumb="breadcrumb")
           h1.add-product-heading Stock your shop
-          | {{ vendorProducts.length }}
         section
           .columns.is-multiline
             .column.is-3

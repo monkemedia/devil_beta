@@ -42,12 +42,6 @@
                         v-model="formData.currency")
                         option(disabled value="") Please select a currency
                         option(v-for="currency in currencyOptions" :value="currency.code") {{ currency.label }}
-            .columns
-              .column
-                .field
-                  .control
-                    button.button.is-primary.is-fullwidth.is-flip(@click.prevent="saveForm" :class="{ 'is-loading': loading }")
-                      span(data-text="Save & continue") Save & continue
 </template>
 
 <script>
@@ -101,6 +95,10 @@
       }
     },
 
+    created () {
+      this.$parent.$on('saveForm', this.saveForm)
+    },
+
     methods: {
       updateStep () {
         if (this.formData.language && this.formData.country && this.formData.currency) {
@@ -113,9 +111,11 @@
       },
 
       saveForm () {
+        console.log('MONKEY')
         const shopId = this.$store.getters['user/shopId']
 
-        this.loading = true
+        this.$store.commit('buttons/SET_SETUP_LOADING', true, { root: true })
+
         return this.$store.dispatch('shop/updateShop', {
           shopId,
           data: {
@@ -129,7 +129,7 @@
           .then(() => {
             const username = this.$store.getters['user/username']
 
-            this.loading = false
+            this.$store.commit('buttons/SET_SETUP_LOADING', false, { root: true })
 
             switch (this.updateStep()) {
             case 0:

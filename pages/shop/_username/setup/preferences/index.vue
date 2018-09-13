@@ -2,17 +2,22 @@
   div
     steps
     shop-preferences-form(:formData="formData")
+    fixed-footer(@saveAndContinueEvent="triggerSave")
 </template>
 
 <script>
-  // import Breadcrumb from '@/components/Breadcrumbs/AdminBreadcrumb'
   import Steps from '@/components/Shop/Admin/Steps'
   import ShopPreferencesForm from '@/components/Shop/Admin/ShopPreferencesForm'
+  import FixedFooter from '@/components/Shop/Admin/FixedFooter'
 
   export default {
     name: 'ShopPreferences',
 
-    //   layout: 'shopSetup',
+    head: {
+      htmlAttrs: {
+        class: 'has-navbar-fixed-bottom'
+      }
+    },
 
     middleware: [
       'init-auth',
@@ -21,14 +26,13 @@
     ],
 
     components: {
-      // Breadcrumb,
       Steps,
-      ShopPreferencesForm
+      ShopPreferencesForm,
+      FixedFooter
     },
 
     data () {
       return {
-        // breadcrumb: { title: 'Products', path: '/admin/products' }
         formData: {
           language: '',
           country: '',
@@ -84,6 +88,12 @@
             step: progress.step || ''
           }
         })
+    },
+
+    methods: {
+      triggerSave () {
+        this.$emit('saveForm')
+      }
     }
   }
 </script>

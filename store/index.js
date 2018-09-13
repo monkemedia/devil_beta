@@ -5,6 +5,7 @@ import products from './modules/products.js'
 import shop from './modules/shop.js'
 import cart from './modules/cart.js'
 import modals from './modules/modals.js'
+import buttons from './modules/buttons.js'
 import navigation from './modules/navigation.js'
 import checkout from './modules/checkout.js'
 
@@ -17,6 +18,7 @@ export default () => {
       shop,
       cart,
       modals,
+      buttons,
       navigation,
       checkout
     },

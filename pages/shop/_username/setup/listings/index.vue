@@ -2,17 +2,23 @@
   div
     steps
     listings(@deleteProduct="deleteProduct")
+    fixed-footer(@saveAndContinueEvent="goToPaymentPage")
 </template>
 
 <script>
   // import Breadcrumb from '@/components/Breadcrumbs/AdminBreadcrumb'
   import Steps from '@/components/Shop/Admin/Steps'
   import Listings from '@/components/Shop/Admin/Listings'
+  import FixedFooter from '@/components/Shop/Admin/FixedFooter'
 
   export default {
     name: 'ShopListings',
 
-    //   layout: 'shopSetup',
+    head: {
+      htmlAttrs: {
+        class: 'has-navbar-fixed-bottom'
+      }
+    },
 
     middleware: [
       'init-auth',
@@ -23,7 +29,8 @@
     components: {
       // Breadcrumb,
       Steps,
-      Listings
+      Listings,
+      FixedFooter
     },
 
     async fetch ({ store }) {
@@ -36,6 +43,12 @@
     },
 
     mounted () {
+      // this.$root.$on('goToPayment', this.saveForm)
+
+      this.$root.$on('deleteProduct', (payload) => {
+        this.deleteProduct(payload)
+      })
+
       if (!process.client) return
 
       const shopId = this.$store.getters['user/shopId']
@@ -44,12 +57,6 @@
         .then(() => {
           return this.$store.dispatch('products/vendorProducts')
         })
-    },
-
-    created () {
-      this.$root.$on('deleteProduct', (payload) => {
-        this.deleteProduct(payload)
-      })
     },
 
     methods: {
@@ -65,6 +72,11 @@
             this.alertToast({ message: 'Your item cannot be deleted', type: 'is-warning' })
             loadingComponent.close()
           })
+      },
+
+      goToPaymentPage () {
+        console.log('HETE')
+        this.$router.push({ path: '/test' })
       }
     }
   }

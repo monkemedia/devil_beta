@@ -111,12 +111,6 @@
         .column.is-half
           upload-images(@passImages="updateFormDataImages" :imagesData="formData.images")
 
-      .columns
-        .column.is-one-quarter
-          .field
-            .control
-              button.button.is-primary.is-fullwidth.is-flip(@click.prevent="onSubmitForm" :class="{ 'is-loading': loading }")
-                span(data-text="Save") Save
         //- .column.is-one-quarter
         //-   .field
         //-     .control
@@ -199,6 +193,10 @@
       }
     },
 
+    created () {
+      this.$parent.$on('saveCreateForm', this.saveCreateForm)
+    },
+
     computed: {
       isFormValid () {
         return Object.keys(this.fields).every(key => this.fields[key] && this.fields[key].validated)
@@ -210,7 +208,8 @@
     },
 
     methods: {
-      onSubmitForm () {
+      saveCreateForm () {
+        console.log('SAVING')
         const params = this.$route.params || null
         const pageUrl = this.$route.path
         const username = this.$store.getters['user/username']

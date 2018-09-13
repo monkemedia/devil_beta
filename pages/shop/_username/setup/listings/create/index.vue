@@ -2,16 +2,22 @@
   div
     steps
     add-product-form
+    fixed-footer(@saveAndContinueEvent="triggerSaveCreateForm")
 </template>
 
 <script>
   import Steps from '@/components/Shop/Admin/Steps'
   import AddProductForm from '@/components/Admin/AddProduct/MainForm'
+  import FixedFooter from '@/components/Shop/Admin/FixedFooter'
 
   export default {
     name: 'CreateListing',
 
-    //   layout: 'shopSetup',
+    head: {
+      htmlAttrs: {
+        class: 'has-navbar-fixed-bottom'
+      }
+    },
 
     middleware: [
       'init-auth',
@@ -21,7 +27,8 @@
 
     components: {
       Steps,
-      AddProductForm
+      AddProductForm,
+      FixedFooter
     },
 
     async fetch ({ store }) {
@@ -36,6 +43,12 @@
       const shopId = this.$store.getters['user/shopId']
 
       return this.$store.dispatch('shop/fetchShop', shopId)
+    },
+
+    methods: {
+      triggerSaveCreateForm () {
+        this.$emit('saveCreateForm')
+      }
     }
   }
 </script>

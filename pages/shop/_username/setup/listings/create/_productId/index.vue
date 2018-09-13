@@ -2,16 +2,22 @@
   div
     steps
     add-product-form(:itemData="vendorProduct")
+    fixed-footer(@saveAndContinueEvent="triggerSaveCreateForm")
 </template>
 
 <script>
   import Steps from '@/components/Shop/Admin/Steps'
   import AddProductForm from '@/components/Admin/AddProduct/MainForm'
+  import FixedFooter from '@/components/Shop/Admin/FixedFooter'
 
   export default {
     name: 'EditListing',
 
-    //   layout: 'shopSetup',
+    head: {
+      htmlAttrs: {
+        class: 'has-navbar-fixed-bottom'
+      }
+    },
 
     middleware: [
       'init-auth',
@@ -21,7 +27,8 @@
 
     components: {
       Steps,
-      AddProductForm
+      AddProductForm,
+      FixedFooter
     },
 
     async fetch ({ store, params }) {
@@ -49,6 +56,12 @@
     computed: {
       vendorProduct () {
         return this.$store.getters['products/loadedVendorProduct']
+      }
+    },
+
+    methods: {
+      triggerSaveCreateForm () {
+        this.$emit('saveCreateForm')
       }
     }
   }
