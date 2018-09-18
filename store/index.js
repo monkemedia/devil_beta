@@ -3,6 +3,7 @@ import auth from './modules/auth.js'
 import user from './modules/user.js'
 import products from './modules/products.js'
 import shop from './modules/shop.js'
+import stripe from './modules/stripe.js'
 import cart from './modules/cart.js'
 import modals from './modules/modals.js'
 import buttons from './modules/buttons.js'
@@ -16,6 +17,7 @@ export default () => {
       user,
       products,
       shop,
+      stripe,
       cart,
       modals,
       buttons,

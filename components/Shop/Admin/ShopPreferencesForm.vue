@@ -45,6 +45,10 @@
 </template>
 
 <script>
+  import countries from '@/utils/countries'
+  import languages from '@/utils/languages'
+  import currencies from '@/utils/currencies'
+
   export default {
     name: 'ShopPreferencesForm',
 
@@ -58,40 +62,9 @@
     data () {
       return {
         loading: false,
-        languageOptions: [
-          {
-            label: 'English',
-            code: 'en'
-          },
-          {
-            label: 'Dutch',
-            code: 'nl'
-          },
-          {
-            label: 'Test only',
-            code: ''
-          }
-        ],
-        countryOptions: [
-          {
-            label: 'United Kingdom',
-            code: 'uk'
-          },
-          {
-            label: 'Netherlands',
-            code: 'nl'
-          }
-        ],
-        currencyOptions: [
-          {
-            label: '£ British Pound',
-            code: 'GBP'
-          },
-          {
-            label: '€ Euro',
-            code: 'EUR'
-          }
-        ]
+        languageOptions: languages,
+        countryOptions: countries,
+        currencyOptions: currencies
       }
     },
 

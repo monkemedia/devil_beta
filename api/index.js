@@ -116,6 +116,30 @@ export default {
     }
   },
 
+  stripe: {
+    createAccount: (data) => {
+      return axios({
+        method: 'post',
+        url: `${baseURL}/stripe/create-account`,
+        data,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    },
+
+    fetchAccount: (data) => {
+      return axios({
+        method: 'get',
+        url: `${baseURL}/stripe/fetch-account`,
+        data,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    }
+  },
+
   products: {
     createProduct: (data) => {
       return axios({

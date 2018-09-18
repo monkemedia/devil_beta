@@ -39,7 +39,7 @@
                 :class="{ 'is-danger': errors.has('category') }"
                 v-validate="'required'")
                   option(disabled value="") Please select a category
-                  option(v-for="cat in categories" :value="cat") {{ cat }}
+                  option(v-for="cat in categories" :value="cat.code") {{ cat.label }}
               p(v-show="errors.has('category')" class="help is-danger" v-html="errors.first('category')")
           .columns
             .column
@@ -126,6 +126,7 @@
   import VueScrollTo from 'vue-scrollto'
   import Variants from '@/components/Admin/AddProduct/Variants'
   import UploadImages from '@/components/Admin/AddProduct/UploadImages'
+  import categories from '@/utils/categories'
 
   Vue.use(VeeValidate)
 
@@ -182,9 +183,7 @@
           store_front: this.itemData ? this.itemData.store_front : false,
           stock: this.itemData ? this.itemData.stock : 0
         },
-        categories: [
-          'cars', 'Test'
-        ],
+        categories: categories,
         cached_store_front: '',
         storefront_options: [
           { label: 'Draft - Not live on storefront', value: false },

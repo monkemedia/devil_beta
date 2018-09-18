@@ -47,14 +47,22 @@
 
     methods: {
       stepClass (step, index) {
-        const pageParam = this.$route.path.split('/').pop()
+        const pageURL = this.$route.path.split('/').pop()
+        const pageParm = this.$route.params
+
+        console.log(pageParm)
+
+        console.log('step', step)
 
         if (index < this.progressSteps.step) {
-          if (pageParam === step.name) {
+          if (pageURL === step.name) {
             return 'is-success is-active'
           }
           return 'is-success is-completed'
-        } else if (pageParam === step.name || (pageParam === 'create' && step.name === 'listings')) {
+        } else if (
+          pageURL === step.name ||
+          (pageURL === 'create' && step.name === 'listings') ||
+        (pageParm && pageParm.productId && step.name === 'listings')) {
           return 'is-success is-active'
         }
       }
